@@ -2259,7 +2259,7 @@ static void SetStatus(const char *fmt, ...) {
   va_list va;
   struct itimerval it;
   va_start(va, fmt);
-  vasprintf_(&s, fmt, va);
+  vasprintf(&s, fmt, va);
   va_end(va);
   free(statusmessage);
   statusmessage = s;
