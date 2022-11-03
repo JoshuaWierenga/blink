@@ -62,7 +62,7 @@ There's a terminal interface for debugging(currently unavailable):
 
 ```
 $ build/bootstrap/make.com -j8 o///blink/tui
-$ o///blink/tui third_party/cosmo/tinyhello.elf
+$ o///blink/tui -t third_party/cosmo/tinyhello.elf
 ```
 
 On x86-64 Linux you can cross-compile blink for Linux systems with x86,
