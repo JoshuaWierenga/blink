@@ -75,6 +75,12 @@ ifeq ($(MODE), cosmo)
 CC = cosmocc
 endif
 
+ifeq ($(MODE), mingw)
+CC = x86_64-w64-mingw32-gcc
+CFLAGS += -I/usr/share/mingw-w64/include/
+CPPFLAGS += -D_POSIX
+endif
+
 ifeq ($(MODE), dbg)
 CFLAGS += -O0
 CPPFLAGS += -DDEBUG -DUNWIND

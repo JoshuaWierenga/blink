@@ -11,3 +11,8 @@
 /third_party/cosmo/**/*.gz
 /third_party/cosmo/**/*.com
 /third_party/cosmo/**/*.dbg
+
+/third_party/gnulib_build/*
+!/third_party/gnulib_build/configure.ac
+!/third_party/gnulib_build/gnulib_build.mk
+!/third_party/gnulib_build/Makefile.am

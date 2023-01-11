@@ -9,11 +9,11 @@ o/$(MODE)/%.o: %.S
 	@mkdir -p $(@D)
 	$(CC) $(CPPFLAGS) -c -o $@ $<
 
-o/$(MODE)/%.o: %.c
+o/$(MODE)/%.o: %.c | third_party/gnulib_build/config.log
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
 
-o/$(MODE)/%.h.ok: %.h
+o/$(MODE)/%.h.ok: %.h | third_party/gnulib_build/config.log
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -x c -g0 -o $@ $<
 

@@ -51,6 +51,8 @@ tags: TAGS HTAGS
 
 clean:
 	rm -rf o
+	cd third_party/gnulib_build && \
+	rm -rf autom4te.cache lib m4 aclocal.m4 compile configure configure~ config.* depcomp install-sh missing stamp-h1
 
 include build/config.mk
 include build/rules.mk
@@ -62,6 +64,7 @@ include test/func/func.mk
 include test/flat/flat.mk
 include test/blink/test.mk
 include third_party/gcc/gcc.mk
+include third_party/gnulib_build/gnulib_build.mk
 include third_party/qemu/qemu.mk
 include third_party/cosmo/cosmo.mk
 
