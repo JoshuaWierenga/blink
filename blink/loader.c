@@ -27,11 +27,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-#include "third_party/mman/mman.h"
-#else
-#include <sys/mman.h>
-#endif
+#include "blink/windows/macros.h"
+#include WINDOWSHEADER(mman/mman.h,sys/mman.h)
 
 #include "blink/argv.h"
 #include "blink/endian.h"

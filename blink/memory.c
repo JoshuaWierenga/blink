@@ -21,8 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#include <stdio.h>
-
 #include "blink/endian.h"
 #include "blink/machine.h"
 #include "blink/macros.h"

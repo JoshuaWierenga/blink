@@ -25,10 +25,10 @@
 
 #ifdef _WIN32
 #include "third_party/gnulib_build/config.h"
-#include "third_party/gnulib_build/lib/signal.h"
-#else
-#include <signal.h>
 #endif
+
+#include "blink/windows/macros.h"
+#include WINDOWSGNULIBHEADER(signal.h)
 
 #include "blink/case.h"
 #include "blink/endian.h"
@@ -49,13 +49,13 @@ struct Signals signals;
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/signal
 static void OnSignal(int sig, siginfo_t *si, void *uc) {
 #ifdef _WIN32
-    EnqueueSignal(m, &signals, sig, 0);
+  EnqueueSignal(m, &signals, sig, 0);
 #else
-    EnqueueSignal(m, &signals, sig, si->si_code);
+  EnqueueSignal(m, &signals, sig, si->si_code);
 #endif
 
-    // TODO: Remove, this is not safe
-    printf("Signal occurred: %i\n", sig);
+  // TODO: Remove, this is not safe
+  printf("Signal occurred: %i\n", sig);
 }
 
 static void AddHostFd(struct Machine *m, int fd) {

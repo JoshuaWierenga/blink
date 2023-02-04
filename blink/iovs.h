@@ -3,11 +3,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef _WIN32
-#include "third_party/gnulib_build/lib/sys/uio.h"
-#else
-#include <sys/uio.h>
-#endif
+#include "blink/windows/macros.h"
+#include WINDOWSGNULIBHEADER(sys/uio.h)
 
 struct Iovs {
   unsigned i, n;

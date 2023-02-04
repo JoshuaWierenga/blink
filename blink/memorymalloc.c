@@ -24,8 +24,8 @@
 #include "blink/endian.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
-/*#include "blink/memory.h"
-#include "blink/pml4t.h"*/
+#include "blink/memory.h"
+//#include "blink/pml4t.h"
 
 struct Machine *NewMachine(void) {
   struct Machine *m;

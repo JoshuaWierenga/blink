@@ -3,13 +3,9 @@
 
 #include <stdint.h>
 
-#ifdef _WIN32
-#include "third_party/gnulib_build/lib/poll.h"
-#include "third_party/gnulib_build/lib/sys/uio.h"
-#else
-#include <poll.h>
-#include <sys/uio.h>
-#endif
+#include "blink/windows/macros.h"
+#include WINDOWSGNULIBHEADER(poll.h)
+#include WINDOWSGNULIBHEADER(sys/uio.h)
 
 struct MachineFdClosed {
   int fd;

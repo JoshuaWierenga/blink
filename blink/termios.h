@@ -1,11 +1,11 @@
 #ifndef BLINK_TERMIOS_H_
 #define BLINK_TERMIOS_H_
 
+#include "blink/windows/macros.h"
+#include WINDOWSGNULIBHEADER(termios.h)
+
 #ifdef _WIN32
-#include "third_party/gnulib_build/lib/termios.h"
 #include "blink/windows/termios.h"
-#else
-#include <termios.h>
 #endif
 
 /*#ifndef TCGETS

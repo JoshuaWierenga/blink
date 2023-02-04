@@ -36,7 +36,7 @@
 #define kOpCvtt0f2c 4
 #define kOpCvt0f2d  8
 #define kOpCvt0f5a  12
-#define kOpCvt0f5b  1
+#define kOpCvt0f5b  16
 #define kOpCvt0fE6  20
 
 /*static double SseRoundDouble(struct Machine *m, double x) {
