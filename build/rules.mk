@@ -19,6 +19,8 @@ o/$(MODE)/x86_64/%.a:
 	o/third_party/gcc/x86_64/bin/x86_64-linux-musl-ar rcsD $@ $^
 o/$(MODE)/x86_64-gcc48/%.a:
 	o/third_party/gcc/x86_64-gcc48/bin/x86_64-linux-musl-ar rcsD $@ $^
+o/$(MODE)/x86_64-mingw-w64/%.a:
+	$(MINGW-W64_TOOLCHAIN_AR) rcsD $@ $^
 o/$(MODE)/arm/%.a:
 	o/third_party/gcc/arm/bin/arm-linux-musleabi-ar rcsD $@ $^
 o/$(MODE)/aarch64/%.a:

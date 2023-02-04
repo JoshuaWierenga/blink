@@ -55,6 +55,8 @@ CC = clang
 LD = clang
 endif
 
+CFLAGS += -Wno-comment -Werror
+
 ifeq ($(MODE), ubsan)
 CPPFLAGS += -fsanitize=undefined
 endif

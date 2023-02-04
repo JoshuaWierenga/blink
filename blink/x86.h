@@ -3,15 +3,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define XED_MAX_INSTRUCTION_BYTES 15
+//#define XED_MAX_INSTRUCTION_BYTES 15
 
 #define XED_MODE_REAL   0
 #define XED_MODE_LEGACY 1
 #define XED_MODE_LONG   2
 
 #define xed_sib_base(M)  ((0007 & (M)) >> 0)
-#define xed_sib_index(M) ((0070 & (M)) >> 3)
-#define xed_sib_scale(M) ((0300 & (M)) >> 6)
+/*#define xed_sib_index(M) ((0070 & (M)) >> 3)
+#define xed_sib_scale(M) ((0300 & (M)) >> 6)*/
 
 enum XedMachineMode {
   XED_MACHINE_MODE_REAL = XED_MODE_REAL,
@@ -21,7 +21,7 @@ enum XedMachineMode {
   XED_MACHINE_MODE_LEGACY_16 = 2 << 2 | XED_MODE_REAL,
   XED_MACHINE_MODE_LONG_COMPAT_16 = 3 << 2 | XED_MODE_REAL,
   XED_MACHINE_MODE_LONG_COMPAT_32 = 4 << 2 | XED_MODE_LEGACY,
-  XED_MACHINE_MODE_LAST,
+  //XED_MACHINE_MODE_LAST,
 };
 
 enum XedError {
@@ -50,23 +50,23 @@ enum XedError {
   XED_ERROR_LAST
 };
 
-enum XedAddressWidth {
+/*enum XedAddressWidth {
   XED_ADDRESS_WIDTH_INVALID = 0,
   XED_ADDRESS_WIDTH_16b = 2,
   XED_ADDRESS_WIDTH_32b = 4,
   XED_ADDRESS_WIDTH_64b = 8,
   XED_ADDRESS_WIDTH_LAST
-};
+};*/
 
 enum XedIldMap {
   XED_ILD_MAP0, /* 8086+  ... */
   XED_ILD_MAP1, /* 286+   0x0F,... */
   XED_ILD_MAP2, /* Core2+ 0x0F,0x38,... */
   XED_ILD_MAP3, /* Core2+ 0x0F,0x3A,... */
-  XED_ILD_MAP4,
+  /*XED_ILD_MAP4,
   XED_ILD_MAP5,
   XED_ILD_MAP6,
-  XED_ILD_MAP_LAST,
+  XED_ILD_MAP_LAST,*/
   XED_ILD_MAP_INVALID
 };
 
@@ -111,10 +111,10 @@ struct XedOperands { /*
   uint8_t error : 5;          /* enum XedError */
   uint8_t max_bytes;
   uint8_t uimm1;      /* enter $x,$y */
-  uint8_t disp_width; /* in bits */
-  uint8_t imm_width;  /* in bits */
-  uint8_t pos_opcode;
-};
+  int8_t disp_width; /* in bits */
+  int8_t imm_width;  /* in bits */
+  int8_t pos_opcode;
+  };
 
 struct XedDecodedInst {
   unsigned char length;
@@ -122,7 +122,7 @@ struct XedDecodedInst {
   struct XedOperands op;
 };
 
-extern const char kXedErrorNames[];
+//extern const char kXedErrorNames[];
 
 struct XedDecodedInst *InitializeInstruction(struct XedDecodedInst *,
                                              enum XedMachineMode);

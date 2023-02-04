@@ -16,8 +16,13 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#ifdef _WIN32
+#include "third_party/gnulib_build/lib/poll.h"
+#include "third_party/gnulib_build/lib/sys/uio.h"
+#else
 #include <poll.h>
 #include <sys/uio.h>
+#endif
 
 #include "blink/ioports.h"
 #include "blink/uart.h"

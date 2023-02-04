@@ -1,8 +1,15 @@
 #ifndef BLINK_FDS_H_
 #define BLINK_FDS_H_
-#include <poll.h>
+
 #include <stdint.h>
+
+#ifdef _WIN32
+#include "third_party/gnulib_build/lib/poll.h"
+#include "third_party/gnulib_build/lib/sys/uio.h"
+#else
+#include <poll.h>
 #include <sys/uio.h>
+#endif
 
 struct MachineFdClosed {
   int fd;

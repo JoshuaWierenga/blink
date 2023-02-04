@@ -16,13 +16,13 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <assert.h>
+//#include <assert.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "blink/address.h"
+//#include "blink/address.h"
 #include "blink/endian.h"
 #include "blink/throw.h"
 
@@ -62,10 +62,12 @@ void ThrowProtectionFault(struct Machine *m) {
 }
 
 void OpUd(struct Machine *m, uint32_t rde) {
+  printf("OpUd time :(\n");
   if (m->xedd) m->ip -= m->xedd->length;
   HaltMachine(m, kMachineUndefinedInstruction);
 }
 
-void OpHlt(struct Machine *m, uint32_t rde) {
+void OpHlt(struct Machine *m, uint32_t rde) {  
+  //printf("OpHlt time :(\n");
   HaltMachine(m, kMachineHalt);
 }

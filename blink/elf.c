@@ -23,7 +23,7 @@
 
 #include "blink/elf.h"
 #include "blink/endian.h"
-#include "blink/util.h"
+//#include "blink/util.h"
 
 void CheckElfAddress(const Elf64_Ehdr *elf, size_t mapsize, intptr_t addr,
                      size_t addrsize) {
@@ -36,14 +36,14 @@ void CheckElfAddress(const Elf64_Ehdr *elf, size_t mapsize, intptr_t addr,
   }
 }
 
-char *GetElfString(const Elf64_Ehdr *elf, size_t mapsize, const char *strtab,
+/*char *GetElfString(const Elf64_Ehdr *elf, size_t mapsize, const char *strtab,
                    uint32_t rva) {
   intptr_t addr = (intptr_t)strtab + rva;
   CheckElfAddress(elf, mapsize, addr, 0);
   CheckElfAddress(elf, mapsize, addr,
                   strnlen_((char *)addr, (intptr_t)elf + mapsize - addr) + 1);
   return (char *)addr;
-}
+}*/
 
 Elf64_Phdr *GetElfSegmentHeaderAddress(const Elf64_Ehdr *elf, size_t mapsize,
                                        uint64_t i) {
@@ -53,7 +53,7 @@ Elf64_Phdr *GetElfSegmentHeaderAddress(const Elf64_Ehdr *elf, size_t mapsize,
   return (Elf64_Phdr *)addr;
 }
 
-void *GetElfSectionAddress(const Elf64_Ehdr *elf, size_t mapsize,
+/*void *GetElfSectionAddress(const Elf64_Ehdr *elf, size_t mapsize,
                            const Elf64_Shdr *shdr) {
   intptr_t addr, size;
   addr = (intptr_t)elf + (intptr_t)Read64(shdr->sh_offset);
@@ -74,18 +74,18 @@ const char *GetElfSectionName(const Elf64_Ehdr *elf, size_t mapsize,
   if (!elf || !shdr) return NULL;
   return GetElfString(elf, mapsize, GetElfSectionNameStringTable(elf, mapsize),
                       Read32(shdr->sh_name));
-}
+}*/
 
-Elf64_Shdr *GetElfSectionHeaderAddress(const Elf64_Ehdr *elf, size_t mapsize,
+/*Elf64_Shdr *GetElfSectionHeaderAddress(const Elf64_Ehdr *elf, size_t mapsize,
                                        uint16_t i) {
   intptr_t addr;
   addr = ((intptr_t)elf + (intptr_t)Read64(elf->e_shoff) +
           (intptr_t)Read16(elf->e_shentsize) * i);
   CheckElfAddress(elf, mapsize, addr, Read16(elf->e_shentsize));
   return (Elf64_Shdr *)addr;
-}
+}*/
 
-char *GetElfStringTable(const Elf64_Ehdr *elf, size_t mapsize) {
+/*char *GetElfStringTable(const Elf64_Ehdr *elf, size_t mapsize) {
   int i;
   const char *name;
   Elf64_Shdr *shdr;
@@ -117,4 +117,4 @@ Elf64_Sym *GetElfSymbolTable(const Elf64_Ehdr *elf, size_t mapsize,
     }
   }
   return NULL;
-}
+}*/

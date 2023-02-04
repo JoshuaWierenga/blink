@@ -1,0 +1,6 @@
+[submodule "third_party/gnulib"]
+	path = third_party/gnulib
+	url = https://git.savannah.gnu.org/git/gnulib.git
+[submodule "third_party/mman"]
+	path = third_party/mman
+	url = https://github.com/alitrack/mman-win32.git

@@ -5,3 +5,7 @@
 /TAGS
 /perf.data
 /perf.data.old
+
+/third_party/gnulib_build/*
+!/third_party/gnulib_build/configure.ac
+!/third_party/gnulib_build/gnulib_build.mk

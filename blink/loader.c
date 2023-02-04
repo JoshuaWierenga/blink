@@ -23,10 +23,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include "third_party/mman/mman.h"
+#else
+#include <sys/mman.h>
+#endif
 
 #include "blink/argv.h"
 #include "blink/endian.h"
@@ -189,7 +194,13 @@ void LoadProgram(struct Machine *m, char *prog, char **args, char **vars,
   struct stat st;
   assert(prog);
   elf->prog = prog;
-  if ((fd = open(prog, O_RDONLY)) == -1 ||
+  if ((fd = open(prog,
+#ifdef _WIN32
+      O_RDWR
+#else
+      O_RDONLY
+#endif
+)) == -1 ||
       (fstat(fd, &st) == -1 || !st.st_size)) {
     fputs(prog, stderr);
     fputs(": not found\r\n", stderr);

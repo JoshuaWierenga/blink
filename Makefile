@@ -11,11 +11,12 @@ MAKEFLAGS += --no-builtin-rules
 
 o: o/$(MODE)/blink
 test: o/$(MODE)/test
-clean:; rm -rf o
+clean:; rm -rf o; cd third_party/gnulib_build; rm -rf autom4te.cache ar-lib lib m4 aclocal.m4 compile configure configure~ config.* depcomp install-sh missing stamp-h1
 tags: TAGS HTAGS
 
 include build/config.mk
 include build/rules.mk
+include third_party/gnulib_build/gnulib_build.mk
 include blink/blink.mk
 include test/test.mk
 include test/blink/test.mk
@@ -39,20 +40,21 @@ o/$(MODE)/hdrs.txt: o/$(MODE)/.x $(MAKEFILES) $(call uniq,$(foreach x,$(HDRS) $(
 	$(file >$@) $(foreach x,$(HDRS) $(INCS),$(file >>$@,$(x)))
 
 DEPENDS =				\
-	o/$(MODE)/depend.host		\
-	o/$(MODE)/depend.i486		\
-	o/$(MODE)/depend.m68k		\
-	o/$(MODE)/depend.x86_64		\
-	o/$(MODE)/depend.arm		\
-	o/$(MODE)/depend.aarch64	\
-	o/$(MODE)/depend.riscv64	\
-	o/$(MODE)/depend.mips		\
-	o/$(MODE)/depend.mipsel		\
-	o/$(MODE)/depend.mips64		\
-	o/$(MODE)/depend.mips64el	\
-	o/$(MODE)/depend.s390x		\
-	o/$(MODE)/depend.microblaze	\
-	o/$(MODE)/depend.powerpc	\
+	o/$(MODE)/depend.host				\
+	o/$(MODE)/depend.i486				\
+	o/$(MODE)/depend.m68k				\
+	o/$(MODE)/depend.x86_64				\
+	o/$(MODE)/depend.x86_64-mingw-w64	\
+	o/$(MODE)/depend.arm				\
+	o/$(MODE)/depend.aarch64			\
+	o/$(MODE)/depend.riscv64			\
+	o/$(MODE)/depend.mips				\
+	o/$(MODE)/depend.mipsel				\
+	o/$(MODE)/depend.mips64				\
+	o/$(MODE)/depend.mips64el			\
+	o/$(MODE)/depend.s390x				\
+	o/$(MODE)/depend.microblaze			\
+	o/$(MODE)/depend.powerpc			\
 	o/$(MODE)/depend.powerpc64le
 
 o/$(MODE)/depend: $(DEPENDS)
@@ -67,6 +69,8 @@ o/$(MODE)/depend.x86_64: build/bootstrap/mkdeps.com o/$(MODE)/srcs.txt o/$(MODE)
 	build/bootstrap/mkdeps.com -o $@ -r o/$(MODE)/x86_64/ @o/$(MODE)/srcs.txt @o/$(MODE)/hdrs.txt
 o/$(MODE)/depend.x86_64-gcc48: build/bootstrap/mkdeps.com o/$(MODE)/srcs.txt o/$(MODE)/hdrs.txt
 	build/bootstrap/mkdeps.com -o $@ -r o/$(MODE)/x86_64-gcc48/ @o/$(MODE)/srcs.txt @o/$(MODE)/hdrs.txt
+o/$(MODE)/depend.x86_64-mingw-w64: build/bootstrap/mkdeps.com o/$(MODE)/srcs.txt o/$(MODE)/hdrs.txt
+	build/bootstrap/mkdeps.com -o $@ -r o/$(MODE)/x86_64-mingw-w64/ @o/$(MODE)/srcs.txt @o/$(MODE)/hdrs.txt
 o/$(MODE)/depend.arm: build/bootstrap/mkdeps.com o/$(MODE)/srcs.txt o/$(MODE)/hdrs.txt
 	build/bootstrap/mkdeps.com -o $@ -r o/$(MODE)/arm/ @o/$(MODE)/srcs.txt @o/$(MODE)/hdrs.txt
 o/$(MODE)/depend.aarch64: build/bootstrap/mkdeps.com o/$(MODE)/srcs.txt o/$(MODE)/hdrs.txt

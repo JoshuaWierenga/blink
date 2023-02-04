@@ -52,12 +52,12 @@ struct termios_linux {
   uint8_t c_ospeed[4];
 };
 
-struct sockaddr_in_linux {
+/*struct sockaddr_in_linux {
   uint8_t sin_family[2];
   uint16_t sin_port;
   uint32_t sin_addr;
   uint8_t sin_zero[8];
-};
+};*/
 
 struct stat_linux {
   uint8_t st_dev[8];
@@ -76,10 +76,10 @@ struct stat_linux {
   struct timespec_linux st_ctim;
 };
 
-struct itimerval_linux {
+/*struct itimerval_linux {
   struct timeval_linux it_interval;
   struct timeval_linux it_value;
-};
+};*/
 
 struct rusage_linux {
   struct timeval_linux ru_utime;

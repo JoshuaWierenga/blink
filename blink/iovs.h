@@ -2,7 +2,12 @@
 #define BLINK_IOVS_H_
 #include <stddef.h>
 #include <stdint.h>
+
+#ifdef _WIN32
+#include "third_party/gnulib_build/lib/sys/uio.h"
+#else
 #include <sys/uio.h>
+#endif
 
 struct Iovs {
   unsigned i, n;

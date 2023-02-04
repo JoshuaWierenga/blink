@@ -17,25 +17,39 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
-#include <fcntl.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
+/*#include <netinet/tcp.h>
+#include <netinet/udp.h>*/
 #include <signal.h>
 #include <string.h>
-#include <sys/file.h>
+/*#include <sys/file.h>
 #include <sys/ioctl.h>
-#include <sys/mman.h>
-#include <sys/socket.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/wait.h>
+#include <sys/wait.h>*/
 #include <time.h>
-#include <unistd.h>
+//#include <unistd.h>
 
-#include "blink/builtin.h"
+#ifdef _WIN32
+#include <winsock.h>
+#include "third_party/gnulib_build/config.h"
+#include "third_party/gnulib_build/lib/stat-size.h"
+
+#define EPFNOSUPPORT WSAEPFNOSUPPORT
+#else
+#include <sys/socket.h>
+#endif
+
+#include "blink/windows/macros.h"
+#include WINDOWSGNULIBHEADER(fcntl.h)
+#include WINDOWSGNULIBHEADER(signal.h)
+#include WINDOWSHEADER(mman/mman.h,sys/mman.h)
+
+//#include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/endian.h"
 #include "blink/xlat.h"
+
+#include <stdio.h>
 
 static long einval(void) {
   errno = EINVAL;
@@ -61,7 +75,6 @@ int XlatErrno(int x) {
     XLAT(ENOMEM, 12);
     XLAT(EACCES, 13);
     XLAT(EFAULT, 14);
-    XLAT(ENOTBLK, 15);
     XLAT(EBUSY, 16);
     XLAT(EEXIST, 17);
     XLAT(EXDEV, 18);
@@ -89,24 +102,20 @@ int XlatErrno(int x) {
     XLAT(ELOOP, 40);
     XLAT(ENOMSG, 42);
     XLAT(EIDRM, 43);
-    XLAT(EREMOTE, 66);
     XLAT(EPROTO, 71);
     XLAT(EBADMSG, 74);
     XLAT(EOVERFLOW, 75);
     XLAT(EILSEQ, 84);
-    XLAT(EUSERS, 87);
     XLAT(ENOTSOCK, 88);
     XLAT(EDESTADDRREQ, 89);
     XLAT(EMSGSIZE, 90);
     XLAT(EPROTOTYPE, 91);
     XLAT(ENOPROTOOPT, 92);
     XLAT(EPROTONOSUPPORT, 93);
-    XLAT(ESOCKTNOSUPPORT, 94);
     XLAT(ENOTSUP, 95);
 #if EOPNOTSUPP != ENOTSUP
     XLAT(EOPNOTSUPP, 95);
 #endif
-    XLAT(EPFNOSUPPORT, 96);
     XLAT(EAFNOSUPPORT, 97);
     XLAT(EADDRINUSE, 98);
     XLAT(EADDRNOTAVAIL, 99);
@@ -118,27 +127,31 @@ int XlatErrno(int x) {
     XLAT(ENOBUFS, 105);
     XLAT(EISCONN, 106);
     XLAT(ENOTCONN, 107);
-    XLAT(ESHUTDOWN, 108);
-    XLAT(ETOOMANYREFS, 109);
     XLAT(ETIMEDOUT, 110);
     XLAT(ECONNREFUSED, 111);
-    XLAT(EHOSTDOWN, 112);
     XLAT(EHOSTUNREACH, 113);
     XLAT(EALREADY, 114);
     XLAT(EINPROGRESS, 115);
-    XLAT(ESTALE, 116);
-    XLAT(EDQUOT, 122);
     XLAT(ECANCELED, 125);
     XLAT(EOWNERDEAD, 130);
     XLAT(ENOTRECOVERABLE, 131);
+#ifdef ENOTBLK
+    XLAT(ENOTBLK, 15);
+#endif
 #ifdef ETIME
     XLAT(ETIME, 62);
 #endif
 #ifdef ENONET
     XLAT(ENONET, 64);
 #endif
+#ifdef EREMOTE
+    XLAT(EREMOTE, 66);
+#endif
 #ifdef ERESTART
     XLAT(ERESTART, 85);
+#endif
+#ifdef EUSERS
+    XLAT(EUSERS, 87);
 #endif
 #ifdef ENOSR
     XLAT(ENOSR, 63);
@@ -149,11 +162,32 @@ int XlatErrno(int x) {
 #ifdef ENODATA
     XLAT(ENODATA, 61);
 #endif
+#ifdef ENOLINK
+    XLAT(ENOLINK, 67);
+#endif
 #ifdef EMULTIHOP
     XLAT(EMULTIHOP, 72);
 #endif
-#ifdef ENOLINK
-    XLAT(ENOLINK, 67);
+#ifdef ESOCKTNOSUPPORT
+    XLAT(ESOCKTNOSUPPORT, 94);
+#endif
+#ifdef EPFNOSUPPORT
+    XLAT(EPFNOSUPPORT, 96);
+#endif
+#ifdef ESHUTDOWN
+    XLAT(ESHUTDOWN, 108);
+#endif
+#ifdef ETOOMANYREFS
+    XLAT(ETOOMANYREFS, 109);
+#endif
+#ifdef EHOSTDOWN
+    XLAT(EHOSTDOWN, 112);
+#endif
+#ifdef ESTALE
+    XLAT(ESTALE, 116);
+#endif
+#ifdef EDQUOT
+    XLAT(EDQUOT, 122);
 #endif
 #ifdef ENOMEDIUM
     XLAT(ENOMEDIUM, 123);
@@ -168,71 +202,164 @@ int XlatErrno(int x) {
 
 int XlatSignal(int x) {
   switch (x) {
-    XLAT(1, SIGHUP);
     XLAT(2, SIGINT);
-    XLAT(3, SIGQUIT);
     XLAT(4, SIGILL);
-    XLAT(5, SIGTRAP);
     XLAT(6, SIGABRT);
-    XLAT(7, SIGBUS);
     XLAT(8, SIGFPE);
-    XLAT(9, SIGKILL);
-    XLAT(10, SIGUSR1);
     XLAT(11, SIGSEGV);
-    XLAT(12, SIGUSR2);
-    XLAT(13, SIGPIPE);
-    XLAT(14, SIGALRM);
     XLAT(15, SIGTERM);
+#ifdef SIGHUP
+    XLAT(1, SIGHUP);
+#endif
+#ifdef SIGQUIT
+    XLAT(3, SIGQUIT);
+#endif
+#ifdef SIGTRAP
+    XLAT(5, SIGTRAP);
+#endif
+#ifdef SIGBUS
+    XLAT(7, SIGBUS);
+#endif
+#ifdef SIGKILL
+    XLAT(9, SIGKILL);
+#endif
+#ifdef SIGUSR1
+    XLAT(10, SIGUSR1);
+#endif
+#ifdef SIGUSR2
+    XLAT(12, SIGUSR2);
+#endif
+#ifdef SIGPIPE
+    XLAT(13, SIGPIPE);
+#endif
+#ifdef SIGALRM
+    XLAT(14, SIGALRM);
+#endif
+#ifdef SIGCHLD
     XLAT(17, SIGCHLD);
+#endif
+#ifdef SIGCONT
     XLAT(18, SIGCONT);
+#endif
+#ifdef SIGTTIN
     XLAT(21, SIGTTIN);
+#endif
+#ifdef SIGTTOU
     XLAT(22, SIGTTOU);
+#endif
+#ifdef SIGXCPU
     XLAT(24, SIGXCPU);
+#endif
+#ifdef SIGXFSZ
     XLAT(25, SIGXFSZ);
+#endif
+#ifdef SIGVTALRM
     XLAT(26, SIGVTALRM);
+#endif
+#ifdef SIGPROF
     XLAT(27, SIGPROF);
+#endif
+#ifdef SIGWINCH
     XLAT(28, SIGWINCH);
+#endif
+#ifdef SIGIO
     XLAT(29, SIGIO);
+#endif
+#ifdef SIGSTOP
     XLAT(19, SIGSTOP);
+#endif
+#ifdef SIGSYS
     XLAT(31, SIGSYS);
+#endif
+#ifdef SIGTSTP
     XLAT(20, SIGTSTP);
+#endif
+#ifdef SIGURG
     XLAT(23, SIGURG);
+#endif
     default:
+      printf("Unsupported signal %i detected.\n", x);
       return einval();
   }
 }
 
 int UnXlatSignal(int x) {
   switch (x) {
-    XLAT(SIGHUP, 1);
     XLAT(SIGINT, 2);
-    XLAT(SIGQUIT, 3);
     XLAT(SIGILL, 4);
-    XLAT(SIGTRAP, 5);
     XLAT(SIGABRT, 6);
-    XLAT(SIGBUS, 7);
     XLAT(SIGFPE, 8);
-    XLAT(SIGKILL, 9);
-    XLAT(SIGUSR1, 10);
     XLAT(SIGSEGV, 11);
-    XLAT(SIGUSR2, 12);
-    XLAT(SIGPIPE, 13);
-    XLAT(SIGALRM, 14);
     XLAT(SIGTERM, 15);
+#ifdef SIGHUP
+    XLAT(SIGHUP, 1);
+#endif
+#ifdef SIGQUIT
+    XLAT(SIGQUIT, 3);
+#endif
+#ifdef SIGTRAP
+    XLAT(SIGTRAP, 5);
+#endif
+#ifdef SIGBUS
+    XLAT(SIGBUS, 7);
+#endif
+#ifdef SIGKILL
+    XLAT(SIGKILL, 9);
+#endif
+#ifdef SIGUSR1
+    XLAT(SIGUSR1, 10);
+#endif
+#ifdef SIGUSR2
+    XLAT(SIGUSR2, 12);
+#endif
+#ifdef SIGPIPE
+    XLAT(SIGPIPE, 13);
+#endif
+#ifdef SIGALRM
+    XLAT(SIGALRM, 14);
+#endif
+#ifdef SIGCHLD
     XLAT(SIGCHLD, 17);
+#endif
+#ifdef SIGCONT
     XLAT(SIGCONT, 18);
+#endif
+#ifdef SIGTTIN
     XLAT(SIGTTIN, 21);
+#endif
+#ifdef SIGTTOU
     XLAT(SIGTTOU, 22);
+#endif
+#ifdef SIGXCPU
     XLAT(SIGXCPU, 24);
+#endif
+#ifdef SIGXFSZ
     XLAT(SIGXFSZ, 25);
+#endif
+#ifdef SIGVTALRM
     XLAT(SIGVTALRM, 26);
+#endif
+#ifdef SIGPROF
     XLAT(SIGPROF, 27);
+#endif
+#ifdef SIGWINCH
     XLAT(SIGWINCH, 28);
+#endif
+#ifdef SIGIO
     XLAT(SIGIO, 29);
+#endif
+#ifdef SIGSTOP
     XLAT(SIGSTOP, 19);
+#endif
+#ifdef SIGSYS
     XLAT(SIGSYS, 31);
+#endif
+#ifdef SIGTSTP
     XLAT(SIGTSTP, 20);
+#endif
+#ifdef SIGURG
     XLAT(SIGURG, 23);
+#endif
     default:
       return 15;
   }
@@ -240,14 +367,24 @@ int UnXlatSignal(int x) {
 
 int UnXlatSicode(int sig, int code) {
   switch (code) {
+#ifdef SI_USER
     XLAT(SI_USER, 0);
+#endif
+#ifdef SI_QUEUE
     XLAT(SI_QUEUE, -1);
+#endif
+#ifdef SI_TIMER
     XLAT(SI_TIMER, -2);
+#endif
 #ifdef SI_TKILL
     XLAT(SI_TKILL, -6);
 #endif
+#ifdef SI_MESGQ
     XLAT(SI_MESGQ, -3);
+#endif
+#ifdef SI_ASYNCIO
     XLAT(SI_ASYNCIO, -4);
+#endif
 #ifdef SI_ASYNCNL
     XLAT(SI_ASYNCNL, -60);
 #endif
@@ -256,6 +393,7 @@ int UnXlatSicode(int sig, int code) {
 #endif
     default:
       switch (sig) {
+#ifdef SIGCHLD
         case SIGCHLD:
           switch (code) {
             XLAT(CLD_EXITED, 1);
@@ -267,6 +405,8 @@ int UnXlatSicode(int sig, int code) {
             default:
               return -1;
           }
+#endif
+#ifdef SIGBUS
         case SIGTRAP:
           switch (code) {
             XLAT(TRAP_BRKPT, 1);
@@ -274,39 +414,77 @@ int UnXlatSicode(int sig, int code) {
             default:
               return -1;
           }
+#endif
         case SIGSEGV:
           switch (code) {
+#ifdef SEGV_MAPERR
             XLAT(SEGV_MAPERR, 1);
+#endif
+#ifdef SEGV_ACCERR
             XLAT(SEGV_ACCERR, 2);
+#endif
             default:
               return -1;
           }
         case SIGFPE:
           switch (code) {
+#ifdef FPE_INTDIV
             XLAT(FPE_INTDIV, 1);
+#endif
+#ifdef FPE_INTOVF
             XLAT(FPE_INTOVF, 2);
+#endif
+#ifdef FPE_FLTDIV
             XLAT(FPE_FLTDIV, 3);
+#endif
+#ifdef FPE_FLTOVF
             XLAT(FPE_FLTOVF, 4);
+#endif
+#ifdef FPE_FLTUND
             XLAT(FPE_FLTUND, 5);
+#endif
+#ifdef FPE_FLTRES
             XLAT(FPE_FLTRES, 6);
+#endif
+#ifdef FPE_FLTINV
             XLAT(FPE_FLTINV, 7);
+#endif
+#ifdef FPE_FLTSUB
             XLAT(FPE_FLTSUB, 8);
+#endif
             default:
               return -1;
           }
         case SIGILL:
           switch (code) {
+#ifdef ILL_ILLOPC
             XLAT(ILL_ILLOPC, 1);
+#endif
+#ifdef ILL_ILLOPN
             XLAT(ILL_ILLOPN, 2);
+#endif
+#ifdef ILL_ILLADR
             XLAT(ILL_ILLADR, 3);
+#endif
+#ifdef ILL_ILLTRP
             XLAT(ILL_ILLTRP, 4);
+#endif
+#ifdef ILL_PRVOPC
             XLAT(ILL_PRVOPC, 5);
+#endif
+#ifdef ILL_PRVREG
             XLAT(ILL_PRVREG, 6);
+#endif
+#ifdef ILL_COPROC
             XLAT(ILL_COPROC, 7);
+#endif
+#ifdef ILL_BADSTK
             XLAT(ILL_BADSTK, 8);
+#endif
             default:
               return -1;
           }
+#ifdef SIGBUS
         case SIGBUS:
           switch (code) {
             XLAT(BUS_ADRALN, 1);
@@ -321,6 +499,8 @@ int UnXlatSicode(int sig, int code) {
             default:
               return -1;
           }
+#endif
+#ifdef SIGIO
         case SIGIO:
           switch (code) {
             XLAT(POLL_IN, 1);
@@ -332,6 +512,7 @@ int UnXlatSicode(int sig, int code) {
             default:
               return -1;
           }
+#endif
         default:
           return -1;
       }
@@ -368,7 +549,7 @@ int XlatSocketFamily(int x) {
   }
 }
 
-int UnXlatSocketFamily(int x) {
+/*int UnXlatSocketFamily(int x) {
   switch (x) {
     XLAT(AF_UNSPEC, 0);
     XLAT(AF_UNIX, 1);
@@ -376,7 +557,7 @@ int UnXlatSocketFamily(int x) {
     default:
       return x;
   }
-}
+}*/
 
 int XlatSocketType(int x) {
   switch (x) {
@@ -396,7 +577,7 @@ int XlatSocketProtocol(int x) {
   }
 }
 
-int XlatSocketLevel(int level) {
+/*int XlatSocketLevel(int level) {
   switch (level) {
     XLAT(1, SOL_SOCKET);
     XLAT(6, IPPROTO_TCP);
@@ -440,7 +621,7 @@ int XlatSocketOptname(int level, int optname) {
     default:
       return einval();
   }
-}
+}*/
 
 int XlatAccess(int x) {
   int r = F_OK;
@@ -450,7 +631,7 @@ int XlatAccess(int x) {
   return r;
 }
 
-int XlatLock(int x) {
+/*int XlatLock(int x) {
   int r = 0;
   if (x & 1) r |= LOCK_SH;
   if (x & 2) r |= LOCK_EX;
@@ -465,7 +646,7 @@ int XlatWait(int x) {
   if (x & 2) r |= WUNTRACED;
   if (x & 8) r |= WCONTINUED;
   return r;
-}
+}*/
 
 int XlatMapFlags(int x) {
   int r = 0;
@@ -543,9 +724,15 @@ int XlatOpenFlags(int flags) {
 int XlatFcntlCmd(int x) {
   switch (x) {
     XLAT(1, F_GETFD);
+#ifdef F_SETFD
     XLAT(2, F_SETFD);
+#endif
+#ifdef F_GETFL
     XLAT(3, F_GETFL);
+#endif
+#ifdef F_SETFL
     XLAT(4, F_SETFL);
+#endif
     default:
       return einval();
   }
@@ -561,7 +748,7 @@ int XlatFcntlArg(int x) {
   }
 }
 
-void XlatSockaddrToHost(struct sockaddr_in *dst,
+/*void XlatSockaddrToHost(struct sockaddr_in *dst,
                         const struct sockaddr_in_linux *src) {
   memset(dst, 0, sizeof(*dst));
   dst->sin_family = XlatSocketFamily(Read16(src->sin_family));
@@ -575,7 +762,7 @@ void XlatSockaddrToLinux(struct sockaddr_in_linux *dst,
   Write16(dst->sin_family, UnXlatSocketFamily(src->sin_family));
   dst->sin_port = src->sin_port;
   dst->sin_addr = src->sin_addr.s_addr;
-}
+}*/
 
 void XlatStatToLinux(struct stat_linux *dst, const struct stat *src) {
   Write64(dst->st_dev, src->st_dev);
@@ -587,8 +774,13 @@ void XlatStatToLinux(struct stat_linux *dst, const struct stat *src) {
   Write32(dst->__pad, 0);
   Write64(dst->st_rdev, src->st_rdev);
   Write64(dst->st_size, src->st_size);
+#if _WIN32
+  Write64(dst->st_blksize, ST_BLKSIZE(*src));
+  Write64(dst->st_blocks, ST_NBLOCKS(*src));
+#else
   Write64(dst->st_blksize, src->st_blksize);
   Write64(dst->st_blocks, src->st_blocks);
+#endif
   Write64(dst->st_dev, src->st_dev);
   Write64(dst->st_atim.tv_sec, src->st_atime);
   Write64(dst->st_atim.tv_nsec, 0);
@@ -619,7 +811,7 @@ void XlatRusageToLinux(struct rusage_linux *dst, const struct rusage *src) {
   Write64(dst->ru_nivcsw, src->ru_nivcsw);
 }
 
-void XlatItimervalToLinux(struct itimerval_linux *dst,
+/*void XlatItimervalToLinux(struct itimerval_linux *dst,
                           const struct itimerval *src) {
   Write64(dst->it_interval.tv_sec, src->it_interval.tv_sec);
   Write64(dst->it_interval.tv_usec, src->it_interval.tv_usec);
@@ -633,7 +825,7 @@ void XlatLinuxToItimerval(struct itimerval *dst,
   dst->it_interval.tv_usec = Read64(src->it_interval.tv_usec);
   dst->it_value.tv_sec = Read64(src->it_value.tv_sec);
   dst->it_value.tv_usec = Read64(src->it_value.tv_usec);
-}
+}*/
 
 void XlatWinsizeToLinux(struct winsize_linux *dst, const struct winsize *src) {
   memset(dst, 0, sizeof(*dst));
@@ -641,7 +833,7 @@ void XlatWinsizeToLinux(struct winsize_linux *dst, const struct winsize *src) {
   Write16(dst->ws_col, src->ws_col);
 }
 
-void XlatSigsetToLinux(uint8_t dst[8], const sigset_t *src) {
+/*void XlatSigsetToLinux(uint8_t dst[8], const sigset_t *src) {
   int i;
   uint64_t x;
   for (x = i = 0; i < 64; ++i) {
@@ -662,17 +854,29 @@ void XlatLinuxToSigset(sigset_t *dst, const uint8_t src[8]) {
       sigaddset(dst, i + 1);
     }
   }
-}
+}*/
 
 static int XlatTermiosCflag(int x) {
   int r = 0;
   if (x & 0x0001) r |= ISIG;
+#ifdef CSTOPB
   if (x & 0x0040) r |= CSTOPB;
+#endif
+#ifdef CREAD
   if (x & 0x0080) r |= CREAD;
+#endif
+#ifdef PARENB
   if (x & 0x0100) r |= PARENB;
+#endif
+#ifdef PARODD
   if (x & 0x0200) r |= PARODD;
+#endif
+#ifdef HUPCL
   if (x & 0x0400) r |= HUPCL;
+#endif
+#ifdef CLOCAL
   if (x & 0x0800) r |= CLOCAL;
+#endif
   if ((x & 0x0030) == 0x0010) {
     r |= CS6;
   } else if ((x & 0x0030) == 0x0020) {
@@ -686,12 +890,24 @@ static int XlatTermiosCflag(int x) {
 static int UnXlatTermiosCflag(int x) {
   int r = 0;
   if (x & ISIG) r |= 0x0001;
+#ifdef CSTOPB
   if (x & CSTOPB) r |= 0x0040;
+#endif
+#ifdef CREAD
   if (x & CREAD) r |= 0x0080;
+#endif
+#ifdef PARENB
   if (x & PARENB) r |= 0x0100;
+#endif
+#ifdef PARODD
   if (x & PARODD) r |= 0x0200;
+#endif
+#ifdef HUPCL
   if (x & HUPCL) r |= 0x0400;
+#endif
+#ifdef CLOCAL
   if (x & CLOCAL) r |= 0x0800;
+#endif
   if ((x & CSIZE) == CS5) {
     r |= 0x0000;
   } else if ((x & CSIZE) == CS6) {
@@ -710,11 +926,21 @@ static int XlatTermiosLflag(int x) {
   if (x & 0x0002) r |= ICANON;
   if (x & 0x0008) r |= ECHO;
   if (x & 0x0010) r |= ECHOE;
+#ifdef ECHOK
   if (x & 0x0020) r |= ECHOK;
+#endif
+#ifdef ECHONL
   if (x & 0x0040) r |= ECHONL;
+#endif
+#ifdef NOFLSH
   if (x & 0x0080) r |= NOFLSH;
+#endif
+#ifdef TOSTOP
   if (x & 0x0100) r |= TOSTOP;
+#endif
+#ifdef IEXTEN
   if (x & 0x8000) r |= IEXTEN;
+#endif
 #ifdef ECHOCTL
   if (x & 0x0200) r |= ECHOCTL;
 #endif
@@ -742,11 +968,21 @@ static int UnXlatTermiosLflag(int x) {
   if (x & ICANON) r |= 0x0002;
   if (x & ECHO) r |= 0x0008;
   if (x & ECHOE) r |= 0x0010;
+#ifdef ECHOK
   if (x & ECHOK) r |= 0x0020;
+#endif
+#ifdef ECHONL
   if (x & ECHONL) r |= 0x0040;
+#endif
+#ifdef NOFLSH
   if (x & NOFLSH) r |= 0x0080;
+#endif
+#ifdef TOSTOP
   if (x & TOSTOP) r |= 0x0100;
+#endif
+#ifdef IEXTEN
   if (x & IEXTEN) r |= 0x8000;
+#endif
 #ifdef ECHOCTL
   if (x & ECHOCTL) r |= 0x0200;
 #endif
@@ -770,18 +1006,42 @@ static int UnXlatTermiosLflag(int x) {
 
 static int XlatTermiosIflag(int x) {
   int r = 0;
+#ifdef IGNBLK
   if (x & 0x0001) r |= IGNBRK;
+#endif
+#ifdef BRKINT
   if (x & 0x0002) r |= BRKINT;
+#endif
+#ifdef IGNPAR
   if (x & 0x0004) r |= IGNPAR;
+#endif
+#ifdef PARMRK
   if (x & 0x0008) r |= PARMRK;
+#endif
+#ifdef INPCK
   if (x & 0x0010) r |= INPCK;
+#endif
+#ifdef ISTRIP
   if (x & 0x0020) r |= ISTRIP;
+#endif
+#ifdef INLCR
   if (x & 0x0040) r |= INLCR;
+#endif
+#ifdef IGNCR
   if (x & 0x0080) r |= IGNCR;
+#endif
+#ifdef ICRNL
   if (x & 0x0100) r |= ICRNL;
+#endif
+#ifdef IXON
   if (x & 0x0400) r |= IXON;
+#endif
+#ifdef IXANY
   if (x & 0x0800) r |= IXANY;
+#endif
+#ifdef IXOFF
   if (x & 0x1000) r |= IXOFF;
+#endif
 #ifdef IMAXBEL
   if (x & 0x2000) r |= IMAXBEL;
 #endif
@@ -796,18 +1056,42 @@ static int XlatTermiosIflag(int x) {
 
 static int UnXlatTermiosIflag(int x) {
   int r = 0;
+#ifdef IGNBRK
   if (x & IGNBRK) r |= 0x0001;
+#endif
+#ifdef BRKINT
   if (x & BRKINT) r |= 0x0002;
+#endif
+#ifdef IGNPAR
   if (x & IGNPAR) r |= 0x0004;
+#endif
+#ifdef PARMRK
   if (x & PARMRK) r |= 0x0008;
+#endif
+#ifdef INPCK
   if (x & INPCK) r |= 0x0010;
+#endif
+#ifdef ISTRIP
   if (x & ISTRIP) r |= 0x0020;
+#endif
+#ifdef INLCR
   if (x & INLCR) r |= 0x0040;
+#endif
+#ifdef IGNCR
   if (x & IGNCR) r |= 0x0080;
+#endif
+#ifdef ICRNL
   if (x & ICRNL) r |= 0x0100;
+#endif
+#ifdef IXON
   if (x & IXON) r |= 0x0400;
+#endif
+#ifdef IXANY
   if (x & IXANY) r |= 0x0800;
+#endif
+#ifdef IXOFF
   if (x & IXOFF) r |= 0x1000;
+#endif
 #ifdef IMAXBEL
   if (x & IMAXBEL) r |= 0x2000;
 #endif
@@ -1005,12 +1289,16 @@ static void XlatTermiosCc(struct termios *dst,
   dst->c_cc[VERASE] = src->c_cc[2];
   dst->c_cc[VKILL] = src->c_cc[3];
   dst->c_cc[VEOF] = src->c_cc[4];
+#ifdef VTIME
   dst->c_cc[VTIME] = src->c_cc[5];
+#endif
   dst->c_cc[VMIN] = src->c_cc[6];
   dst->c_cc[VSTART] = src->c_cc[8];
   dst->c_cc[VSTOP] = src->c_cc[9];
   dst->c_cc[VSUSP] = src->c_cc[10];
+#ifdef VTIME
   dst->c_cc[VEOL] = src->c_cc[11];
+#endif
 #ifdef VSWTC
   dst->c_cc[VSWTC] = src->c_cc[7];
 #endif
@@ -1038,12 +1326,16 @@ static void UnXlatTermiosCc(struct termios_linux *dst,
   dst->c_cc[2] = src->c_cc[VERASE];
   dst->c_cc[3] = src->c_cc[VKILL];
   dst->c_cc[4] = src->c_cc[VEOF];
+#ifdef VTIME
   dst->c_cc[5] = src->c_cc[VTIME];
+#endif
   dst->c_cc[6] = src->c_cc[VMIN];
   dst->c_cc[8] = src->c_cc[VSTART];
   dst->c_cc[9] = src->c_cc[VSTOP];
   dst->c_cc[10] = src->c_cc[VSUSP];
+#ifdef VEOL
   dst->c_cc[11] = src->c_cc[VEOL];
+#endif
 #ifdef VSWTC
   dst->c_cc[7] = src->c_cc[VSWTC];
 #endif

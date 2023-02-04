@@ -16,28 +16,20 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include "blink/bitscan.h"
-#include "blink/tpenc.h"
+#include <stdint.h>
+#include <windef.h>
+#include <winbase.h>
 
-static const uint16_t kTpEnc[32 - 7] = {
-    1 | 0300 << 8, 1 | 0300 << 8, 1 | 0300 << 8, 1 | 0300 << 8, 2 | 0340 << 8,
-    2 | 0340 << 8, 2 | 0340 << 8, 2 | 0340 << 8, 2 | 0340 << 8, 3 | 0360 << 8,
-    3 | 0360 << 8, 3 | 0360 << 8, 3 | 0360 << 8, 3 | 0360 << 8, 4 | 0370 << 8,
-    4 | 0370 << 8, 4 | 0370 << 8, 4 | 0370 << 8, 4 | 0370 << 8, 5 | 0374 << 8,
-    5 | 0374 << 8, 5 | 0374 << 8, 5 | 0374 << 8, 5 | 0374 << 8, 5 | 0374 << 8,
-};
+#include "blink/windows/macros.h"
+#include "blink/windows/winerr.h"
 
-uint64_t tpenc(wint_t c) {
-  int e, n;
-  uint64_t w;
-  if (0 <= c && c <= 127) return c;
-  e = kTpEnc[bsr(c) - 7];
-  n = e & 0xff;
-  w = 0;
-  do {
-    w |= 0200 | (c & 077);
-    w <<= 8;
-    c >>= 6;
-  } while (--n);
-  return c | w | e >> 8;
+int64_t __winerr(void) {
+    errno_t e;
+    // Ideally this would convert win32 error codes into
+    // errno ones but without adding a list like the cosmo
+    // dos2errno one, there is no easy way to convert.`
+    e = GetLastError();
+    _npassert(e > 0);
+    errno = e;
+    return -1;
 }

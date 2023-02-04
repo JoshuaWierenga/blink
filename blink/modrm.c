@@ -19,13 +19,13 @@
 #include <assert.h>
 
 #include "blink/address.h"
-#include "blink/builtin.h"
+//#include "blink/builtin.h"
 #include "blink/endian.h"
-#include "blink/machine.h"
+//#include "blink/machine.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
-#include "blink/throw.h"
-#include "blink/x86.h"
+/*#include "blink/throw.h"
+#include "blink/x86.h"*/
 
 struct AddrSeg LoadEffectiveAddress(const struct Machine *m, uint32_t rde) {
   const uint8_t *s = m->ds;
@@ -207,13 +207,13 @@ uint8_t *GetModrmRegisterWordPointerRead8(struct Machine *m, uint32_t rde) {
   return GetModrmRegisterWordPointerRead(m, rde, 8);
 }
 
-uint8_t *GetModrmRegisterWordPointerReadOsz(struct Machine *m, uint32_t rde) {
+/*uint8_t *GetModrmRegisterWordPointerReadOsz(struct Machine *m, uint32_t rde) {
   if (!Osz(rde)) {
     return GetModrmRegisterWordPointerRead8(m, rde);
   } else {
     return GetModrmRegisterWordPointerRead2(m, rde);
   }
-}
+}*/
 
 uint8_t *GetModrmRegisterWordPointerReadOszRexw(struct Machine *m,
                                                 uint32_t rde) {
@@ -235,13 +235,13 @@ uint8_t *GetModrmRegisterWordPointerWrite(struct Machine *m, uint32_t rde,
   }
 }
 
-uint8_t *GetModrmRegisterWordPointerWrite2(struct Machine *m, uint32_t rde) {
+/*uint8_t *GetModrmRegisterWordPointerWrite2(struct Machine *m, uint32_t rde) {
   return GetModrmRegisterWordPointerWrite(m, rde, 2);
 }
 
 uint8_t *GetModrmRegisterWordPointerWrite4(struct Machine *m, uint32_t rde) {
   return GetModrmRegisterWordPointerWrite(m, rde, 4);
-}
+}*/
 
 uint8_t *GetModrmRegisterWordPointerWrite8(struct Machine *m, uint32_t rde) {
   return GetModrmRegisterWordPointerWrite(m, rde, 8);
@@ -258,13 +258,13 @@ uint8_t *GetModrmRegisterWordPointerWriteOszRexw(struct Machine *m,
   }
 }
 
-uint8_t *GetModrmRegisterWordPointerWriteOsz(struct Machine *m, uint32_t rde) {
+/*uint8_t *GetModrmRegisterWordPointerWriteOsz(struct Machine *m, uint32_t rde) {
   if (!Osz(rde)) {
     return GetModrmRegisterWordPointerWrite(m, rde, 8);
   } else {
     return GetModrmRegisterWordPointerWrite(m, rde, 2);
   }
-}
+}*/
 
 uint8_t *GetModrmRegisterXmmPointerRead(struct Machine *m, uint32_t rde,
                                         size_t n) {

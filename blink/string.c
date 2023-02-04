@@ -20,18 +20,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stdio.h>
+
 #include "blink/address.h"
 #include "blink/alu.h"
-#include "blink/builtin.h"
+//#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
-#include "blink/ioports.h"
-#include "blink/machine.h"
+/*#include "blink/ioports.h"
+#include "blink/machine.h"*/
 #include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/string.h"
-#include "blink/throw.h"
+//#include "blink/throw.h"
 
 static uint64_t ReadInt(uint8_t p[8], unsigned long w) {
   switch (w) {
@@ -48,7 +50,7 @@ static uint64_t ReadInt(uint8_t p[8], unsigned long w) {
   }
 }
 
-static void WriteInt(uint8_t p[8], uint64_t x, unsigned long w) {
+/*static void WriteInt(uint8_t p[8], uint64_t x, unsigned long w) {
   switch (w) {
     case 0:
       Write8(p, x);
@@ -65,7 +67,7 @@ static void WriteInt(uint8_t p[8], uint64_t x, unsigned long w) {
     default:
       __builtin_unreachable();
   }
-}
+}*/
 
 static void AddDi(struct Machine *m, uint32_t rde, uint64_t x) {
   switch (Eamode(rde)) {
@@ -148,7 +150,7 @@ static void StringOp(struct Machine *m, uint32_t rde, int op) {
         AddSi(m, rde, sgn * n);
         stop = (Rep(rde) == 2 && GetFlag(m->flags, FLAGS_ZF)) ||
                (Rep(rde) == 3 && !GetFlag(m->flags, FLAGS_ZF));
-        break;
+      break;
       case STRING_MOVS:
         memcpy(BeginStore(m, (v = AddressDi(m, rde)), n, p, s[0]),
                Load(m, AddressSi(m, rde), n, s[1]), n);
@@ -173,7 +175,7 @@ static void StringOp(struct Machine *m, uint32_t rde, int op) {
         stop = (Rep(rde) == 2 && GetFlag(m->flags, FLAGS_ZF)) ||
                (Rep(rde) == 3 && !GetFlag(m->flags, FLAGS_ZF));
         break;
-      case STRING_OUTS:
+      /*case STRING_OUTS:
         OpOut(m, Read16(m->dx),
               ReadInt(Load(m, AddressSi(m, rde), n, s[1]), RegLog2(rde)));
         AddSi(m, rde, sgn * n);
@@ -183,8 +185,9 @@ static void StringOp(struct Machine *m, uint32_t rde, int op) {
                  OpIn(m, Read16(m->dx)), RegLog2(rde));
         AddDi(m, rde, sgn * n);
         EndStore(m, v, n, p, s[0]);
-        break;
+        break;*/
       default:
+        printf("Unsupported x86 string instruction %d detected.\n", op);
         abort();
     }
     if (Rep(rde)) {

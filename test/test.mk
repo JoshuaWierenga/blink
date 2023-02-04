@@ -21,6 +21,10 @@ o/$(MODE)/x86_64-gcc48/%.runs: o/$(MODE)/x86_64-gcc48/% o/third_party/qemu/qemu-
 	o/third_party/qemu/qemu-x86_64 $<
 	@touch $@
 
+o/$(MODE)/x86_64-mingw-w64/%.runs: o/$(MODE)/x86_64-mingw-w64/%
+	$<
+	@touch $@
+
 o/$(MODE)/arm/%.runs: o/$(MODE)/arm/% o/third_party/qemu/qemu-arm
 	o/third_party/qemu/qemu-arm $<
 	@touch $@

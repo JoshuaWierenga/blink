@@ -19,7 +19,9 @@
 #include <math.h>
 #include <string.h>
 
-#include "blink/builtin.h"
+#include <stdio.h>
+
+//#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/fpu.h"
@@ -637,6 +639,7 @@ void OpHaddpsd(struct Machine *m, uint32_t rde) {
     Write64(p + 0 * 8, z[0].i);
     Write64(p + 1 * 8, z[1].i);
   } else {
+    printf("OpHaddpsd issue\n");
     OpUd(m, rde);
   }
 }
@@ -676,6 +679,7 @@ void OpHsubpsd(struct Machine *m, uint32_t rde) {
     Write64(p + 0 * 8, z[0].i);
     Write64(p + 1 * 8, z[1].i);
   } else {
+    printf("OpHsubpsd issue\n");
     OpUd(m, rde);
   }
 }
@@ -715,6 +719,7 @@ void OpAddsubpsd(struct Machine *m, uint32_t rde) {
     Write64(p + 0 * 8, z[0].i);
     Write64(p + 1 * 8, z[1].i);
   } else {
+    printf("OpAddsubpsd issue\n");
     OpUd(m, rde);
   }
 }

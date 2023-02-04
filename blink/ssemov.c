@@ -18,11 +18,13 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <string.h>
 
+#include <stdio.h>
+
 #include "blink/address.h"
-#include "blink/builtin.h"
-#include "blink/endian.h"
+/*#include "blink/builtin.h"
+#include "blink/endian.h"*/
 #include "blink/memory.h"
-#include "blink/modrm.h"
+//#include "blink/modrm.h"
 #include "blink/ssemov.h"
 #include "blink/throw.h"
 
@@ -299,13 +301,13 @@ static void MovapdVpdWpd(struct Machine *m, uint32_t rde) {
   MovdqaVdqWdq(m, rde);
 }
 
-static void MovapsWpsVps(struct Machine *m, uint32_t rde) {
+/*static void MovapsWpsVps(struct Machine *m, uint32_t rde) {
   MovdqaWdqVdq(m, rde);
 }
 
 static void MovapdWpdVpd(struct Machine *m, uint32_t rde) {
   MovdqaWdqVdq(m, rde);
-}
+}*/
 
 void OpMovWpsVps(struct Machine *m, uint32_t rde) {
   switch (Rep(rde) | Osz(rde)) {
@@ -415,13 +417,13 @@ void OpMov0f10(struct Machine *m, uint32_t rde) {
   }
 }
 
-void OpMov0f29(struct Machine *m, uint32_t rde) {
+/*OpMov0f10void OpMov0f29(struct Machine *m, uint32_t rde) {
   if (!Osz(rde)) {
     MovapsWpsVps(m, rde);
   } else {
     MovapdWpdVpd(m, rde);
   }
-}
+}*/
 
 void OpMov0f2b(struct Machine *m, uint32_t rde) {
   if (!Osz(rde)) {
@@ -478,6 +480,7 @@ void OpMov0f16(struct Machine *m, uint32_t rde) {
       MovshdupVqWq(m, rde);
       break;
     default:
+      printf("OpMov0f16 issue\n");
       OpUd(m, rde);
       break;
   }
@@ -499,6 +502,7 @@ void OpMov0fD6(struct Machine *m, uint32_t rde) {
   } else if (Osz(rde)) {
     MovqWqVq(m, rde);
   } else {
+    printf("OpMov0fD6 issue\n");
     OpUd(m, rde);
   }
 }

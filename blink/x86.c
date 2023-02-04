@@ -16,11 +16,11 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <assert.h>
+//#include <assert.h>
 #include <string.h>
 
 #include "blink/bitscan.h"
-#include "blink/builtin.h"
+//#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/macros.h"
 #include "blink/modrm.h"
@@ -48,21 +48,21 @@
 #define xed_i_ild_hasimm_map0x0_op0xc8_l1                 11
 #define xed_i_ild_hasimm_map0x0F_op0x78_l1                12
 
-#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_IGNORE66_EOSZ_l2(X) \
+/*#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_IGNORE66_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_IGNORE66_EOSZ)
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_REFINING66_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_REFINING66_EOSZ)
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_DF64_FORCE64_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_DF64_FORCE64_EOSZ)
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_FORCE64_EOSZ_l2(X) \
-  xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_FORCE64_EOSZ)
+  xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_FORCE64_EOSZ)*/
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_EOSZ)
-#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ_l2(X) \
-  xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ)
+/*#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ_l2(X) \
+  xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ)*/
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_DF64_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_DF64_EOSZ)
-#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_DF64_IMMUNE66_LOOP64_EOSZ_l2(X) \
+/*#define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_DF64_IMMUNE66_LOOP64_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_DF64_IMMUNE66_LOOP64_EOSZ)
 #define XED_LF_SIMMz_IMM_WIDTH_OSZ_NONTERM_IMMUNE66_EOSZ_l2(X) \
   xed_set_simmz_imm_width_eosz(X, kXed.OSZ_NONTERM_IMMUNE66_EOSZ)
@@ -77,10 +77,10 @@
 #define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_DF64_FORCE64_EOSZ_l2(X) \
   xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_DF64_FORCE64_EOSZ)
 #define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_FORCE64_EOSZ_l2(X) \
-  xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_FORCE64_EOSZ)
+  xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_FORCE64_EOSZ)*/
 #define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_EOSZ_l2(X) \
   xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_EOSZ)
-#define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ_l2(X) \
+/*#define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ_l2(X) \
   xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_REFINING66_CR_WIDTH_EOSZ)
 #define XED_LF_UIMMv_IMM_WIDTH_OSZ_NONTERM_DF64_EOSZ_l2(X) \
   xed_set_uimmv_imm_width_eosz(X, kXed.OSZ_NONTERM_DF64_EOSZ)
@@ -95,10 +95,10 @@
 
 typedef int xed_int_t;
 typedef unsigned int xed_uint_t;
-typedef unsigned int xed_uint_t;
+typedef unsigned int xed_uint_t;*/
 typedef unsigned char xed_bits_t;
-typedef intptr_t xed_addr_t;
-typedef unsigned char xed_bool_t;
+/*typedef intptr_t xed_addr_t;
+typedef unsigned char xed_bool_t;*/
 
 static const uint8_t kXedEamode[2][3] = {
     [0][XED_MODE_REAL] = XED_MODE_REAL,
@@ -961,7 +961,7 @@ struct XedDecodedInst *InitializeInstruction(struct XedDecodedInst *x,
     case XED_MACHINE_MODE_LEGACY_16:
     case XED_MACHINE_MODE_LONG_COMPAT_16:
       mode = XED_MODE_REAL;
-      break;
+    break;
   }
   x->op.realmode = real;
   x->op.rde = mode << 26;

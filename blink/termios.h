@@ -1,8 +1,14 @@
 #ifndef BLINK_TERMIOS_H_
 #define BLINK_TERMIOS_H_
-#include <termios.h>
 
-#ifndef TCGETS
+#ifdef _WIN32
+#include "third_party/gnulib_build/lib/termios.h"
+#include "blink/windows/termios.h"
+#else
+#include <termios.h>
+#endif
+
+/*#ifndef TCGETS
 #define TCGETS TIOCGETA
 #endif
 #ifndef TCSETS
@@ -13,6 +19,6 @@
 #endif
 #ifndef TCSETSF
 #define TCSETSF TIOCSETAF
-#endif
+#endif*/
 
 #endif /* BLINK_TERMIOS_H_ */

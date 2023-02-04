@@ -16,34 +16,54 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include "blink/bitscan.h"
+/*#include <stdint.h>
+#include <processthreadsapi.h>
 
-static const char kDebruijn[64] = {
-    0,  47, 1,  56, 48, 27, 2,  60, 57, 49, 41, 37, 28, 16, 3,  61,
-    54, 58, 35, 52, 50, 42, 21, 44, 38, 32, 29, 23, 17, 11, 4,  62,
-    46, 55, 26, 59, 40, 36, 15, 53, 34, 51, 20, 43, 31, 22, 10, 45,
-    25, 39, 14, 33, 19, 30, 9,  24, 13, 18, 8,  12, 7,  6,  5,  63,
-};
+#include "third_party/gnulib_build/config.h"
+#include "third_party/gnulib_build/lib/signal.h"
 
-int(bsr)(uint64_t x) {
-  x |= x >> 1;
-  x |= x >> 2;
-  x |= x >> 4;
-  x |= x >> 8;
-  x |= x >> 16;
-  x |= x >> 32;
-  return kDebruijn[(x * 0x03f79d71b4cb0a89) >> 58];
+#include "blink/windows/fork.h"
+#include "blink/windows/macros.h"
+
+sigset_t _sigsetmask(sigset_t neu) {
+    sigset_t res;
+    __sig_mask(SIG_SETMASK, &neu, &res);
+    return res;
 }
 
-int(bsf)(uint64_t x) {
-  uint32_t l, r;
-  x &= -x;
-  l = x | x >> 32;
-  r = !!(x >> 32), r <<= 1;
-  r += !!((l & 0xffff0000)), r <<= 1;
-  r += !!((l & 0xff00ff00)), r <<= 1;
-  r += !!((l & 0xf0f0f0f0)), r <<= 1;
-  r += !!((l & 0xcccccccc)), r <<= 1;
-  r += !!((l & 0xaaaaaaaa));
-  return r;
+sigset_t _sigblockall(void) {
+    sigset_t ss;
+    memset(&ss, -1, sizeof(ss));
+    return _sigsetmask(ss);
 }
+
+#define BLOCK_SIGNALS               \
+    do {                            \
+        sigset_t _SigMask;          \
+        _SigMask = _sigblockall()
+	
+#define ALLOW_SIGNALS               \
+        _sigsetmask(_SigMask);      \
+    }                               \
+    while (0)
+	
+
+static int _fork() {
+    int ax, dx, parent;
+    BLOCK_SIGNALS;
+    ax = sys_fork_nt();
+    if (!ax) {
+        dx = GetCurrentProcessId();
+        parent = __pid;
+        __pid = dx;
+        STRACE("fork() -> 0 (child of %d)", parent);
+    } else {
+        STRACE("fork() -> %d %m", ax);
+    }
+    ALLOW_SIGNALS;
+    return ax;
+}
+
+int fork(void) {
+  return _fork(0);
+}*/

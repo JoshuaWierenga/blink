@@ -22,8 +22,8 @@
 #include "blink/flags.h"
 #include "blink/machine.h"
 
-#define LDBL 3
-#define RINT 0
+/*#define LDBL 3
+#define RINT 0*/
 
 static void ResetFpu(struct Machine *m) {
   long i;

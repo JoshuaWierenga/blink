@@ -25,7 +25,7 @@
 #include "blink/throw.h"
 #include "blink/time.h"
 
-static void StoreDescriptorTable(struct Machine *m, uint32_t rde,
+/*static void StoreDescriptorTable(struct Machine *m, uint32_t rde,
                                  uint16_t limit, uint64_t base) {
   uint64_t l;
   l = ComputeAddress(m, rde);
@@ -94,12 +94,12 @@ static void Monitor(struct Machine *m, uint32_t rde) {
 }
 
 static void Mwait(struct Machine *m, uint32_t rde) {
-}
+}*/
 
-static void Swapgs(struct Machine *m, uint32_t rde) {
-}
+/*static void Swapgs(struct Machine *m, uint32_t rde) {
+}*/
 
-static void Vmcall(struct Machine *m, uint32_t rde) {
+/*static void Vmcall(struct Machine *m, uint32_t rde) {
 }
 
 static void Vmlaunch(struct Machine *m, uint32_t rde) {
@@ -109,13 +109,13 @@ static void Vmresume(struct Machine *m, uint32_t rde) {
 }
 
 static void Vmxoff(struct Machine *m, uint32_t rde) {
-}
+}*/
 
 static void InvlpgM(struct Machine *m, uint32_t rde) {
   ResetTlb(m);
 }
 
-static void Smsw(struct Machine *m, uint32_t rde, bool ismem) {
+/*static void Smsw(struct Machine *m, uint32_t rde, bool ismem) {
   if (ismem) {
     Write16(GetModrmRegisterWordPointerWrite2(m, rde), m->cr0);
   } else if (Rexw(rde)) {
@@ -129,13 +129,13 @@ static void Smsw(struct Machine *m, uint32_t rde, bool ismem) {
 
 static void Lmsw(struct Machine *m, uint32_t rde) {
   m->cr0 = Read16(GetModrmRegisterWordPointerRead2(m, rde));
-}
+}*/
 
 void Op101(struct Machine *m, uint32_t rde) {
   bool ismem;
   ismem = !IsModrmRegister(rde);
   switch (ModrmReg(rde)) {
-    case 0:
+    /*case 0:
       if (ismem) {
         SgdtMs(m, rde);
       } else {
@@ -192,24 +192,26 @@ void Op101(struct Machine *m, uint32_t rde) {
       break;
     case 6:
       Lmsw(m, rde);
-      break;
+    break;*/
     case 7:
       if (ismem) {
         InvlpgM(m, rde);
       } else {
         switch (ModrmRm(rde)) {
-          case 0:
+          /*case 0:
             Swapgs(m, rde);
-            break;
+            break;*/
           case 1:
             OpRdtscp(m, rde);
             break;
           default:
+            printf("Unsupported x86 op101 instruction 7 %d detected.\n", ModrmRm(rde));
             OpUd(m, rde);
         }
       }
       break;
     default:
+      printf("Unsupported x86 op101 instruction %d detected.\n", ModrmReg(rde));
       OpUd(m, rde);
   }
 }

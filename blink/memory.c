@@ -21,11 +21,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+//#include <stdio.h>
+
 #include "blink/endian.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
-#include "blink/pml4t.h"
+//#include "blink/pml4t.h"
 #include "blink/throw.h"
 
 void SetReadAddr(struct Machine *m, int64_t addr, uint32_t size) {
@@ -104,7 +106,8 @@ void *FindReal(struct Machine *m, int64_t virt) {
 void *ResolveAddress(struct Machine *m, int64_t v) {
   void *r;
   if ((r = FindReal(m, v))) return r;
-  ThrowSegmentationFault(m, v);
+  //printf("Crashing in resolve address, mode: %i\n", (m->mode & 3));
+  ThrowSegmentationFault(m, 0xF0F0F0F0F0);
 }
 
 void VirtualSet(struct Machine *m, int64_t v, char c, uint64_t n) {
@@ -202,7 +205,7 @@ void *BeginStore(struct Machine *m, int64_t v, size_t n, void *p[2],
   return AccessRam(m, v, n, p, b, false);
 }
 
-void *BeginStoreNp(struct Machine *m, int64_t v, size_t n, void *p[2],
+/*void *BeginStoreNp(struct Machine *m, int64_t v, size_t n, void *p[2],
                    uint8_t *b) {
   if (!v) return NULL;
   return BeginStore(m, v, n, p, b);
@@ -212,7 +215,7 @@ void *BeginLoadStore(struct Machine *m, int64_t v, size_t n, void *p[2],
                      uint8_t *b) {
   SetWriteAddr(m, v, n);
   return AccessRam(m, v, n, p, b, true);
-}
+}*/
 
 void EndStore(struct Machine *m, int64_t v, size_t n, void *p[2], uint8_t *b) {
   unsigned k;
@@ -227,7 +230,7 @@ void EndStore(struct Machine *m, int64_t v, size_t n, void *p[2], uint8_t *b) {
   memcpy(p[1], b + k, n - k);
 }
 
-void EndStoreNp(struct Machine *m, int64_t v, size_t n, void *p[2],
+/*void EndStoreNp(struct Machine *m, int64_t v, size_t n, void *p[2],
                 uint8_t *b) {
   if (v) EndStore(m, v, n, p, b);
 }
@@ -254,7 +257,7 @@ void *LoadBuf(struct Machine *m, int64_t addr, size_t size) {
   }
   SetReadAddr(m, addr, size);
   return buf;
-}
+}*/
 
 void *LoadStr(struct Machine *m, int64_t addr) {
   size_t have;

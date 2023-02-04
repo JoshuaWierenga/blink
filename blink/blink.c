@@ -18,11 +18,17 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <assert.h>
 #include <setjmp.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include "third_party/gnulib_build/config.h"
+#include "third_party/gnulib_build/lib/signal.h"
+#else
+#include <signal.h>
+#endif
 
 #include "blink/case.h"
 #include "blink/endian.h"
@@ -33,11 +39,23 @@
 #include "blink/syscall.h"
 #include "blink/xlat.h"
 
+#include "blink/log.h"
+
 struct Machine *m;
 struct Signals signals;
 
+// TODO: Figure out why the window's signal function can return a si_code
+// like value in some cases but gnulib's sigaction can't.
+// https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/signal
 static void OnSignal(int sig, siginfo_t *si, void *uc) {
-  EnqueueSignal(m, &signals, sig, si->si_code);
+#ifdef _WIN32
+    EnqueueSignal(m, &signals, sig, 0);
+#else
+    EnqueueSignal(m, &signals, sig, si->si_code);
+#endif
+
+    // TODO: Remove, this is not safe
+    printf("Signal occurred: %i\n", sig);
 }
 
 static void AddHostFd(struct Machine *m, int fd) {
@@ -90,18 +108,37 @@ int main(int argc, char *argv[], char **envp) {
   }
   memset(&sa, 0, sizeof(sa));
   sigfillset(&sa.sa_mask);
+#ifndef _WIN32
   sa.sa_flags |= SA_SIGINFO;
+#endif
   sa.sa_sigaction = OnSignal;
-  sigaction(SIGHUP, &sa, 0);
   sigaction(SIGINT, &sa, 0);
-  sigaction(SIGQUIT, &sa, 0);
   sigaction(SIGABRT, &sa, 0);
-  sigaction(SIGUSR1, &sa, 0);
-  sigaction(SIGUSR2, &sa, 0);
-  sigaction(SIGPIPE, &sa, 0);
-  sigaction(SIGALRM, &sa, 0);
   sigaction(SIGTERM, &sa, 0);
+#ifdef SIGHUP
+  sigaction(SIGHUP, &sa, 0);
+#endif
+#ifdef SIGHUP
+  sigaction(SIGQUIT, &sa, 0);
+#endif
+#ifdef SIGUSR1
+  sigaction(SIGUSR1, &sa, 0);
+#endif
+#ifdef SIGUSR2
+  sigaction(SIGUSR2, &sa, 0);
+#endif
+#ifdef SIGPIPE
+  sigaction(SIGPIPE, &sa, 0);
+#endif
+#ifdef SIGALRM
+  sigaction(SIGALRM, &sa, 0);
+#endif
+#ifdef SIGCHLD
   sigaction(SIGCHLD, &sa, 0);
+#endif
+#ifdef SIGWINCH
   sigaction(SIGWINCH, &sa, 0);
+#endif
+  g_log = stderr;
   return Exec(argv[1], argv + 1, envp);
 }

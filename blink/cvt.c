@@ -19,25 +19,27 @@
 #include <math.h>
 #include <string.h>
 
-#include "blink/builtin.h"
+//#include "blink/builtin.h"
 #include "blink/cvt.h"
 #include "blink/endian.h"
 #include "blink/fpu.h"
-#include "blink/machine.h"
+/*#include "blink/machine.h"
 #include "blink/macros.h"
-#include "blink/memory.h"
+#include "blink/memory.h"*/
 #include "blink/modrm.h"
 #include "blink/pun.h"
 #include "blink/throw.h"
+
+#include <stdio.h>
 
 #define kOpCvt0f2a  0
 #define kOpCvtt0f2c 4
 #define kOpCvt0f2d  8
 #define kOpCvt0f5a  12
-#define kOpCvt0f5b  16
+#define kOpCvt0f5b  1
 #define kOpCvt0fE6  20
 
-static double SseRoundDouble(struct Machine *m, double x) {
+/*static double SseRoundDouble(struct Machine *m, double x) {
   switch ((m->mxcsr & kMxcsrRc) >> 13) {
     case 0:
       return rint(x);
@@ -50,7 +52,7 @@ static double SseRoundDouble(struct Machine *m, double x) {
     default:
       __builtin_unreachable();
   }
-}
+}*/
 
 static void OpGdqpWssCvttss2si(struct Machine *m, uint32_t rde) {
   int64_t n;
@@ -70,7 +72,7 @@ static void OpGdqpWsdCvttsd2si(struct Machine *m, uint32_t rde) {
   Write64(RegRexrReg(m, rde), n);
 }
 
-static void OpGdqpWssCvtss2si(struct Machine *m, uint32_t rde) {
+/*static void OpGdqpWssCvtss2si(struct Machine *m, uint32_t rde) {
   int64_t n;
   union FloatPun f;
   f.i = Read32(GetModrmRegisterXmmPointerRead4(m, rde));
@@ -86,7 +88,7 @@ static void OpGdqpWsdCvtsd2si(struct Machine *m, uint32_t rde) {
   n = SseRoundDouble(m, d.f);
   if (!Rexw(rde)) n &= 0xffffffff;
   Write64(RegRexrReg(m, rde), n);
-}
+}*/
 
 static void OpVssEdqpCvtsi2ss(struct Machine *m, uint32_t rde) {
   union FloatPun f;
@@ -131,7 +133,7 @@ static void OpVpsQpiCvtpi2ps(struct Machine *m, uint32_t rde) {
   Write32(XmmRexrReg(m, rde) + 4, f[1].i);
 }
 
-static void OpVpdQpiCvtpi2pd(struct Machine *m, uint32_t rde) {
+/*static void OpVpdQpiCvtpi2pd(struct Machine *m, uint32_t rde) {
   uint8_t *p;
   int32_t n[2];
   union DoublePun f[2];
@@ -142,7 +144,7 @@ static void OpVpdQpiCvtpi2pd(struct Machine *m, uint32_t rde) {
   f[1].f = n[1];
   Write64(XmmRexrReg(m, rde) + 0, f[0].i);
   Write64(XmmRexrReg(m, rde) + 8, f[1].i);
-}
+}*/
 
 static void OpPpiWpsqCvtps2pi(struct Machine *m, uint32_t rde) {
   uint8_t *p;
@@ -185,7 +187,7 @@ static void OpPpiWpsqCvttps2pi(struct Machine *m, uint32_t rde) {
   Write32(MmReg(m, rde) + 4, n[1]);
 }
 
-static void OpPpiWpdCvtpd2pi(struct Machine *m, uint32_t rde) {
+/*static void OpPpiWpdCvtpd2pi(struct Machine *m, uint32_t rde) {
   uint8_t *p;
   unsigned i;
   int32_t n[2];
@@ -209,7 +211,7 @@ static void OpPpiWpdCvttpd2pi(struct Machine *m, uint32_t rde) {
   n[1] = d[1].f;
   Write32(MmReg(m, rde) + 0, n[0]);
   Write32(MmReg(m, rde) + 4, n[1]);
-}
+}*/
 
 static void OpVpdWpsCvtps2pd(struct Machine *m, uint32_t rde) {
   uint8_t *p;
@@ -224,7 +226,7 @@ static void OpVpdWpsCvtps2pd(struct Machine *m, uint32_t rde) {
   Write64(XmmRexrReg(m, rde) + 8, d[1].i);
 }
 
-static void OpVpsWpdCvtpd2ps(struct Machine *m, uint32_t rde) {
+/*static void OpVpsWpdCvtpd2ps(struct Machine *m, uint32_t rde) {
   uint8_t *p;
   union FloatPun f[2];
   union DoublePun d[2];
@@ -243,7 +245,7 @@ static void OpVssWsdCvtsd2ss(struct Machine *m, uint32_t rde) {
   d.i = Read64(GetModrmRegisterXmmPointerRead8(m, rde));
   f.f = d.f;
   Write32(XmmRexrReg(m, rde), f.i);
-}
+}*/
 
 static void OpVsdWssCvtss2sd(struct Machine *m, uint32_t rde) {
   union FloatPun f;
@@ -272,7 +274,7 @@ static void OpVpsWdqCvtdq2ps(struct Machine *m, uint32_t rde) {
   Write32(XmmRexrReg(m, rde) + 3 * 4, f[3].i);
 }
 
-static void OpVpdWdqCvtdq2pd(struct Machine *m, uint32_t rde) {
+/*static void OpVpdWdqCvtdq2pd(struct Machine *m, uint32_t rde) {
   uint8_t *p;
   int32_t n[2];
   union DoublePun d[2];
@@ -360,38 +362,38 @@ static void OpVdqWpdCvtpd2dq(struct Machine *m, uint32_t rde) {
   for (i = 0; i < 2; ++i) n[i] = SseRoundDouble(m, d[i].f);
   Write32(XmmRexrReg(m, rde) + 0, n[0]);
   Write32(XmmRexrReg(m, rde) + 4, n[1]);
-}
+}*/
 
 static void OpCvt(struct Machine *m, uint32_t rde, unsigned long op) {
   switch (op | Rep(rde) | Osz(rde)) {
     case kOpCvt0f2a + 0:
       OpVpsQpiCvtpi2ps(m, rde);
       break;
-    case kOpCvt0f2a + 1:
+    /*case kOpCvt0f2a + 1:
       OpVpdQpiCvtpi2pd(m, rde);
-      break;
+    break;*/
     case kOpCvt0f2a + 2:
       OpVsdEdqpCvtsi2sd(m, rde);
-      break;
+    break;
     case kOpCvt0f2a + 3:
       OpVssEdqpCvtsi2ss(m, rde);
       break;
     case kOpCvtt0f2c + 0:
       OpPpiWpsqCvttps2pi(m, rde);
       break;
-    case kOpCvtt0f2c + 1:
+    /*case kOpCvtt0f2c + 1:
       OpPpiWpdCvttpd2pi(m, rde);
-      break;
+    break;*/
     case kOpCvtt0f2c + 2:
       OpGdqpWsdCvttsd2si(m, rde);
-      break;
+    break;
     case kOpCvtt0f2c + 3:
       OpGdqpWssCvttss2si(m, rde);
       break;
     case kOpCvt0f2d + 0:
       OpPpiWpsqCvtps2pi(m, rde);
       break;
-    case kOpCvt0f2d + 1:
+    /*case kOpCvt0f2d + 1:
       OpPpiWpdCvtpd2pi(m, rde);
       break;
     case kOpCvt0f2d + 2:
@@ -399,28 +401,28 @@ static void OpCvt(struct Machine *m, uint32_t rde, unsigned long op) {
       break;
     case kOpCvt0f2d + 3:
       OpGdqpWssCvtss2si(m, rde);
-      break;
+      break;*/
     case kOpCvt0f5a + 0:
       OpVpdWpsCvtps2pd(m, rde);
       break;
-    case kOpCvt0f5a + 1:
+    /*case kOpCvt0f5a + 1:
       OpVpsWpdCvtpd2ps(m, rde);
       break;
     case kOpCvt0f5a + 2:
       OpVssWsdCvtsd2ss(m, rde);
-      break;
+    break;*/
     case kOpCvt0f5a + 3:
       OpVsdWssCvtss2sd(m, rde);
       break;
     case kOpCvt0f5b + 0:
       OpVpsWdqCvtdq2ps(m, rde);
-      break;
-    case kOpCvt0f5b + 1:
+    break;
+    /*case kOpCvt0f5b + 1:
       OpVdqWpsCvtps2dq(m, rde);
       break;
     case kOpCvt0f5b + 3:
       OpVdqWpsCvttps2dq(m, rde);
-      break;
+    break;
     case kOpCvt0fE6 + 1:
       OpVdqWpdCvtpd2dq(m, rde);
       break;
@@ -429,8 +431,9 @@ static void OpCvt(struct Machine *m, uint32_t rde, unsigned long op) {
       break;
     case kOpCvt0fE6 + 3:
       OpVpdWdqCvtdq2pd(m, rde);
-      break;
+      break;*/
     default:
+      printf("Unsupported x86 convert instruction %ld detected\n", op | Rep(rde) | Osz(rde));
       OpUd(m, rde);
   }
 }

@@ -18,10 +18,12 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <string.h>
 
-#include "blink/address.h"
-#include "blink/builtin.h"
+#include <stdio.h>
+
+/*#include "blink/address.h"
+#include "blink/builtin.h"*/
 #include "blink/endian.h"
-#include "blink/macros.h"
+//#include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/stack.h"
@@ -268,6 +270,7 @@ void OpPusha(struct Machine *m, uint32_t rde) {
       Pushad(m, rde);
       break;
     case XED_MODE_LONG:
+      printf("OpPusha issue\n");
       OpUd(m, rde);
     default:
       __builtin_unreachable();
@@ -283,6 +286,7 @@ void OpPopa(struct Machine *m, uint32_t rde) {
       Popad(m, rde);
       break;
     case XED_MODE_LONG:
+      printf("OpPopa issue\n");
       OpUd(m, rde);
     default:
       __builtin_unreachable();

@@ -23,6 +23,8 @@
 #include "blink/throw.h"
 #include "blink/x86.h"
 
+#include <stdio.h>
+
 uint64_t AddressOb(struct Machine *m, uint32_t rde) {
   return AddSegment(m, rde, m->xedd->op.disp, m->ds);
 }
@@ -43,6 +45,7 @@ uint8_t *GetSegment(struct Machine *m, uint32_t rde, int s) {
       return m->gs;
     case 6:
     case 7:
+      printf("Unsupported segment %d requested\n", s & 7);
       OpUd(m, rde);
     default:
       __builtin_unreachable();

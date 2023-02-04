@@ -21,14 +21,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "blink/builtin.h"
+//#include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/fpu.h"
 #include "blink/ldbl.h"
 #include "blink/machine.h"
-#include "blink/macros.h"
+//#include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/pun.h"
@@ -70,9 +70,9 @@ static void FpuClearRoundup(struct Machine *m) {
   m->fpu.sw &= ~kFpuSwC1;
 }
 
-static void FpuClearOutOfRangeIndicator(struct Machine *m) {
+/*static void FpuClearOutOfRangeIndicator(struct Machine *m) {
   m->fpu.sw &= ~kFpuSwC2;
-}
+}*/
 
 static void FpuSetSt0(struct Machine *m, double x) {
   *FpuSt(m, 0) = x;
@@ -125,12 +125,12 @@ static void FpuSetMemoryShort(struct Machine *m, int16_t i) {
   EndStore(m, m->fpu.dp, 2, p, b);
 }
 
-static void FpuSetMemoryInt(struct Machine *m, int32_t i) {
+/*static void FpuSetMemoryInt(struct Machine *m, int32_t i) {
   void *p[2];
   uint8_t b[4];
   Write32(BeginStore(m, m->fpu.dp, 4, p, b), i);
   EndStore(m, m->fpu.dp, 4, p, b);
-}
+}*/
 
 static void FpuSetMemoryLong(struct Machine *m, int64_t i) {
   void *p[2];
@@ -139,7 +139,7 @@ static void FpuSetMemoryLong(struct Machine *m, int64_t i) {
   EndStore(m, m->fpu.dp, 8, p, b);
 }
 
-static void FpuSetMemoryFloat(struct Machine *m, float f) {
+/*static void FpuSetMemoryFloat(struct Machine *m, float f) {
   union FloatPun u = {f};
   FpuSetMemoryInt(m, u.i);
 }
@@ -147,7 +147,7 @@ static void FpuSetMemoryFloat(struct Machine *m, float f) {
 static void FpuSetMemoryDouble(struct Machine *m, double f) {
   union DoublePun u = {f};
   FpuSetMemoryLong(m, u.i);
-}
+}*/
 
 static double FpuGetMemoryLdbl(struct Machine *m) {
   uint8_t b[10];
@@ -162,7 +162,7 @@ static void FpuSetMemoryLdbl(struct Machine *m, double f) {
   EndStore(m, m->fpu.dp, 10, p, t);
 }
 
-static double f2xm1(double x) {
+/*static double f2xm1(double x) {
   return exp2(x) - 1;
 }
 
@@ -177,7 +177,7 @@ static double fyl2xp1(double x, double y) {
 static double fscale(double significand, double exponent) {
   if (isunordered(significand, exponent)) return NAN;
   return ldexp(significand, exponent);
-}
+}*/
 
 static double x87remainder(double x, double y, uint32_t *sw,
                            double rem(double, double), double rnd(double)) {
@@ -199,9 +199,9 @@ static double fprem(double dividend, double modulus, uint32_t *sw) {
   return x87remainder(dividend, modulus, sw, fmod, trunc);
 }
 
-static double fprem1(double dividend, double modulus, uint32_t *sw) {
+/*static double fprem1(double dividend, double modulus, uint32_t *sw) {
   return x87remainder(dividend, modulus, sw, remainder, rint);
-}
+}*/
 
 static double FpuAdd(struct Machine *m, double x, double y) {
   if (!isunordered(x, y)) {
@@ -227,7 +227,7 @@ static double FpuAdd(struct Machine *m, double x, double y) {
   }
 }
 
-static double FpuSub(struct Machine *m, double x, double y) {
+/*static double FpuSub(struct Machine *m, double x, double y) {
   if (!isunordered(x, y)) {
     switch (isinf(y) << 1 | isinf(x)) {
       case 0:
@@ -249,7 +249,7 @@ static double FpuSub(struct Machine *m, double x, double y) {
   } else {
     return NAN;
   }
-}
+  }*/
 
 static double FpuMul(struct Machine *m, double x, double y) {
   if (!isunordered(x, y)) {
@@ -282,7 +282,7 @@ static double FpuDiv(struct Machine *m, double x, double y) {
   }
 }
 
-static double FpuRound(struct Machine *m, double x) {
+/*static double FpuRound(struct Machine *m, double x) {
   switch ((m->fpu.cw & kFpuCwRc) >> 10) {
     case 0:
       return rint(x);
@@ -388,7 +388,7 @@ static void OpFcmovnu(struct Machine *m) {
   if (!GetFlag(m->flags, FLAGS_PF)) {
     FpuSetSt0(m, StRm(m));
   }
-}
+}*/
 
 static void OpFchs(struct Machine *m) {
   FpuSetSt0(m, -St0(m));
@@ -398,7 +398,7 @@ static void OpFabs(struct Machine *m) {
   FpuSetSt0(m, fabs(St0(m)));
 }
 
-static void OpF2xm1(struct Machine *m) {
+/*static void OpF2xm1(struct Machine *m) {
   FpuSetSt0(m, f2xm1(St0(m)));
 }
 
@@ -451,37 +451,37 @@ static void OpFcomp(struct Machine *m) {
 
 static void OpFaddStEst(struct Machine *m) {
   FpuSetSt0(m, FpuAdd(m, St0(m), StRm(m)));
-}
+}*/
 
 static void OpFmulStEst(struct Machine *m) {
   FpuSetSt0(m, FpuMul(m, St0(m), StRm(m)));
 }
 
-static void OpFsubStEst(struct Machine *m) {
+/*static void OpFsubStEst(struct Machine *m) {
   FpuSetSt0(m, FpuSub(m, St0(m), StRm(m)));
 }
 
 static void OpFsubrStEst(struct Machine *m) {
   FpuSetSt0(m, FpuSub(m, StRm(m), St0(m)));
-}
+}*/
 
 static void OpFdivStEst(struct Machine *m) {
   FpuSetSt0(m, FpuDiv(m, St0(m), StRm(m)));
 }
 
-static void OpFdivrStEst(struct Machine *m) {
+/*static void OpFdivrStEst(struct Machine *m) {
   FpuSetSt0(m, FpuDiv(m, StRm(m), St0(m)));
 }
 
 static void OpFaddEstSt(struct Machine *m) {
   FpuSetStRm(m, FpuAdd(m, StRm(m), St0(m)));
-}
+}*/
 
 static void OpFmulEstSt(struct Machine *m) {
   FpuSetStRm(m, FpuMul(m, StRm(m), St0(m)));
 }
 
-static void OpFsubEstSt(struct Machine *m) {
+/*static void OpFsubEstSt(struct Machine *m) {
   FpuSetStRm(m, FpuSub(m, St0(m), StRm(m)));
 }
 
@@ -495,7 +495,7 @@ static void OpFdivEstSt(struct Machine *m) {
 
 static void OpFdivrEstSt(struct Machine *m) {
   FpuSetStRm(m, FpuDiv(m, St0(m), StRm(m)));
-}
+}*/
 
 static void OpFaddp(struct Machine *m) {
   FpuSetStRmPop(m, FpuAdd(m, St0(m), StRm(m)));
@@ -505,7 +505,7 @@ static void OpFmulp(struct Machine *m) {
   FpuSetStRmPop(m, FpuMul(m, St0(m), StRm(m)));
 }
 
-static void OpFcompp(struct Machine *m) {
+/*static void OpFcompp(struct Machine *m) {
   OpFcomp(m);
   FpuPop(m);
 }
@@ -516,25 +516,25 @@ static void OpFsubp(struct Machine *m) {
 
 static void OpFsubrp(struct Machine *m) {
   FpuSetStPop(m, 1, FpuSub(m, StRm(m), St0(m)));
-}
+}*/
 
 static void OpFdivp(struct Machine *m) {
   FpuSetStRmPop(m, FpuDiv(m, St0(m), StRm(m)));
 }
 
-static void OpFdivrp(struct Machine *m) {
+/*static void OpFdivrp(struct Machine *m) {
   FpuSetStRmPop(m, FpuDiv(m, StRm(m), St0(m)));
 }
 
 static void OpFadds(struct Machine *m) {
   FpuSetSt0(m, FpuAdd(m, St0(m), FpuGetMemoryFloat(m)));
-}
+}*/
 
 static void OpFmuls(struct Machine *m) {
   FpuSetSt0(m, FpuMul(m, St0(m), FpuGetMemoryFloat(m)));
 }
 
-static void OpFcoms(struct Machine *m) {
+/*static void OpFcoms(struct Machine *m) {
   FpuCompare(m, FpuGetMemoryFloat(m));
 }
 
@@ -561,13 +561,13 @@ static void OpFdivrs(struct Machine *m) {
 
 static void OpFaddl(struct Machine *m) {
   FpuSetSt0(m, FpuAdd(m, St0(m), FpuGetMemoryDouble(m)));
-}
+}*/
 
 static void OpFmull(struct Machine *m) {
   FpuSetSt0(m, FpuMul(m, St0(m), FpuGetMemoryDouble(m)));
 }
 
-static void OpFcoml(struct Machine *m) {
+/*static void OpFcoml(struct Machine *m) {
   FpuCompare(m, FpuGetMemoryDouble(m));
 }
 
@@ -656,27 +656,27 @@ static void OpFidivs(struct Machine *m) {
 
 static void OpFidivrs(struct Machine *m) {
   FpuSetSt0(m, FpuDiv(m, FpuGetMemoryShort(m), St0(m)));
-}
+}*/
 
 static void OpFsqrt(struct Machine *m) {
   FpuClearRoundup(m);
   FpuSetSt0(m, sqrt(St0(m)));
 }
 
-static void OpFrndint(struct Machine *m) {
+/*static void OpFrndint(struct Machine *m) {
   FpuSetSt0(m, FpuRound(m, St0(m)));
 }
 
 static void OpFscale(struct Machine *m) {
   FpuClearRoundup(m);
   FpuSetSt0(m, fscale(St0(m), St1(m)));
-}
+}*/
 
 static void OpFprem(struct Machine *m) {
   FpuSetSt0(m, fprem(St0(m), St1(m), &m->fpu.sw));
 }
 
-static void OpFprem1(struct Machine *m) {
+/*static void OpFprem1(struct Machine *m) {
   FpuSetSt0(m, fprem1(St0(m), St1(m), &m->fpu.sw));
 }
 
@@ -692,7 +692,7 @@ static void OpFxtract(struct Machine *m) {
   double x = St0(m);
   FpuSetSt0(m, logb(x));
   FpuPush(m, ldexp(x, -ilogb(x)));
-}
+  }*/
 
 static void OpFld(struct Machine *m) {
   FpuPush(m, StRm(m));
@@ -702,20 +702,20 @@ static void OpFlds(struct Machine *m) {
   FpuPush(m, FpuGetMemoryFloat(m));
 }
 
-static void OpFsts(struct Machine *m) {
+/*static void OpFsts(struct Machine *m) {
   FpuSetMemoryFloat(m, St0(m));
 }
 
 static void OpFstps(struct Machine *m) {
   OpFsts(m);
   FpuPop(m);
-}
+}*/
 
 static void OpFstpt(struct Machine *m) {
   FpuSetMemoryLdbl(m, FpuPop(m));
 }
 
-static void OpFstl(struct Machine *m) {
+/*static void OpFstl(struct Machine *m) {
   FpuSetMemoryDouble(m, St0(m));
 }
 
@@ -726,7 +726,7 @@ static void OpFstpl(struct Machine *m) {
 
 static void OpFst(struct Machine *m) {
   FpuSetStRm(m, St0(m));
-}
+}*/
 
 static void OpFstp(struct Machine *m) {
   FpuSetStRmPop(m, St0(m));
@@ -789,6 +789,7 @@ static void OpFldConstant(struct Machine *m) {
     CASE(5, x = Fldln2());
     CASE(6, x = Fldz());
     default:
+      printf("Fld constant issue\n");
       OpUd(m, m->xedd->op.rde);
   }
   FpuPush(m, x);
@@ -798,9 +799,9 @@ static void OpFstcw(struct Machine *m) {
   FpuSetMemoryShort(m, m->fpu.cw);
 }
 
-static void OpFilds(struct Machine *m) {
+/*static void OpFilds(struct Machine *m) {
   FpuPush(m, FpuGetMemoryShort(m));
-}
+}*/
 
 static void OpFildl(struct Machine *m) {
   FpuPush(m, FpuGetMemoryInt(m));
@@ -810,15 +811,15 @@ static void OpFildll(struct Machine *m) {
   FpuPush(m, FpuGetMemoryLong(m));
 }
 
-static void OpFisttpl(struct Machine *m) {
+/*static void OpFisttpl(struct Machine *m) {
   FpuSetMemoryInt(m, FpuPop(m));
-}
+}*/
 
 static void OpFisttpll(struct Machine *m) {
   FpuSetMemoryLong(m, FpuPop(m));
 }
 
-static void OpFisttps(struct Machine *m) {
+/*static void OpFisttps(struct Machine *m) {
   FpuSetMemoryShort(m, FpuPop(m));
 }
 
@@ -847,7 +848,7 @@ static void OpFistpll(struct Machine *m) {
 static void OpFistps(struct Machine *m) {
   OpFists(m);
   FpuPop(m);
-}
+}*/
 
 static void OpFcomi(struct Machine *m) {
   double x, y;
@@ -865,14 +866,14 @@ static void OpFcomi(struct Machine *m) {
   }
 }
 
-static void OpFucom(struct Machine *m) {
+/*static void OpFucom(struct Machine *m) {
   FpuCompare(m, StRm(m));
 }
 
 static void OpFucomp(struct Machine *m) {
   FpuCompare(m, StRm(m));
   FpuPop(m);
-}
+}*/
 
 static void OpFcomip(struct Machine *m) {
   OpFcomi(m);
@@ -883,7 +884,7 @@ static void OpFucomi(struct Machine *m) {
   OpFcomi(m);
 }
 
-static void OpFucomip(struct Machine *m) {
+/*static void OpFucomip(struct Machine *m) {
   OpFcomip(m);
 }
 
@@ -962,13 +963,13 @@ static void OpFnclex(struct Machine *m) {
 
 static void OpFnop(struct Machine *m) {
   /* do nothing */
-}
+/*}
 
 void OpFinit(struct Machine *m) {
   m->fpu.cw = 0x037f;
   m->fpu.sw = 0;
   m->fpu.tw = -1;
-}
+}*/
 
 void OpFwait(struct Machine *m, uint32_t rde) {
   int sw, cw;
@@ -1033,35 +1034,35 @@ void OpFpu(struct Machine *m, uint32_t rde) {
   m->fpu.op = op << 8 | ModrmMod(rde) << 6 | ModrmReg(rde) << 3 | ModrmRm(rde);
   m->fpu.dp = ismemory ? ComputeAddress(m, rde) : 0;
   switch (DISP(op, ismemory, ModrmReg(rde))) {
-    CASE(DISP(0xD8, FPUREG, 0), OpFaddStEst(m));
+    //CASE(DISP(0xD8, FPUREG, 0), OpFaddStEst(m));
     CASE(DISP(0xD8, FPUREG, 1), OpFmulStEst(m));
-    CASE(DISP(0xD8, FPUREG, 2), OpFcom(m));
+    /*CASE(DISP(0xD8, FPUREG, 2), OpFcom(m));
     CASE(DISP(0xD8, FPUREG, 3), OpFcomp(m));
     CASE(DISP(0xD8, FPUREG, 4), OpFsubStEst(m));
-    CASE(DISP(0xD8, FPUREG, 5), OpFsubrStEst(m));
+    CASE(DISP(0xD8, FPUREG, 5), OpFsubrStEst(m));*/
     CASE(DISP(0xD8, FPUREG, 6), OpFdivStEst(m));
-    CASE(DISP(0xD8, FPUREG, 7), OpFdivrStEst(m));
-    CASE(DISP(0xD8, MEMORY, 0), OpFadds(m));
+    /*CASE(DISP(0xD8, FPUREG, 7), OpFdivrStEst(m));
+    CASE(DISP(0xD8, MEMORY, 0), OpFadds(m));*/
     CASE(DISP(0xD8, MEMORY, 1), OpFmuls(m));
-    CASE(DISP(0xD8, MEMORY, 2), OpFcoms(m));
+    /*CASE(DISP(0xD8, MEMORY, 2), OpFcoms(m));
     CASE(DISP(0xD8, MEMORY, 3), OpFcomps(m));
     CASE(DISP(0xD8, MEMORY, 4), OpFsubs(m));
     CASE(DISP(0xD8, MEMORY, 5), OpFsubrs(m));
     CASE(DISP(0xD8, MEMORY, 6), OpFdivs(m));
-    CASE(DISP(0xD8, MEMORY, 7), OpFdivrs(m));
+    CASE(DISP(0xD8, MEMORY, 7), OpFdivrs(m));*/
     CASE(DISP(0xD9, FPUREG, 0), OpFld(m));
     CASE(DISP(0xD9, FPUREG, 1), OpFxch(m));
-    CASE(DISP(0xD9, FPUREG, 2), OpFnop(m));
-    CASE(DISP(0xD9, FPUREG, 3), OpFstp(m));
+    /*CASE(DISP(0xD9, FPUREG, 2), OpFnop(m));
+    CASE(DISP(0xD9, FPUREG, 3), OpFstp(m));*/
     CASE(DISP(0xD9, FPUREG, 5), OpFldConstant(m));
     CASE(DISP(0xD9, MEMORY, 0), OpFlds(m));
-    CASE(DISP(0xD9, MEMORY, 2), OpFsts(m));
+    /*CASE(DISP(0xD9, MEMORY, 2), OpFsts(m));
     CASE(DISP(0xD9, MEMORY, 3), OpFstps(m));
-    CASE(DISP(0xD9, MEMORY, 4), OpFldenv(m));
+    CASE(DISP(0xD9, MEMORY, 4), OpFldenv(m));*/
     CASE(DISP(0xD9, MEMORY, 5), OpFldcw(m));
-    CASE(DISP(0xD9, MEMORY, 6), OpFstenv(m));
+    //CASE(DISP(0xD9, MEMORY, 6), OpFstenv(m));
     CASE(DISP(0xD9, MEMORY, 7), OpFstcw(m));
-    CASE(DISP(0xDA, FPUREG, 0), OpFcmovb(m));
+    /*CASE(DISP(0xDA, FPUREG, 0), OpFcmovb(m));
     CASE(DISP(0xDA, FPUREG, 1), OpFcmove(m));
     CASE(DISP(0xDA, FPUREG, 2), OpFcmovbe(m));
     CASE(DISP(0xDA, FPUREG, 3), OpFcmovu(m));
@@ -1076,26 +1077,26 @@ void OpFpu(struct Machine *m, uint32_t rde) {
     CASE(DISP(0xDB, FPUREG, 0), OpFcmovnb(m));
     CASE(DISP(0xDB, FPUREG, 1), OpFcmovne(m));
     CASE(DISP(0xDB, FPUREG, 2), OpFcmovnbe(m));
-    CASE(DISP(0xDB, FPUREG, 3), OpFcmovnu(m));
+    CASE(DISP(0xDB, FPUREG, 3), OpFcmovnu(m));*/
     CASE(DISP(0xDB, FPUREG, 5), OpFucomi(m));
     CASE(DISP(0xDB, FPUREG, 6), OpFcomi(m));
     CASE(DISP(0xDB, MEMORY, 0), OpFildl(m));
-    CASE(DISP(0xDB, MEMORY, 1), OpFisttpl(m));
+    /*CASE(DISP(0xDB, MEMORY, 1), OpFisttpl(m));
     CASE(DISP(0xDB, MEMORY, 2), OpFistl(m));
-    CASE(DISP(0xDB, MEMORY, 3), OpFistpl(m));
+    CASE(DISP(0xDB, MEMORY, 3), OpFistpl(m));*/
     CASE(DISP(0xDB, MEMORY, 5), OpFldt(m));
     CASE(DISP(0xDB, MEMORY, 7), OpFstpt(m));
-    CASE(DISP(0xDC, FPUREG, 0), OpFaddEstSt(m));
+    //CASE(DISP(0xDC, FPUREG, 0), OpFaddEstSt(m));
     CASE(DISP(0xDC, FPUREG, 1), OpFmulEstSt(m));
-    CASE(DISP(0xDC, FPUREG, 2), OpFcom(m));
+    /*CASE(DISP(0xDC, FPUREG, 2), OpFcom(m));
     CASE(DISP(0xDC, FPUREG, 3), OpFcomp(m));
     CASE(DISP(0xDC, FPUREG, 4), OpFsubEstSt(m));
     CASE(DISP(0xDC, FPUREG, 5), OpFsubrEstSt(m));
     CASE(DISP(0xDC, FPUREG, 6), OpFdivEstSt(m));
     CASE(DISP(0xDC, FPUREG, 7), OpFdivrEstSt(m));
-    CASE(DISP(0xDC, MEMORY, 0), OpFaddl(m));
+    CASE(DISP(0xDC, MEMORY, 0), OpFaddl(m));*/
     CASE(DISP(0xDC, MEMORY, 1), OpFmull(m));
-    CASE(DISP(0xDC, MEMORY, 2), OpFcoml(m));
+    /*CASE(DISP(0xDC, MEMORY, 2), OpFcoml(m));
     CASE(DISP(0xDC, MEMORY, 3), OpFcompl(m));
     CASE(DISP(0xDC, MEMORY, 4), OpFsubl(m));
     CASE(DISP(0xDC, MEMORY, 5), OpFsubrl(m));
@@ -1103,25 +1104,25 @@ void OpFpu(struct Machine *m, uint32_t rde) {
     CASE(DISP(0xDC, MEMORY, 7), OpFdivrl(m));
     CASE(DISP(0xDD, FPUREG, 0), OpFfree(m));
     CASE(DISP(0xDD, FPUREG, 1), OpFxch(m));
-    CASE(DISP(0xDD, FPUREG, 2), OpFst(m));
+    CASE(DISP(0xDD, FPUREG, 2), OpFst(m));*/
     CASE(DISP(0xDD, FPUREG, 3), OpFstp(m));
-    CASE(DISP(0xDD, FPUREG, 4), OpFucom(m));
-    CASE(DISP(0xDD, FPUREG, 5), OpFucomp(m));
+    /*CASE(DISP(0xDD, FPUREG, 4), OpFucom(m));
+    CASE(DISP(0xDD, FPUREG, 5), OpFucomp(m));*/
     CASE(DISP(0xDD, MEMORY, 0), OpFldl(m));
     CASE(DISP(0xDD, MEMORY, 1), OpFisttpll(m));
-    CASE(DISP(0xDD, MEMORY, 2), OpFstl(m));
+    /*CASE(DISP(0xDD, MEMORY, 2), OpFstl(m));
     CASE(DISP(0xDD, MEMORY, 3), OpFstpl(m));
     CASE(DISP(0xDD, MEMORY, 4), OpFrstor(m));
     CASE(DISP(0xDD, MEMORY, 6), OpFsave(m));
-    CASE(DISP(0xDD, MEMORY, 7), OpFstswMw(m));
+    CASE(DISP(0xDD, MEMORY, 7), OpFstswMw(m));*/
     CASE(DISP(0xDE, FPUREG, 0), OpFaddp(m));
     CASE(DISP(0xDE, FPUREG, 1), OpFmulp(m));
-    CASE(DISP(0xDE, FPUREG, 2), OpFcomp(m));
+    /*CASE(DISP(0xDE, FPUREG, 2), OpFcomp(m));
     CASE(DISP(0xDE, FPUREG, 3), OpFcompp(m));
     CASE(DISP(0xDE, FPUREG, 4), OpFsubp(m));
-    CASE(DISP(0xDE, FPUREG, 5), OpFsubrp(m));
+    CASE(DISP(0xDE, FPUREG, 5), OpFsubrp(m));*/
     CASE(DISP(0xDE, FPUREG, 6), OpFdivp(m));
-    CASE(DISP(0xDE, FPUREG, 7), OpFdivrp(m));
+    /*CASE(DISP(0xDE, FPUREG, 7), OpFdivrp(m));
     CASE(DISP(0xDE, MEMORY, 0), OpFiadds(m));
     CASE(DISP(0xDE, MEMORY, 1), OpFimuls(m));
     CASE(DISP(0xDE, MEMORY, 2), OpFicoms(m));
@@ -1135,25 +1136,26 @@ void OpFpu(struct Machine *m, uint32_t rde) {
     CASE(DISP(0xDF, FPUREG, 2), OpFstp(m));
     CASE(DISP(0xDF, FPUREG, 3), OpFstp(m));
     CASE(DISP(0xDF, FPUREG, 4), OpFstswAx(m));
-    CASE(DISP(0xDF, FPUREG, 5), OpFucomip(m));
+    CASE(DISP(0xDF, FPUREG, 5), OpFucomip(m));*/
     CASE(DISP(0xDF, FPUREG, 6), OpFcomip(m));
-    CASE(DISP(0xDF, MEMORY, 0), OpFilds(m));
+    /*CASE(DISP(0xDF, MEMORY, 0), OpFilds(m));
     CASE(DISP(0xDF, MEMORY, 1), OpFisttps(m));
     CASE(DISP(0xDF, MEMORY, 2), OpFists(m));
-    CASE(DISP(0xDF, MEMORY, 3), OpFistps(m));
+    CASE(DISP(0xDF, MEMORY, 3), OpFistps(m));*/
     CASE(DISP(0xDF, MEMORY, 5), OpFildll(m));
-    CASE(DISP(0xDF, MEMORY, 7), OpFistpll(m));
+    //CASE(DISP(0xDF, MEMORY, 7), OpFistpll(m));
     case DISP(0xD9, FPUREG, 4):
       switch (ModrmRm(rde)) {
         CASE(0, OpFchs(m));
         CASE(1, OpFabs(m));
-        CASE(4, OpFtst(m));
-        CASE(5, OpFxam(m));
+        /*CASE(4, OpFtst(m));
+        CASE(5, OpFxam(m));*/
         default:
+          printf("Unsupported x86 fpu instruction (0xD9, Register, 4, %d) detected\n", ModrmRm(rde));
           OpUd(m, rde);
       }
       break;
-    case DISP(0xD9, FPUREG, 6):
+    /*case DISP(0xD9, FPUREG, 6):
       switch (ModrmRm(rde)) {
         CASE(0, OpF2xm1(m));
         CASE(1, OpFyl2x(m));
@@ -1166,30 +1168,32 @@ void OpFpu(struct Machine *m, uint32_t rde) {
         default:
           __builtin_unreachable();
       }
-      break;
+      break;*/
     case DISP(0xD9, FPUREG, 7):
       switch (ModrmRm(rde)) {
         CASE(0, OpFprem(m));
-        CASE(1, OpFyl2xp1(m));
+        //CASE(1, OpFyl2xp1(m));
         CASE(2, OpFsqrt(m));
-        CASE(3, OpFsincos(m));
+        /*CASE(3, OpFsincos(m));
         CASE(4, OpFrndint(m));
         CASE(5, OpFscale(m));
         CASE(6, OpFsin(m));
-        CASE(7, OpFcos(m));
+        CASE(7, OpFcos(m));*/
         default:
+          printf("Unsupported x86 fpu instruction (0xD9, Register, 7, %d) detected\n", ModrmRm(rde));
           __builtin_unreachable();
       }
       break;
-    case DISP(0xDb, FPUREG, 4):
+    /*case DISP(0xDb, FPUREG, 4):
       switch (ModrmRm(rde)) {
         CASE(2, OpFnclex(m));
         CASE(3, OpFinit(m));
         default:
           OpUd(m, rde);
       }
-      break;
+      break;*/
     default:
+      printf("Unsupported x86 fpu instruction (0x%X, %s, %d) detected\n", m->xedd->op.opcode, ismemory ? "Memory" : "Register", ModrmReg(rde));//DISP(op, ismemory, ModrmReg(rde)));
       OpUd(m, rde);
   }
 }
