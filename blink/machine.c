@@ -24,8 +24,8 @@
 #include "blink/address.h"
 #include "blink/alu.h"
 #include "blink/bitscan.h"
-/*#include "blink/case.h"
-#include "blink/clmul.h"*/
+#include "blink/case.h"
+//#include "blink/clmul.h"
 #include "blink/cpuid.h"
 #include "blink/cvt.h"
 #include "blink/divmul.h"
@@ -469,7 +469,7 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
           OpCmpxchg8b(m, rde);
         }
       } else {
-        printf("Op1c7 1 issue\n");
+        LOGF("Op1c7 1 issue");
         OpUd(m, rde);
       }
       break;
@@ -477,7 +477,7 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
       if (!ismem) {
         OpRdrand(m, rde);
       } else {
-        printf("Op1c7 6 issue\n");
+        LOGF("Op1c7 6 issue");
         OpUd(m, rde);
       }
       break;
@@ -489,12 +489,12 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
           OpRdseed(m, rde);
         }
       } else {
-        printf("Op1c7 7 issue\n");
+        LOGF("Op1c7 7 issue");
         OpUd(m, rde);
       }
       break;
     default:
-      printf("Op1c7 issue\n");
+      LOGF("Op1c7 issue");
       OpUd(m, rde);
   }
 }
@@ -580,7 +580,7 @@ static void OpBit(struct Machine *m, uint32_t rde) {
       z = Btc(x, y);
       break;
     default:
-      printf("OpBit issue\n");
+      LOGF("OpBit issue");
       OpUd(m, rde);
   }
   WriteRegisterOrMemory(rde, p, z);
@@ -1374,7 +1374,7 @@ static void Op1b8(struct Machine *m, uint32_t rde) {
   if (Rep(rde) == 3) {
     Bitscan(m, rde, AluPopcnt);
   } else {
-    printf("Op1b8 issue\n");
+    LOGF("Op1b8 issue");
     OpUd(m, rde);
   }
 }
@@ -1482,7 +1482,7 @@ static void Op0fe(struct Machine *m, uint32_t rde) {
       AluEb(m, rde, Dec8);
       break;
     default:
-      printf("Op0fe issue\n");
+      LOGF("Op0fe issue");
       OpUd(m, rde);
   }
 }
@@ -1501,7 +1501,7 @@ static const nexgen32e_f kOp0ff[] = {OpIncEvqp, OpDecEvqp, OpCallEq,  OpUd,
 static void Op0ff(struct Machine *m, uint32_t rde) {
   if (kOp0ff[ModrmReg(rde)] == OpUd)
   {
-      printf("Op0ff issue\n");
+      LOGF("Op0ff issue");
   }
   kOp0ff[ModrmReg(rde)](m, rde);
 }
@@ -1614,7 +1614,7 @@ static void Op1ae(struct Machine *m, uint32_t rde) {
       if (ismem) {
         OpXsave(m, rde);
       } else {
-        printf("Op1ae 4 issue\n");
+        LOGF("Op1ae 4 issue");
         OpUd(m, rde);
       }
       break;
@@ -1632,7 +1632,7 @@ static void Op1ae(struct Machine *m, uint32_t rde) {
       }
       break;
     default:
-      printf("Op1ae issue\n");
+      LOGF("Op1ae issue");
       OpUd(m, rde);
   }
 }
@@ -1701,7 +1701,7 @@ static void OpMovRqCq(struct Machine *m, uint32_t rde) {
       Write64(RegRexbRm(m, rde), m->cr4);
       break;
     default:
-      printf("OpMovRqCq issue\n");
+      LOGF("OpMovRqCq issue");
       OpUd(m, rde);
   }
 }
@@ -1727,7 +1727,7 @@ static void OpMovCqRq(struct Machine *m, uint32_t rde) {
       m->cr4 = Read64(RegRexbRm(m, rde));
       break;
     default:
-      printf("OpMovCqRq issue\n");
+      LOGF("OpMovCqRq issue");
       OpUd(m, rde);
   }
 }
@@ -2271,19 +2271,20 @@ const nexgen32e_f kNexgen32e[] = {
     [0x20B] = OpSsePmulhrsw,
 };
 
-/*void ExecuteSparseInstruction(struct Machine *m, uint32_t rde, uint32_t d) {
+void ExecuteSparseInstruction(struct Machine *m, uint32_t rde, uint32_t d) {
   switch (d) {
-    CASE(0x21c, OpSsePabsb(m, rde));
+    /*CASE(0x21c, OpSsePabsb(m, rde));
     CASE(0x21d, OpSsePabsw(m, rde));
     CASE(0x21e, OpSsePabsd(m, rde));
     CASE(0x22a, OpMovntdqaVdqMdq(m, rde));
-    CASE(0x240, OpSsePmulld(m, rde));
+    CASE(0x240, OpSsePmulld(m, rde));*/
     CASE(0x30f, OpSsePalignr(m, rde));
-    CASE(0x344, OpSsePclmulqdq(m, rde));
+    //CASE(0x344, OpSsePclmulqdq(m, rde));
     default:
+      LOGF("missing sparse instruction %#x", d);
       OpUd(m, rde);
   }
-}*/
+}
 
 void ExecuteInstruction(struct Machine *m) {
   int dispatch;
@@ -2292,14 +2293,14 @@ void ExecuteInstruction(struct Machine *m) {
   if (dispatch < ARRAYLEN(kNexgen32e)) {
     if (kNexgen32e[dispatch] == OpUd)
     {
-        printf("ExecuteInstruction issue: %d\n", dispatch);
+        LOGF("ExecuteInstruction issue: %d\n", dispatch);
     }
     kNexgen32e[dispatch](m, m->xedd->op.rde);
-  } /*else {
+  } else {
     ExecuteSparseInstruction(m, m->xedd->op.rde, dispatch);
   }
   if (m->stashaddr) {
     VirtualRecv(m, m->stashaddr, m->stash, m->stashsize);
     m->stashaddr = 0;
-  }*/
+  }
 }

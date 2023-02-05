@@ -839,11 +839,11 @@ static int OpGetrusage(struct Machine *m, int resource, int64_t rusageaddr) {
   return rc;
 }
 
-/*static int OpGetrlimit(struct Machine *m, int resource, int64_t rlimitaddr) {
+static int OpGetrlimit(struct Machine *m, int resource, int64_t rlimitaddr) {
   return enosys();
 }
 
-static ssize_t OpReadlinkat(struct Machine *m, int dirfd, int64_t pathaddr,
+/*static ssize_t OpReadlinkat(struct Machine *m, int dirfd, int64_t pathaddr,
                             int64_t bufaddr, size_t size) {
   char *buf;
   ssize_t rc;
@@ -1286,7 +1286,7 @@ void OpSyscall(struct Machine *m, uint32_t rde) {
     SYSCALL(0x05B, OpFchmod(m, di, si));*/
     SYSCALL(0x05F, OpUmask(m, di));
     SYSCALL(0x060, OpGettimeofday(m, di, si));
-    //YSCALL(0x061, OpGetrlimit(m, di, si));
+    SYSCALL(0x061, OpGetrlimit(m, di, si));
     SYSCALL(0x062, OpGetrusage(m, di, si));
     /*SYSCALL(0x070, OpSetsid(m));
     SYSCALL(0x079, OpGetpgid(m, di));
