@@ -1,10 +1,34 @@
-# blink
+# Windows blink
 
 blink is an emulator for running x86-64-linux programs on different
 operating systems and hardware architectures. It's designed to do the
 same thing as the `qemu-x86_64` command, except rather than being a 10mb
 binary, blink only has a ~200kb footprint. For further details on the
 motivations for this tool, please read <https://justine.lol/ape.html>.
+
+Currently, this branch is focused on adding support for Windows x86_64
+to blink for cosmopolitan binaries and enabling compilation with th
+MinGW-w64 compiler. This is somewhat redundant since I have already made
+changes to cosmo to ensure that Windows Vista, 7 and 8 x86_64 remain
+supported and have made some experimental changes to enable binaries to
+run on Windows XP Professional x64 Edition and Windows Server 2003 x86_64
+but there is a chance that blink can do it better. There is also Cygwin
+support now that should work as far back as Windows XP SP3, even on
+x86_32 but that has so far proven to be unstable.
+
+To do this I have reverted all the way to blink's first commit(at least
+in its own repo), removed all code and then slowly started readding it
+while ensuring everything works on Windows. This has required polyfilling
+lots of POSIX functionality that is missing on windows. This has been
+done using a mix of cosmopolitan, gnulib(which I plan to remove due to
+licencing differences) and an mmap implementation I found that was
+specifically designed for use with MinGW-w64.
+
+In the future, I plan to support Windows x86_32 and at least match Cygwin
+in working as far back as Windows XP SP3 if not further back. Compiling
+with MSVC is something I am considering but have not decided on yet.
+
+Some basic information about what works and what doesn't can be found [here](https://docs.google.com/spreadsheets/d/1861-zsZLEvvcHWlU3aC9PD9QkzspXeXB/edit?usp=sharing&ouid=109492778709853331117&rtpof=true&sd=true).
 
 ## Getting Started
 
