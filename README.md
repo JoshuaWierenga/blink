@@ -6,15 +6,18 @@ same thing as the `qemu-x86_64` command, except rather than being a 10mb
 binary, blink only has a ~200kb footprint. For further details on the
 motivations for this tool, please read <https://justine.lol/ape.html>.
 
-Currently, this branch is focused on adding support for Windows x86_64
+Note that only blink builds currently as blinkenlights/tui has been
+removed.
+
+Currently, this branch is focused on adding support for Windows x86-64
 to blink for cosmopolitan binaries and enabling compilation with th
 MinGW-w64 compiler. This is somewhat redundant since I have already made
-changes to cosmo to ensure that Windows Vista, 7 and 8 x86_64 remain
+changes to cosmo to ensure that Windows Vista, 7 and 8 x86-64 remain
 supported and have made some experimental changes to enable binaries to
-run on Windows XP Professional x64 Edition and Windows Server 2003 x86_64
+run on Windows XP Professional x64 Edition and Windows Server 2003 x86-64
 but there is a chance that blink can do it better. There is also Cygwin
 support now that should work as far back as Windows XP SP3, even on
-x86_32 but that has so far proven to be unstable.
+x86-32 but that has so far proven to be unstable.
 
 To do this I have reverted all the way to blink's first commit(at least
 in its own repo), removed all code and then slowly started readding it
@@ -24,7 +27,7 @@ done using a mix of cosmopolitan, gnulib(which I plan to remove due to
 licencing differences) and an mmap implementation I found that was
 specifically designed for use with MinGW-w64.
 
-In the future, I plan to support Windows x86_32 and at least match Cygwin
+In the future, I plan to support Windows x86-32 and at least match Cygwin
 in working as far back as Windows XP SP3 if not further back. Compiling
 with MSVC is something I am considering but have not decided on yet.
 
@@ -43,7 +46,19 @@ $ o///blink/blink third_party/cosmo/tinyhello.elf
 hello world
 ```
 
-There's a terminal interface for debugging:
+To compile blink for x86-64 Windows, mingw-w64 is required, I have
+tested `x86_64-w64-mingw32-gcc-posix (GCC) 10-posix 20220113` on x86-64
+WSL2 Ubuntu running on Windows 10 which works.
+
+```sh
+$ make o//x86_64-mingw-w64/blink/blink
+$ o//x86_64-mingw-w64/blink/blink.exe third_party/cosmo/hello.com
+hello world
+$ o//x86_64-mingw-w64/blink/blink.exe third_party/cosmo/tinyhello.elf
+hello world
+```
+
+There's a terminal interface for debugging(currently unavailable):
 
 ```
 $ make -j8 o///blink/tui
