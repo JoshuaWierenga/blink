@@ -11,6 +11,6 @@ struct XmmType {
   uint8_t size[16];
 };
 
-//void UpdateXmmType(struct Machine *, struct XmmType *);
+void UpdateXmmType(struct Machine *, struct XmmType *);
 
 #endif /* BLINK_XMMTYPE_H_ */

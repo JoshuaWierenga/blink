@@ -17,91 +17,98 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
-/*#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>*/
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
-#include "blink/buffer.h"
-#include "blink/macros.h"
-#include "blink/tpenc.h"
+#include "blink/builtin.h"
+#include "blink/thompike.h"
 #include "blink/util.h"
 
-void AppendData(struct Buffer *b, const char *data, unsigned len) {
-  char *p;
-  unsigned n;
-  if (b->i + len + 1 > b->n) {
-    n = MAX(b->i + len + 1, MAX(16, b->n + (b->n >> 1)));
-    if (!(p = realloc(b->p, n))) return;
-    b->p = p;
-    b->n = n;
-  }
-  memcpy(b->p + b->i, data, len);
-  b->p[b->i += len] = 0;
-}
-
-void AppendChar(struct Buffer *b, char c) {
-  AppendData(b, &c, 1);
-}
-
-void AppendStr(struct Buffer *b, const char *s) {
-  AppendData(b, s, strlen(s));
-}
-
-void AppendWide(struct Buffer *b, wint_t wc) {
-  unsigned i;
-  uint64_t wb;
-  char buf[8];
-  i = 0;
-  wb = tpenc(wc);
-  do {
-    buf[i++] = wb & 0xFF;
-    wb >>= 8;
-  } while (wb);
-  AppendData(b, buf, i);
-}
-
-int AppendFmt(struct Buffer *b, const char *fmt, ...) {
-  int bytes;
-  char *tmp;
-  va_list va;
-  tmp = NULL;
-  va_start(va, fmt);
-  bytes = vasprintf_(&tmp, fmt, va);
-  va_end(va);
-  if (bytes != -1) AppendData(b, tmp, bytes);
-  free(tmp);
-  return bytes;
-}
-
-/**
- * Writes buffer until completion, or error occurs.
- */
-ssize_t WriteBuffer(struct Buffer *b, int fd) {
-  bool t;
-  char *p;
-  ssize_t rc;
-  size_t wrote, n;
-  p = b->p;
-  n = b->i;
-  t = false;
-  do {
-    if ((rc = write(fd, p, n)) != -1) {
-      wrote = rc;
-      p += wrote;
-      n -= wrote;
-    } else if (errno == EINTR) {
-      t = true;
-    } else {
+ssize_t readansi(int fd, char *buf, size_t size) {
+  int i, j;
+  uint8_t c;
+  enum { kAscii, kUtf8, kEsc, kCsi, kSs } t;
+  if (size) buf[0] = 0;
+  for (j = i = 0, t = kAscii;;) {
+    if (i + 2 >= size) {
+      errno = ENOMEM;
       return -1;
     }
-  } while (n);
-  if (!t) {
-    return 0;
-  } else {
-    errno = EINTR;
-    return -1;
+    if (read(fd, &c, 1) != 1) return -1;
+    buf[i++] = c;
+    buf[i] = 0;
+    switch (t) {
+      case kAscii:
+        if (c < 0200) {
+          if (c == 033) {
+            t = kEsc;
+          } else {
+            return i;
+          }
+        } else if (c >= 0300) {
+          t = kUtf8;
+          j = ThomPikeLen(c) - 1;
+        }
+        break;
+      case kUtf8:
+        if (!--j) return i;
+        break;
+      case kEsc:
+        switch (c) {
+          case '[':
+            t = kCsi;
+            break;
+          case 'N':
+          case 'O':
+            t = kSs;
+            break;
+          case 0x20:
+          case 0x21:
+          case 0x22:
+          case 0x23:
+          case 0x24:
+          case 0x25:
+          case 0x26:
+          case 0x27:
+          case 0x28:
+          case 0x29:
+          case 0x2A:
+          case 0x2B:
+          case 0x2C:
+          case 0x2D:
+          case 0x2E:
+          case 0x2F:
+            break;
+          default:
+            return i;
+        }
+        break;
+      case kCsi:
+        switch (c) {
+          case ':':
+          case ';':
+          case '<':
+          case '=':
+          case '>':
+          case '?':
+          case '0':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+          case '7':
+          case '8':
+          case '9':
+            break;
+          default:
+            return i;
+        }
+        break;
+      case kSs:
+        return i;
+      default:
+        __builtin_unreachable();
+    }
   }
 }

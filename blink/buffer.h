@@ -13,6 +13,6 @@ void AppendData(struct Buffer *, const char *, unsigned);
 void AppendStr(struct Buffer *, const char *);
 void AppendWide(struct Buffer *, wint_t);
 int AppendFmt(struct Buffer *, const char *, ...);
-//ssize_t WriteBuffer(struct Buffer *, int);
+ssize_t WriteBuffer(struct Buffer *, int);
 
 #endif /* BLINK_BUFFER_H_ */

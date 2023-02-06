@@ -47,10 +47,10 @@
 
 #include "blink/address.h"
 /*#include "blink/breakpoint.h"
-#include "blink/builtin.h"
-#include "blink/case.h"*/
+#include "blink/builtin.h"*/
+#include "blink/case.h"
 #include "blink/cga.h"
-//#include "blink/cp437.h"
+#include "blink/cp437.h"
 #include "blink/dis.h"
 //#include "blink/endian.h"
 #include "blink/flags.h"
@@ -71,11 +71,12 @@
 /*#include "blink/termios.h"
 #include "blink/thompike.h"*/
 #include "blink/throw.h"
-/*#include "blink/tpenc.h"
+//#include "blink/tpenc.h"
 #include "blink/util.h"
-#include "blink/xlat.h"*/
+//#include "blink/xlat.h"
 #include "blink/xmmtype.h"
 #include "blink/windows/ioctl.h"
+#include "blink/windows/readv.h"
 #include "blink/windows/setitimer.h"
 
 #define USAGE \
@@ -142,7 +143,7 @@ alt-t   slowmo"
 #define STEP     0x008
 #define NEXT     0x010
 #define FINISH   0x020
-//#define FAILURE  0x040
+#define FAILURE  0x040
 #define WINCHED  0x080
 #define INT      0x100
 //#define QUIT     0x200
@@ -168,19 +169,19 @@ alt-t   slowmo"
 #define kMouseCtrlWheelDown 81
 
 #define kAsanScale              3
-#define kAsanMagic              0x7fff8000
+#define kAsanMagic              0x7fff8000*/
 #define kAsanHeapFree           -1
-#define kAsanStackFree          -2
+//#define kAsanStackFree          -2
 #define kAsanRelocated          -3
 #define kAsanHeapUnderrun       -4
 #define kAsanHeapOverrun        -5
-#define kAsanGlobalOverrun      -6
+/*#define kAsanGlobalOverrun      -6
 #define kAsanGlobalUnregistered -7
 #define kAsanStackUnderrun      -8
-#define kAsanStackOverrun       -9
+#define kAsanStackOverrun       -9*/
 #define kAsanAllocaUnderrun     -10
 #define kAsanAllocaOverrun      -11
-#define kAsanUnscoped           -12
+/*#define kAsanUnscoped           -12
 #define kAsanUnmapped           -13
 
 #define Ctrl(C) ((C) ^ 0100)*/
@@ -225,10 +226,10 @@ struct Panels {
   };
 };
 
-/*static const char kRegisterNames[16][4] = {
+static const char kRegisterNames[16][4] = {
     "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI",
     "R8",  "R9",  "R10", "R11", "R12", "R13", "R14", "R15",
-};*/
+};
 
 extern char **environ;
 
@@ -254,21 +255,21 @@ static int verbose;
 static int exitcode;
 
 static long ips;
-//static char *dialog;
+static char *dialog;
 static char *codepath;
-//static void *onbusted;
+static void *onbusted;
 static int64_t oldlen;
 static struct Pty *pty;
 static int64_t opstart;
 static struct Machine *m;
-//static int64_t mapsstart;
+static int64_t mapsstart;
 static uint64_t readaddr;
 static uint64_t readsize;
 static uint64_t writeaddr;
 static uint64_t writesize;
 //static const char *logpath;
 static char *statusmessage;
-//static int64_t framesstart;
+static int64_t framesstart;
 static uint64_t last_opcount;
 static unsigned long opcount;
 //static int64_t breakpointsstart;
@@ -280,16 +281,16 @@ static struct MemoryView codeview;
 static struct MemoryView readview;
 static struct MemoryView writeview;
 static struct MemoryView stackview;
-//static struct MachineState laststate;
-//static struct MachineMemstat lastmemstat;
+static struct MachineState laststate;
+static struct MachineMemstat lastmemstat;
 static struct XmmType xmmtype;
 static struct Elf elf[1];
 static struct Dis dis[1];
 
 static long double last_seconds;
-/*static long double statusexpires;
+static long double statusexpires;
 static struct termios oldterm;
-static char systemfailure[128];*/
+//static char systemfailure[128];
 #ifdef SIGCONT
 static struct sigaction oldsig[4];
 #endif
@@ -322,7 +323,7 @@ bad evex ll\0\
 unimplemented\0\
 ";
 
-/*static char *FormatDouble(char buf[32], long double x) {
+static char *FormatDouble(char buf[32], long double x) {
   snprintf(buf, 32, "%Lg", x);
   return buf;
 }
@@ -332,11 +333,11 @@ static int64_t SignExtend(uint64_t x, char b) {
   assert(1 <= b && b <= 64);
   k = 64 - b;
   return (int64_t)(x << k) >> k;
-}*/
+}
 
 /*static void SetCarry(bool cf) {
   m->flags = SetFlag(m->flags, FLAGS_CF, cf);
-}
+}*/
 
 static bool IsCall(void) {
   int dispatch = m->xedd->op.map << 8 | m->xedd->op.opcode;
@@ -359,10 +360,10 @@ static bool IsRet(void) {
     default:
       return false;
   }
-}*/
+}
 
 
-/*static int GetXmmTypeCellCount(int r) {
+static int GetXmmTypeCellCount(int r) {
   switch (xmmtype.type[r]) {
     case kXmmIntegral:
       return 16 / xmmtype.size[r];
@@ -373,7 +374,7 @@ static bool IsRet(void) {
     default:
       __builtin_unreachable();
   }
-}*/
+}
 
 /*static uint8_t CycleXmmType(uint8_t t) {
   switch (t) {
@@ -441,7 +442,7 @@ static int64_t GetSp(void) {
   }
 }
 
-/*static int64_t ReadWord(uint8_t *p) {
+static int64_t ReadWord(uint8_t *p) {
   switch (GetPointerWidth()) {
     default:
     case 8:
@@ -484,7 +485,7 @@ static bool IsShadow(int64_t v) {
 /**
  * Returns glyph representing byte at virtual address 𝑣.
  */
-/*static int VirtualBing(int64_t v) {
+static int VirtualBing(int64_t v) {
   int rc;
   uint8_t *p;
   jmp_buf busted;
@@ -505,7 +506,7 @@ static bool IsShadow(int64_t v) {
 /**
  * Returns ASAN shadow uint8 concomitant to address 𝑣 or -1.
  */
-/*static int VirtualShadow(int64_t v) {
+static int VirtualShadow(int64_t v) {
   int rc;
   char *p;
   jmp_buf busted;
@@ -522,7 +523,7 @@ static bool IsShadow(int64_t v) {
   }
   onbusted = NULL;
   return rc;
-}*/
+}
 
 static void ScrollOp(struct Panel *p, int64_t op) {
   int64_t n;
@@ -540,11 +541,11 @@ static int TtyWriteString(const char *s) {
 
 /*static void OnFeed(void) {
   TtyWriteString("\033[K\033[2J");
-}
+}*/
 
 static void HideCursor(void) {
   TtyWriteString("\033[?25l");
-}*/
+}
 
 static void TtyShowCursor(void) {
   TtyWriteString("\033[?25h");
@@ -583,14 +584,17 @@ static void GetTtySize(int fd) {
   txn = wsize.ws_col;
 }
 
-/*static void TuiRejuvinate(void) {
+static void TuiRejuvinate(void) {
   struct termios term;
   struct sigaction sa;
   GetTtySize(ttyout);
   HideCursor();
   memcpy(&term, &oldterm, sizeof(term));
   term.c_cc[VMIN] = 1;
+#ifdef VTIME
   term.c_cc[VTIME] = 1;
+#endif
+#ifndef _WIN32
   term.c_iflag &= ~(IXOFF | INPCK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR |
                     ICRNL | IXON | IGNPAR);
   term.c_iflag |= IGNBRK | ISIG;
@@ -598,6 +602,11 @@ static void GetTtySize(int fd) {
       ~(IEXTEN | ICANON | ECHO | ECHOE | ECHONL | NOFLSH | TOSTOP | ECHOK);
   term.c_cflag &= ~(CSIZE | PARENB);
   term.c_cflag |= CS8 | CREAD;
+#else
+  term.c_lflag &= ~(IEXTEN | ICANON | ECHO | ECHOE);
+  term.c_cflag &= ~CSIZE;
+  term.c_cflag |= CS8;
+#endif
   term.c_oflag &= ~OPOST;
 #ifdef IMAXBEL
   term.c_iflag &= ~IMAXBEL;
@@ -613,9 +622,11 @@ static void GetTtySize(int fd) {
 #endif
   ioctl(ttyout, TCSETS, &term);
   memset(&sa, 0, sizeof(sa));
+#ifdef SIGBUS
   sa.sa_handler = OnSigBusted;
   sa.sa_flags = SA_NODEFER;
   sigaction(SIGBUS, &sa, 0);
+#endif
   EnableMouseTracking();
 }
 
@@ -623,7 +634,7 @@ static void OnQ(void) {
   action |= EXIT;
 }
 
-static void OnV(void) {
+/*static void OnV(void) {
   vidya = !vidya;
 }*/
 
@@ -672,10 +683,10 @@ static void TtyRestore1(void) {
   TtyWriteString("\033[0m");
 }
 
-/*static void TtyRestore2(void) {
+static void TtyRestore2(void) {
   ioctl(ttyout, TCSETS, &oldterm);
   DisableMouseTracking();
-}*/
+}
 
 static void TuiCleanup(void) {
 #ifdef SIGCONT
@@ -702,22 +713,23 @@ static void TuiCleanup(void) {
       }
     }
   }
-}
+}*/
 
 static void BreakAtNextInstruction(void) {
-  struct Breakpoint b;
+  // TODO Add breakpoints
+  /*struct Breakpoint b;
   memset(&b, 0, sizeof(b));
   b.addr = GetIp() + m->xedd->length;
   b.oneshot = true;
-  PushBreakpoint(&breakpoints, &b);
-}*/
+  PushBreakpoint(&breakpoints, &b);*/
+}
 
 static void LoadSyms(void) {
   LoadDebugSymbols(elf);
   DisLoadElf(dis, elf);
 }
 
-/*static int DrainInput(int fd) {
+static int DrainInput(int fd) {
   char buf[32];
   struct pollfd fds[1];
   for (;;) {
@@ -752,7 +764,7 @@ static int ReadCursorPosition(int *out_y, int *out_x) {
 static int GetCursorPosition(int *out_y, int *out_x) {
   TtyWriteString("\033[6n");
   return ReadCursorPosition(out_y, out_x);
-}*/
+}
 
 void CommonSetup(void) {
   static bool once;
@@ -766,7 +778,7 @@ void CommonSetup(void) {
   }
 }
 
-/*void TuiSetup(void) {
+void TuiSetup(void) {
   int y;
   bool report;
   char buf[64];
@@ -776,7 +788,7 @@ void CommonSetup(void) {
   report = false;
   if (!once) {
     /* LOGF("loaded program %s\r\n%s", codepath, gc(FormatPml4t(m))); */
-    /*CommonSetup();
+    CommonSetup();
     ioctl(ttyout, TCGETS, &oldterm);
     atexit(TtyRestore2);
     once = true;
@@ -785,9 +797,11 @@ void CommonSetup(void) {
   memset(&it, 0, sizeof(it));
   setitimer(ITIMER_REAL, &it, 0);
   memset(&sa, 0, sizeof(sa));
+#ifdef SIGCONT
   sa.sa_sigaction = OnSigCont;
   sa.sa_flags = SA_RESTART | SA_NODEFER | SA_SIGINFO;
   sigaction(SIGCONT, &sa, oldsig + 2);
+#endif
   CopyMachineState(&laststate);
   TuiRejuvinate();
   if (report) {
@@ -798,7 +812,7 @@ void CommonSetup(void) {
       TtyWriteString(buf);
     }
   }
-}*/
+}
 
 static void ExecSetup(void) {
   struct itimerval it;
@@ -810,11 +824,11 @@ static void ExecSetup(void) {
   setitimer(ITIMER_REAL, &it, NULL);
 }
 
-/*static void AppendPanel(struct Panel *p, int64_t line, const char *s) {
+static void AppendPanel(struct Panel *p, int64_t line, const char *s) {
   if (0 <= line && line < p->bottom - p->top) {
     AppendStr(&p->lines[line], s);
   }
-}*/
+}
 
 static void pcmpeqb(uint8_t x[16], const uint8_t y[16]) {
   for (int i = 0; i < 16; ++i) x[i] = -(x[i] == y[i]);
@@ -1054,7 +1068,7 @@ static int64_t GetDisIndex(void) {
   return i;
 }
 
-/*static void DrawDisassembly(struct Panel *p) {
+static void DrawDisassembly(struct Panel *p) {
   int64_t i, j;
   for (i = 0; i < p->bottom - p->top; ++i) {
     j = opstart + i;
@@ -1079,7 +1093,7 @@ static void DrawHr(struct Panel *p, const char *s) {
   AppendStr(&p->lines[0], "\033[0m");
 }
 
-static void DrawTerminalHr(struct Panel *p) {
+/*static void DrawTerminalHr(struct Panel *p) {
   int64_t i;
   struct itimerval it;
   if (p->bottom == p->top) return;
@@ -1119,9 +1133,9 @@ static void DrawTerminal(struct Panel *p) {
     PtyAppendLine(pty, p->lines + y, y);
     AppendStr(p->lines + y, "\033[0m");
   }
-}
+}*/
 
-static void DrawDisplay(struct Panel *p) {
+/*static void DrawDisplay(struct Panel *p) {
   switch (vidya) {
     case 7:
       DrawHr(&pan.displayhr, "MONOCHROME DISPLAY ADAPTER");
@@ -1138,7 +1152,7 @@ static void DrawDisplay(struct Panel *p) {
       DrawTerminal(p);
       break;
   }
-}
+}*/
 
 static void DrawFlag(struct Panel *p, int64_t i, char name, bool value) {
   char str[3] = "  ";
@@ -1303,7 +1317,7 @@ static void DrawSse(struct Panel *p) {
       DrawXmm(p, i, i);
     }
   }
-}*/
+}
 
 static void ScrollMemoryView(struct Panel *p, struct MemoryView *v, int64_t a) {
   int64_t i, n, w;
@@ -1345,7 +1359,7 @@ static void ScrollMemoryViews(void) {
   } else if (p == &pan.stack) {
     ZoomMemoryView(&stackview, y, x, dy);
   }
-}
+}*/
 
 static void DrawMemoryUnzoomed(struct Panel *p, struct MemoryView *view,
                                int64_t histart, int64_t hiend) {
@@ -1363,26 +1377,26 @@ static void DrawMemoryUnzoomed(struct Panel *p, struct MemoryView *view,
       if (s != -1) {
         if (s == -2) {
           /* grey for shadow memory */
-          /*x = 235;
+          x = 235;
         } else {
           sc = (signed char)s;
           if (sc > 7) {
             x = 129; /* PURPLE: shadow corruption */
-          /*} else if (sc == kAsanHeapFree) {
+          } else if (sc == kAsanHeapFree) {
             x = 20; /* BLUE: heap freed */
-          /*} else if (sc == kAsanRelocated) {
+          } else if (sc == kAsanRelocated) {
             x = 16; /* BLACK: heap relocated */
-          /*} else if (sc == kAsanHeapUnderrun || sc == kAsanAllocaUnderrun) {
+          } else if (sc == kAsanHeapUnderrun || sc == kAsanAllocaUnderrun) {
             x = 53; /* RED+PURPLETINGE: heap underrun */
-          /*} else if (sc == kAsanHeapOverrun || sc == kAsanAllocaOverrun) {
+          } else if (sc == kAsanHeapOverrun || sc == kAsanAllocaOverrun) {
             x = 52; /* RED: heap overrun */
-          /*} else if (sc < 0) {
+          } else if (sc < 0) {
             x = 52; /* RED: uncategorized invalid */
-          /*} else if (sc > 0 && (k & 7) >= sc) {
+          } else if (sc > 0 && (k & 7) >= sc) {
             x = 88; /* BRIGHTRED: invalid address (skew) */
-          /*} else if (!sc || (sc > 0 && (k & 7) < sc)) {
+          } else if (!sc || (sc > 0 && (k & 7) < sc)) {
             x = 22; /* GREEN: valid address */
-          /*} else {
+          } else {
             abort();
           }
         }
@@ -1412,9 +1426,9 @@ static void DrawMemory(struct Panel *p, struct MemoryView *view,
                        int64_t histart, int64_t hiend) {
   if (p->top == p->bottom) return;
   DrawMemoryUnzoomed(p, view, histart, hiend);
-}*/
+}
 
-/*static void DrawMaps(struct Panel *p) {
+static void DrawMaps(struct Panel *p) {
   int i;
   char *text, *p1, *p2;
   if (p->top == p->bottom) return;
@@ -1426,7 +1440,7 @@ static void DrawMemory(struct Panel *p, struct MemoryView *view,
     }
   }
   free(text);
-}*/
+}
 
 /*static void DrawBreakpoints(struct Panel *p) {
   int64_t addr;
@@ -1451,7 +1465,7 @@ static void DrawMemory(struct Panel *p, struct MemoryView *view,
     }
     ++line;
   }
-}
+}*/
 
 static int GetPreferredStackAlignmentMask(void) {
   switch (m->mode & 3) {
@@ -1508,7 +1522,7 @@ static void DrawFrames(struct Panel *p) {
     bp = ReadWord(r + 0);
     rp = ReadWord(r + 8);
   }
-}*/
+}
 
 static void CheckFramePointerImpl(void) {
   uint8_t *r;
@@ -1539,7 +1553,7 @@ static void CheckFramePointer(void) {
   }
 }
 
-/*static bool IsExecuting(void) {
+static bool IsExecuting(void) {
   return (action & (CONTINUE | STEP | NEXT | FINISH)) && !(action & FAILURE);
 }
 
@@ -1551,7 +1565,7 @@ static int AppendStat(struct Buffer *b, const char *name, int64_t value,
   width = AppendFmt(b, "%8" PRId64 " %s", value, name);
   if (changed) AppendStr(b, "\033[39m");
   return 1 + width;
-}*/
+}
 
 static long double nowl(void) {
   long double secs;
@@ -1563,7 +1577,7 @@ static long double nowl(void) {
   return secs;
 }
 
-/*static long double dsleep(long double secs) {
+static long double dsleep(long double secs) {
   struct timespec dur, rem;
   dur.tv_sec = secs;
   dur.tv_nsec = secs * 1e9;
@@ -1616,7 +1630,7 @@ static void PreventBufferbloat(void) {
     dsleep(rate - (now - last));
   }
   last = now;
-}*/
+}
 
 static void Redraw(void) {
   int i, j;
@@ -1639,13 +1653,11 @@ static void Redraw(void) {
       pan.p[i].lines[j].i = 0;
     }
   }
-  LOGF("Redraw not implemented");
-  abort();
-  /*DrawDisassembly(&pan.disassembly);
-  DrawDisplay(&pan.display);
+  DrawDisassembly(&pan.disassembly);
+  //DrawDisplay(&pan.display);
   DrawCpu(&pan.registers);
   DrawSse(&pan.sse);
-  DrawHr(&pan.breakpointshr, "BREAKPOINTS");
+  //DrawHr(&pan.breakpointshr, "BREAKPOINTS");
   DrawHr(&pan.mapshr, "PML4T");
   DrawHr(&pan.frameshr, m->bofram[0] ? "PROTECTED FRAMES" : "FRAMES");
   DrawHr(&pan.ssehr, "SSE");
@@ -1653,9 +1665,9 @@ static void Redraw(void) {
   DrawHr(&pan.readhr, "READ");
   DrawHr(&pan.writehr, "WRITE");
   DrawHr(&pan.stackhr, "STACK");
-  DrawMaps(&pan.maps);*/
-  /*DrawFrames(&pan.frames);
-  DrawBreakpoints(&pan.breakpoints);
+  DrawMaps(&pan.maps);
+  DrawFrames(&pan.frames);
+  //DrawBreakpoints(&pan.breakpoints);
   DrawMemory(&pan.code, &codeview, GetIp(), GetIp() + m->xedd->length);
   DrawMemory(&pan.readdata, &readview, readaddr, readaddr + readsize);
   DrawMemory(&pan.writedata, &writeview, writeaddr, writeaddr + writesize);
@@ -1664,7 +1676,7 @@ static void Redraw(void) {
   PreventBufferbloat();
   PrintPanels(ttyout, ARRAYLEN(pan.p), pan.p, tyn, txn);
   last_opcount = opcount;
-  last_seconds = nowl();*/
+  last_seconds = nowl();
 }
 
 static void ReactiveDraw(void) {
@@ -1708,14 +1720,14 @@ static int OnPtyFdClose(int fd) {
   return close(fd);
 }
 
-/*static bool HasPendingInput(int fd) {
+static bool HasPendingInput(int fd) {
   struct pollfd fds[1];
   fds[0].fd = fd;
   fds[0].events = POLLIN;
   fds[0].revents = 0;
   poll(fds, ARRAYLEN(fds), 0);
   return fds[0].revents & (POLLIN | POLLERR);
-}*/
+}
 
 static ssize_t ReadPtyFdDirect(int fd, void *data, size_t size) {
   char *buf;
@@ -2301,7 +2313,7 @@ static void OnUp(void) {
 }
 
 static void OnDown(void) {
-}
+}*/
 
 static void OnStep(void) {
   if (action & FAILURE) return;
@@ -2310,7 +2322,7 @@ static void OnStep(void) {
   action &= ~CONTINUE;
 }
 
-static void OnNext(void) {
+/*static void OnNext(void) {
   if (action & FAILURE) return;
   action ^= NEXT;
   action &= ~STEP;
@@ -2373,13 +2385,13 @@ static void SetXmmDisp(int disp) {
 
 static void OnXmmDisp(void) {
   SetXmmDisp(CycleXmmDisp(xmmdisp));
-}
+}*/
 
 static bool HasPendingKeyboard(void) {
   return HasPendingInput(ttyin);
 }
 
-static void Sleep(int ms) {
+/*static void Sleep(int ms) {
   poll((struct pollfd[]){{ttyin, POLLIN}}, 1, ms);
 }
 
@@ -2469,7 +2481,7 @@ static void OnMouse(char *p) {
 
 static void OnHelp(void) {
   dialog = HELP;
-}
+}*/
 
 static void ReadKeyboard(void) {
   char buf[64], *p = buf;
@@ -2484,10 +2496,10 @@ static void ReadKeyboard(void) {
   }
   switch (*p++) {
     CASE('q', OnQ());
-    CASE('v', OnV());
-    CASE('?', OnHelp());
+    /*CASE('v', OnV());
+    CASE('?', OnHelp());*/
     CASE('s', OnStep());
-    CASE('n', OnNext());
+    /*CASE('n', OnNext());
     CASE('f', OnFinish());
     CASE('c', OnContinueTui());
     CASE('C', OnContinueExec());
@@ -2540,13 +2552,13 @@ static void ReadKeyboard(void) {
         default:
           break;
       }
-      break;
+      break;*/
     default:
       break;
   }
 }
 
-static int64_t ParseHexValue(const char *s) {
+/*static int64_t ParseHexValue(const char *s) {
   char *ep;
   int64_t x;
   x = strtoll(s, &ep, 16);
@@ -2625,11 +2637,11 @@ static void Exec(void) {
         if (verbose) LogInstruction();
         ExecuteInstruction(m);
         if (signals.n && signals.i < signals.n) {
-        // Is SIGALRM sent internally? If so define it.
+// TODO Check if SIGALRM sent internally? If so define it.
 #ifdef SIGALRM
           if ((sig = ConsumeSignal(m, &signals)) && sig != SIGALRM) {
 #else
-            if ((sig = ConsumeSignal(m, &signals))) {
+          if ((sig = ConsumeSignal(m, &signals))) {
 #endif
             TerminateSignal(m, sig);
           }
@@ -2666,24 +2678,25 @@ static void Exec(void) {
   }
 }
 
-/*static void Tui(void) {
+static void Tui(void) {
   int sig;
-  ssize_t bp;
+  //ssize_t bp;
   int interrupt;
   bool interactive;
   /* LOGF("TUI"); */
-  /*TuiSetup();
+  TuiSetup();
   SetupDraw();
   ScrollOp(&pan.disassembly, GetDisIndex());
   if (!(interrupt = setjmp(m->onhalt))) {
     do {
       if (!(action & FAILURE)) {
         LoadInstruction(m);
-        if ((action & (FINISH | NEXT | CONTINUE)) &&
+        // TODO Support breakpoints
+        /*if ((action & (FINISH | NEXT | CONTINUE)) &&
             (bp = IsAtBreakpoint(&breakpoints, GetIp())) != -1) {
           action &= ~(FINISH | NEXT | CONTINUE);
           LOGF("BREAK %012" PRIx64 "", breakpoints.p[bp].addr);
-        }
+        }*/
       } else {
         m->xedd = (struct XedDecodedInst *)m->icache[0];
         m->xedd->length = 1;
@@ -2710,11 +2723,11 @@ static void Exec(void) {
         CopyMachineState(&laststate);
       }
       if (dialog) {
-        PrintMessageBox(ttyout, dialog, tyn, txn);
+        //PrintMessageBox(ttyout, dialog, tyn, txn);
       }
       if (action & FAILURE) {
         LOGF("TUI FAILURE");
-        PrintMessageBox(ttyout, systemfailure, tyn, txn);
+        //PrintMessageBox(ttyout, systemfailure, tyn, txn);
         ReadKeyboard();
         if (action & INT) {
           LOGF("TUI INT");
@@ -2768,7 +2781,12 @@ static void Exec(void) {
           if (verbose) LogInstruction();
           ExecuteInstruction(m);
           if (signals.n && signals.i < signals.n) {
+// TODO Check if SIGALRM sent internally? If so define it.
+#ifdef SIGALRM
             if ((sig = ConsumeSignal(m, &signals)) && sig != SIGALRM) {
+#else
+            if ((sig = ConsumeSignal(m, &signals))) {
+#endif
               TerminateSignal(m, sig);
             }
           }
@@ -2804,7 +2822,7 @@ static void Exec(void) {
     ScrollOp(&pan.disassembly, GetDisIndex());
   }
   TuiCleanup();
-  }*/
+}
 
 static void GetOpts(int argc, char *argv[]) {
   int opt;
@@ -2898,9 +2916,7 @@ int Emulator(int argc, char *argv[]) {
       if (!tuimode) {
         Exec();
       } else {
-        LOGF("tuimode not currently supported");
-        abort();
-        //Tui();
+        Tui();
       }
     } while (!(action & (RESTART | EXIT)));
   } while (action & RESTART);
