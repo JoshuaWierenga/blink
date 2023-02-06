@@ -332,10 +332,19 @@ static void PtySetCodepage(struct Pty *pty, char id) {
   }
 }
 
+static uint32_t *u32set(uint32_t *p, uint32_t c, size_t n) {
+  size_t i;
+  for (i = 0; i < n; ++i) {
+    p[i] = c;
+  }
+
+  return p;
+}
+
 void PtyErase(struct Pty *pty, long dst, long n) {
   assert(dst + n <= pty->yn * pty->xn);
-  wmemset((void *)(pty->wcs + dst), ' ', n);
-  wmemset((void *)(pty->prs + dst), 0, n);
+  u32set(pty->wcs + dst, ' ', n);
+  u32set(pty->prs + dst, 0, n);
 }
 
 void PtyMemmove(struct Pty *pty, long dst, long src, long n) {
@@ -457,6 +466,8 @@ static void PtyAdvance(struct Pty *pty) {
 
 static void PtyWriteGlyph(struct Pty *pty, wint_t wc, int w) {
   uint32_t i;
+  assert(!(0x00 <= wc && wc <= 0x1F));
+  assert(!(0x7F <= wc && wc <= 0x9F));
   if (w < 1) wc = ' ', w = 1;
   if ((pty->conf & kPtyRedzone) || pty->x + w > pty->xn) {
     PtyAdvance(pty);
@@ -1022,7 +1033,7 @@ static void PtyCsi(struct Pty *pty) {
 }
 
 static void PtyScreenAlignmentDisplay(struct Pty *pty) {
-  wmemset((void *)pty->wcs, 'E', pty->yn * pty->xn);
+  u32set(pty->wcs, 'E', pty->yn * pty->xn);
 }
 
 static void PtyEscHash(struct Pty *pty) {

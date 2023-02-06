@@ -244,7 +244,7 @@ static int tyn;
 static int txn;
 static int tick;
 static int speed;
-//static int vidya;
+static int vidya;
 static int ttyin;
 //static int focus;
 static int ttyout;
@@ -1093,7 +1093,7 @@ static void DrawHr(struct Panel *p, const char *s) {
   AppendStr(&p->lines[0], "\033[0m");
 }
 
-/*static void DrawTerminalHr(struct Panel *p) {
+static void DrawTerminalHr(struct Panel *p) {
   int64_t i;
   struct itimerval it;
   if (p->bottom == p->top) return;
@@ -1133,9 +1133,9 @@ static void DrawTerminal(struct Panel *p) {
     PtyAppendLine(pty, p->lines + y, y);
     AppendStr(p->lines + y, "\033[0m");
   }
-}*/
+}
 
-/*static void DrawDisplay(struct Panel *p) {
+static void DrawDisplay(struct Panel *p) {
   switch (vidya) {
     case 7:
       DrawHr(&pan.displayhr, "MONOCHROME DISPLAY ADAPTER");
@@ -1152,7 +1152,7 @@ static void DrawTerminal(struct Panel *p) {
       DrawTerminal(p);
       break;
   }
-}*/
+}
 
 static void DrawFlag(struct Panel *p, int64_t i, char name, bool value) {
   char str[3] = "  ";
@@ -1654,7 +1654,7 @@ static void Redraw(void) {
     }
   }
   DrawDisassembly(&pan.disassembly);
-  //DrawDisplay(&pan.display);
+  DrawDisplay(&pan.display);
   DrawCpu(&pan.registers);
   DrawSse(&pan.sse);
   //DrawHr(&pan.breakpointshr, "BREAKPOINTS");
