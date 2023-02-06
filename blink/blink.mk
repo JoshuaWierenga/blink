@@ -72,8 +72,8 @@ o/$(MODE)/x86_64/blink/tui: o/$(MODE)/x86_64/blink/tui.o o/$(MODE)/x86_64/blink/
 	o/third_party/gcc/x86_64/bin/x86_64-linux-musl-gcc -static $(LDFLAGS) $(TARGET_ARCH) $^ $(LOADLIBES) $(LDLIBS) -o $@
 o/$(MODE)/x86_64-gcc48/blink/tui: o/$(MODE)/x86_64-gcc48/blink/tui.o o/$(MODE)/x86_64-gcc48/blink/blink.a
 	o/third_party/gcc/x86_64-gcc48/bin/x86_64-linux-musl-gcc -static $(LDFLAGS) $(TARGET_ARCH) $^ $(LOADLIBES) $(LDLIBS) -o $@
-o/$(MODE)/x86_64-mingw-w64/blink/tui: o/$(MODE)/x86_64-mingw-w64/blink/tui.o o/$(MODE)/x86_64-mingw-w64/blink/blink.a
-	$(MINGW-W64_TOOLCHAIN_CC) -static $(LDFLAGS) $(TARGET_ARCH) $^ $(LOADLIBES) $(LDLIBS) -o $@
+o/$(MODE)/x86_64-mingw-w64/blink/tui: o/$(MODE)/x86_64-mingw-w64/blink/tui.o o/$(MODE)/x86_64-mingw-w64/blink/blink.a $(GNULIB_LIB)
+	$(MINGW-W64_TOOLCHAIN_CC) -static $(LDFLAGS) $(TARGET_ARCH) $^ -lws2_32 $(LOADLIBES) $(LDLIBS) -o $@
 o/$(MODE)/arm/blink/tui: o/$(MODE)/arm/blink/tui.o o/$(MODE)/arm/blink/blink.a
 	o/third_party/gcc/arm/bin/arm-linux-musleabi-gcc -static $(LDFLAGS) $(TARGET_ARCH) $^ $(LOADLIBES) $(LDLIBS) -o $@
 o/$(MODE)/aarch64/blink/tui: o/$(MODE)/aarch64/blink/tui.o o/$(MODE)/aarch64/blink/blink.a

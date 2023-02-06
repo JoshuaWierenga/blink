@@ -23,13 +23,13 @@
 #define kFpuSwUe 0x0010 /* underflow */
 #define kFpuSwPe 0x0020 /* precision */
 #define kFpuSwSf 0x0040 /* stack fault */
-/*#define kFpuSwEs 0x0080 /* exception summary status */
+#define kFpuSwEs 0x0080 /* exception summary status */
 #define kFpuSwC0 0x0100 /* condition 0 */
 #define kFpuSwC1 0x0200 /* condition 1 */
 #define kFpuSwC2 0x0400 /* condition 2 */
 #define kFpuSwSp 0x3800 /* top stack */
 #define kFpuSwC3 0x4000 /* condition 3 */
-/*#define kFpuSwBf 0x8000 /* busy flag */
+#define kFpuSwBf 0x8000 /* busy flag */
 
 #define kMxcsrIe  0x0001 /* invalid operation flag */
 /*#define kMxcsrDe  0x0002 /* denormal flag */

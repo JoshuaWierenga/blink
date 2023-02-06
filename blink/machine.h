@@ -11,7 +11,7 @@
 #define kMachineDecodeError          -2
 #define kMachineUndefinedInstruction -3
 #define kMachineSegmentationFault    -4
-//#define kMachineExit                 -5
+#define kMachineExit                 -5
 #define kMachineDivideError          -6
 #define kMachineFpuException         -7
 #define kMachineProtectionFault      -8
@@ -37,7 +37,7 @@ struct MachineMemstat {
   int pagetables;
 };
 
-/*struct MachineState {
+struct MachineState {
   uint64_t ip;
   uint8_t cs[8];
   uint8_t ss[8];
@@ -50,7 +50,7 @@ struct MachineMemstat {
   uint32_t mxcsr;
   struct MachineFpu fpu;
   struct MachineMemstat memstat;
-};*/
+};
 
 struct Machine {
   struct XedDecodedInst *xedd;
@@ -154,7 +154,7 @@ long AllocateLinearPage(struct Machine *);
 long AllocateLinearPageRaw(struct Machine *);
 int ReserveReal(struct Machine *, size_t);
 int ReserveVirtual(struct Machine *, int64_t, size_t, uint64_t);
-//char *FormatPml4t(struct Machine *);
+char *FormatPml4t(struct Machine *);
 int64_t FindVirtual(struct Machine *, int64_t, size_t);
 int FreeVirtual(struct Machine *, int64_t, size_t);
 

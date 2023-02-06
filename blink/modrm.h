@@ -18,7 +18,7 @@
 #define RegLog2(x)  ((x & 006000000000) >> 034)
 #define ModrmRm(x)  ((x & 000000001600) >> 007)
 #define ModrmReg(x) ((x & 000000000007) >> 000)
-//#define ModrmSrm(x) ((x & 000000070000) >> 014)
+#define ModrmSrm(x) ((x & 000000070000) >> 014)
 #define ModrmMod(x) ((x & 000060000000) >> 026)
 //#define Modrm(x)    (ModrmMod(x) << 6 | ModrmReg(x) << 3 | ModrmRm(x))
 
@@ -45,7 +45,7 @@
 #define IsModrmRegister(x)  (ModrmMod(x) == 3)
 #define SibHasIndex(x)      (SibIndex(x) != 4 || Rexx(x->op.rde))
 #define SibHasBase(x, r)    (SibBase(x) != 5 || ModrmMod(r))
-//#define SibIsAbsolute(x, r) (!SibHasBase(x, r) && !SibHasIndex(x))
+#define SibIsAbsolute(x, r) (!SibHasBase(x, r) && !SibHasIndex(x))
 #define IsRipRelative(x)    (Eamode(x) && ModrmRm(x) == 5 && !ModrmMod(x))
 
 struct AddrSeg {

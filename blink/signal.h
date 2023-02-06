@@ -11,8 +11,8 @@ struct Signals {
 };
 
 void OpRestore(struct Machine *);
-/*void TerminateSignal(struct Machine *, int);
-void DeliverSignal(struct Machine *, int, int);*/
+void TerminateSignal(struct Machine *, int);
+//void DeliverSignal(struct Machine *, int, int);
 int ConsumeSignal(struct Machine *, struct Signals *);
 void EnqueueSignal(struct Machine *, struct Signals *, int, int);
 

@@ -13,6 +13,6 @@ struct Elf {
 };
 
 void LoadProgram(struct Machine *, char *, char **, char **, struct Elf *);
-//void LoadDebugSymbols(struct Elf *);
+void LoadDebugSymbols(struct Elf *);
 
 #endif /* BLINK_LOADER_H_ */

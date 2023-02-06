@@ -16,13 +16,13 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-/*#include <signal.h>
-#include <stdlib.h>*/
+#include <signal.h>
+#include <stdlib.h>
 #include <string.h>
-//#include <unistd.h>
+#include <unistd.h>
 
 #include "blink/endian.h"
-#include "blink/linux.h"
+//#include "blink/linux.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/signal.h"
@@ -157,10 +157,10 @@ int ConsumeSignal(struct Machine *m, struct Signals *ss) {
   return 0;
 }
 
-/*void TerminateSignal(struct Machine *m, int sig) {
+void TerminateSignal(struct Machine *m, int sig) {
   if (m->isfork) {
     _exit(28 + sig);
   } else {
     exit(128 + sig);
   }
-}*/
+}

@@ -173,24 +173,24 @@
 #define R_X86_64_RELATIVE64      38
 #define R_X86_64_GOTPCRELX       41 /* 6 bytes */
 /*#define R_X86_64_REX_GOTPCRELX   42 /* 7 bytes */
-/*#define R_X86_64_NUM             43
+/*#define R_X86_64_NUM             43*/
 
 #define STB_LOCAL      0
-#define STB_GLOBAL     1
+//#define STB_GLOBAL     1
 #define STB_WEAK       2
-#define STB_NUM        3
+/*#define STB_NUM        3
 #define STB_LOOS       10
 #define STB_GNU_UNIQUE 10
 #define STB_HIOS       12
 #define STB_LOPROC     13
 #define STB_HIPROC     15
 
-#define STT_NOTYPE    0
+#define STT_NOTYPE    0*/
 #define STT_OBJECT    1
 #define STT_FUNC      2
 #define STT_SECTION   3
 #define STT_FILE      4
-#define STT_COMMON    5
+/*#define STT_COMMON    5
 #define STT_TLS       6
 #define STT_NUM       7
 #define STT_LOOS      10
@@ -201,19 +201,19 @@
 
 #define STV_DEFAULT   0
 #define STV_INTERNAL  1
-#define STV_HIDDEN    2
+#define STV_HIDDEN    2*/
 #define STV_PROTECTED 3
 
-#define SHN_UNDEF     0
+/*#define SHN_UNDEF     0
 #define SHN_LORESERVE 0xff00
 #define SHN_LOPROC    0xff00
 #define SHN_BEFORE    0xff00
 #define SHN_AFTER     0xff01
 #define SHN_HIPROC    0xff1f
 #define SHN_LOOS      0xff20
-#define SHN_HIOS      0xff3f
+#define SHN_HIOS      0xff3f*/
 #define SHN_ABS       0xfff1
-#define SHN_COMMON    0xfff2
+/*#define SHN_COMMON    0xfff2
 #define SHN_XINDEX    0xffff
 #define SHN_HIRESERVE 0xffff
 
@@ -240,10 +240,10 @@
 #define ELFCOMPRESS_HIPROC 0x7fffffff
 
 #define SHT_NULL           0
-#define SHT_PROGBITS       1
+#define SHT_PROGBITS       1*/
 #define SHT_SYMTAB         2
 #define SHT_STRTAB         3
-#define SHT_RELA           4
+/*#define SHT_RELA           4
 #define SHT_HASH           5
 #define SHT_DYNAMIC        6
 #define SHT_NOTE           7
@@ -417,11 +417,11 @@
 #define DTF_1_PARINIT   0x00000001
 #define DTF_1_CONFEXP   0x00000002
 #define DF_P1_LAZYLOAD  0x00000001
-#define DF_P1_GROUPPERM 0x00000002
+#define DF_P1_GROUPPERM 0x00000002*/
 
 #define ELF64_ST_BIND(val)        (((unsigned char)(val)) >> 4)
 #define ELF64_ST_TYPE(val)        ((val)&0xf)
-#define ELF64_ST_INFO(bind, type) (((bind) << 4) + ((type)&0xf))
+/*#define ELF64_ST_INFO(bind, type) (((bind) << 4) + ((type)&0xf))
 #define ELF64_ST_VISIBILITY(o)    ((o)&0x03)
 
 #define ELF64_R_SYM(i)          ((i) >> 32)
@@ -546,18 +546,18 @@ typedef struct Elf64_Phdr {
   uint8_t p_align[8];  /* uint64_t */
 } Elf64_Phdr;
 
-/*typedef struct Elf64_Shdr {
+typedef struct Elf64_Shdr {
   uint8_t sh_name[4];      /* uint32_t */
-  /*uint8_t sh_type[4];      /* uint32_t */
-  /*uint8_t sh_flags[8];     /* uint64_t */
-  /*uint8_t sh_addr[8];      /* uint64_t */
-  /*uint8_t sh_offset[8];    /* uint64_t */
-  /*uint8_t sh_size[8];      /* uint64_t */
-  /*uint8_t sh_link[4];      /* uint32_t */
-  /*uint8_t sh_info[4];      /* uint32_t */
-  /*uint8_t sh_addralign[8]; /* uint64_t */
-  /*uint8_t sh_entsize[8];   /* uint64_t */
-/*} Elf64_Shdr;
+  uint8_t sh_type[4];      /* uint32_t */
+  uint8_t sh_flags[8];     /* uint64_t */
+  int8_t sh_addr[8];      /* uint64_t */
+  uint8_t sh_offset[8];    /* uint64_t */
+  uint8_t sh_size[8];      /* uint64_t */
+  uint8_t sh_link[4];      /* uint32_t */
+  uint8_t sh_info[4];      /* uint32_t */
+  uint8_t sh_addralign[8]; /* uint64_t */
+  uint8_t sh_entsize[8];   /* uint64_t */
+} Elf64_Shdr;
 
 /*typedef struct Elf64_Rel {
   uint8_t r_offset[8]; /* uint64_t */
@@ -568,18 +568,18 @@ typedef struct Elf64_Rela {
   uint8_t r_offset[8]; /* uint64_t */
   /*uint8_t r_info[8];   /* uint64_t */
   /*uint8_t r_addend[8]; /* int64_t */
-/*} Elf64_Rela;
+//} Elf64_Rela;
 
 typedef struct Elf64_Sym {
   uint8_t st_name[4]; /* uint32_t */
-  /*uint8_t st_info;
+  uint8_t st_info;
   uint8_t st_other;
   uint8_t st_shndx[2]; /* uint16_t */
-  /*uint8_t st_value[8]; /* uint64_t */
-  /*uint8_t st_size[8];  /* uint64_t */
-/*} Elf64_Sym;
+  uint8_t st_value[8]; /* uint64_t */
+  uint8_t st_size[8];  /* uint64_t */
+} Elf64_Sym;
 
-typedef struct Elf64_Syminfo {
+/*typedef struct Elf64_Syminfo {
   uint8_t si_boundto[2]; /* uint16_t */
   /*uint8_t si_flags[2];   /* uint16_t */
 /*} Elf64_Syminfo;
@@ -623,12 +623,12 @@ typedef struct Elf64_Nhdr {
 
 //void CheckElfAddress(const Elf64_Ehdr *, size_t, intptr_t, size_t);
 Elf64_Phdr *GetElfSegmentHeaderAddress(const Elf64_Ehdr *, size_t, uint64_t);
-/*char *GetElfStringTable(const Elf64_Ehdr *, size_t);
+char *GetElfStringTable(const Elf64_Ehdr *, size_t);
 Elf64_Shdr *GetElfSectionHeaderAddress(const Elf64_Ehdr *, size_t, uint16_t);
-const char *GetElfSectionName(const Elf64_Ehdr *, size_t, Elf64_Shdr *);
+/*const char *GetElfSectionName(const Elf64_Ehdr *, size_t, Elf64_Shdr *);
 char *GetElfString(const Elf64_Ehdr *, size_t, const char *, uint32_t);
 char *GetElfSectionNameStringTable(const Elf64_Ehdr *, size_t);
-void *GetElfSectionAddress(const Elf64_Ehdr *, size_t, const Elf64_Shdr *);
-Elf64_Sym *GetElfSymbolTable(const Elf64_Ehdr *, size_t, uint64_t *);*/
+void *GetElfSectionAddress(const Elf64_Ehdr *, size_t, const Elf64_Shdr *);*/
+Elf64_Sym *GetElfSymbolTable(const Elf64_Ehdr *, size_t, uint64_t *);
 
 #endif /* BLINK_ELF_H_ */

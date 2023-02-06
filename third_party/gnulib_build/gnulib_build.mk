@@ -24,14 +24,17 @@ GNULIB_MODULES :=								\
 	pread										\
 	sigaction									\
 	stat-size									\
+	stpcpy										\
 	sys_uio										\
-	termios
+	termios										\
+	wcwidth
 
 GNULIB_FILES :=									\
 	third_party/gnulib_build/config.h			\
 	third_party/gnulib_build/lib/dirent.h		\
 	third_party/gnulib_build/lib/fcntl.h		\
 	third_party/gnulib_build/lib/poll.h			\
+	third_party/gnulib_build/lib/string.h		\
 	third_party/gnulib_build/lib/signal.h		\
 	third_party/gnulib_build/lib/stat-size.h	\
 	third_party/gnulib_build/lib/sys/ioctl.h	\
@@ -39,7 +42,8 @@ GNULIB_FILES :=									\
 	third_party/gnulib_build/lib/sys/stat.h		\
 	third_party/gnulib_build/lib/sys/uio.h		\
 	third_party/gnulib_build/lib/termios.h		\
-	third_party/gnulib_build/lib/unistd.h
+	third_party/gnulib_build/lib/unistd.h		\
+	third_party/gnulib_build/lib/wchar.h
 
 GNULIB_LIB := third_party/gnulib_build/lib/libgnu.a
 

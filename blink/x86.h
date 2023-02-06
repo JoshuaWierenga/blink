@@ -122,7 +122,7 @@ struct XedDecodedInst {
   struct XedOperands op;
 };
 
-//extern const char kXedErrorNames[];
+extern const char kXedErrorNames[];
 
 struct XedDecodedInst *InitializeInstruction(struct XedDecodedInst *,
                                              enum XedMachineMode);

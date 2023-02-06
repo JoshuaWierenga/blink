@@ -48,6 +48,8 @@
 #include "blink/time.h"
 #include "blink/util.h"
 
+#include "blink/log.h"
+
 #define OpLfence    OpNoop
 #define OpMfence    OpNoop
 #define OpSfence    OpNoop
