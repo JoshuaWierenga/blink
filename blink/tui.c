@@ -68,8 +68,8 @@
 #include "blink/signal.h"
 #include "blink/strwidth.h"
 #include "blink/syscall.h"
-/*#include "blink/termios.h"
-#include "blink/thompike.h"*/
+#include "blink/termios.h"
+//#include "blink/thompike.h"
 #include "blink/throw.h"
 //#include "blink/tpenc.h"
 #include "blink/util.h"
@@ -295,8 +295,8 @@ static struct termios oldterm;
 static struct sigaction oldsig[4];
 #endif
 
-/*static void SetupDraw(void);
-static void Redraw(void);*/
+//static void SetupDraw(void);
+static void Redraw(void);
 
 const char kXedErrorNames[] = "\
 none\0\
@@ -471,9 +471,11 @@ static void CopyMachineState(struct MachineState *ms) {
 /**
  * Handles file mapped page faults in valid page but past eof.
  */
-/*static void OnSigBusted(int sig) {
+#ifdef SIGBUS
+static void OnSigBusted(int sig) {
   longjmp(onbusted, 1);
 }
+#endif
 
 /**
  * Returns true if 𝑣 is a shadow memory virtual address.
@@ -670,13 +672,15 @@ static void OnSigAlrm(int sig, siginfo_t *si, void *uc) {
 }
 #endif
 
-/*static void OnSigCont(int sig, siginfo_t *si, void *uc) {
+#ifdef SIGCONT
+static void OnSigCont(int sig, siginfo_t *si, void *uc) {
   if (tuimode) {
     TuiRejuvinate();
     Redraw();
   }
   EnqueueSignal(m, &signals, sig, si->si_code);
-}*/
+}
+#endif
 
 static void TtyRestore1(void) {
   TtyShowCursor();
@@ -2391,11 +2395,11 @@ static bool HasPendingKeyboard(void) {
   return HasPendingInput(ttyin);
 }
 
-/*static void Sleep(int ms) {
+static void TuiSleep(int ms) {
   poll((struct pollfd[]){{ttyin, POLLIN}}, 1, ms);
 }
 
-static void OnMouseWheelUp(struct Panel *p, int y, int x) {
+/*static void OnMouseWheelUp(struct Panel *p, int y, int x) {
   if (p == &pan.disassembly) {
     opstart -= WHEELDELTA;
   } else if (p == &pan.code) {
@@ -2709,7 +2713,7 @@ static void Tui(void) {
       }
       interactive = ++tick > speed;
       if (interactive && speed < 0) {
-        Sleep(-speed);
+        TuiSleep(-speed);
       }
       if (action & ALARM) {
         HandleAlarm();
