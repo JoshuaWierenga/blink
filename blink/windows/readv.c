@@ -30,20 +30,18 @@
 
 #define __SIG_POLLING_INTERVAL_MS 50
 
-static ssize_t sys_read_nt_impl(int fd, void *data,
+// Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/read-nt.c#L38-L89
+static ssize_t sys_read_nt_impl(HANDLE handle, void *data,
                                 size_t size, ssize_t offset) {
     BOOL ok;
-    HANDLE h;
     LARGE_INTEGER i, p;
     DWORD got, avail;
     OVERLAPPED overlap;
-    
-    h = (HANDLE)_get_osfhandle(fd);
 
     // our terrible polling mechanism
-    if (GetFileType(h) == FILE_TYPE_PIPE) {
+    if (GetFileType(handle) == FILE_TYPE_PIPE) {
         for (;;) {
-            if (!PeekNamedPipe(h, 0, 0, 0, &avail, 0)) break;
+            if (!PeekNamedPipe(handle, 0, 0, 0, &avail, 0)) break;
             if (avail) break;
             STRACE("sys_read_nt polling");
             if (SleepEx(__SIG_POLLING_INTERVAL_MS, TRUE) == WAIT_IO_COMPLETION) {
@@ -61,20 +59,20 @@ static ssize_t sys_read_nt_impl(int fd, void *data,
     if (offset != -1) {
         // windows changes the file pointer even if overlapped is passed
         i.QuadPart = 0;
-        _npassert(SetFilePointerEx(h, i, &p, SEEK_CUR));
+        _npassert(SetFilePointerEx(handle, i, &p, SEEK_CUR));
     }
 
  	if (offset == -1) {
-        ok = ReadFile(h, data, MIN(size, 0x7ffff000), &got, NULL);
+        ok = ReadFile(handle, data, MIN(size, 0x7ffff000), &got, NULL);
     } else {   
         memset(&overlap, 0, sizeof overlap);
         overlap.Pointer = (void *)(uintptr_t)offset;
-        ok = ReadFile(h, data, MIN(size, 0x7ffff000), &got, &overlap);
+        ok = ReadFile(handle, data, MIN(size, 0x7ffff000), &got, &overlap);
     }
     
     if (offset != -1) {
         // windows clobbers file pointer even on error
-        _npassert(SetFilePointerEx(h, p, 0, SEEK_SET));
+        _npassert(SetFilePointerEx(handle, p, 0, SEEK_SET));
     }
 
     if (ok) {
@@ -94,8 +92,8 @@ static ssize_t sys_read_nt_impl(int fd, void *data,
 }
 
 // Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/read-nt.c#L91-L112
-static ssize_t sys_read_nt(int fd, const struct iovec *iov,
-	                                size_t iovlen, ssize_t opt_offset) {
+static ssize_t sys_read_nt(HANDLE handle, const struct iovec *iov,
+                           size_t iovlen, ssize_t opt_offset) {
     ssize_t rc;
     size_t i, total;
     if (opt_offset < -1) return einval();
@@ -105,7 +103,7 @@ static ssize_t sys_read_nt(int fd, const struct iovec *iov,
     if (iovlen) {
         for (total = i = 0; i < iovlen; ++i) {
             if (!iov[i].iov_len) continue;
-            rc = sys_read_nt_impl(fd, iov[i].iov_base, iov[i].iov_len, opt_offset);
+            rc = sys_read_nt_impl(handle, iov[i].iov_base, iov[i].iov_len, opt_offset);
             if (rc == -1) return -1;
             total += rc;
             if (opt_offset != -1) opt_offset += rc;
@@ -113,9 +111,10 @@ static ssize_t sys_read_nt(int fd, const struct iovec *iov,
         }
         return total;
     } else {
-        return sys_read_nt_impl(fd, NULL, 0, opt_offset);
+        return sys_read_nt_impl(handle, NULL, 0, opt_offset);
     }
 }
+
 // Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/readv-nt.c#L25-L36
 static ssize_t sys_readv_nt(int fd, const struct iovec *iov,
                             int iovlen) {  
@@ -123,7 +122,7 @@ static ssize_t sys_readv_nt(int fd, const struct iovec *iov,
     switch (GetFileType(handle)) {
         case FILE_TYPE_DISK:
         case FILE_TYPE_CHAR:
-            return sys_read_nt(fd, iov, iovlen, -1);
+            return sys_read_nt(handle, iov, iovlen, -1);
         // TODO: Check if socket fds are used in blink
         //case FILE_TYPE_PIPE:
             //return sys_recv_nt(fd, iov, iovlen, 0);
@@ -138,15 +137,14 @@ ssize_t readv(int fd, const struct iovec *iov, int iovlen) {
     // Need to clear this to prevent the existing value getting through if
     // everything works.
     errno = 0;
-
     if (fd >= 0 && iovlen >= 0) {
-        // The cosmo version of this code checks if fd < fds count but blink,
+        // The cosmo version of this code checks if fd < fds count but blink
         // doesn't appear to keep track of real fds since the host os can do
         // it but windows of course can't. Its possible that a open handle
         // count would match but I am not sure. Its also possible that gnulib
         // might polyfill a method based on a posix one but I can only find
         // info on a brute force method and a definitely unavailable /proc
-        // one. https://stackoverflow.com/questions/7976769
+        // one from https://stackoverflow.com/questions/7976769.
         rc = sys_readv_nt(fd, iov, iovlen);
     } else if (fd < 0) {
         rc = ebadf();

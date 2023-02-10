@@ -1,6 +1,5 @@
 #ifndef BLINK_WIN_READ_H_
 #define BLINK_WIN_READ_H_
-#include <stddef.h>
 
 #ifdef _WIN32
 #include <stddef.h>

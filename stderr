@@ -1,0 +1,9 @@
+blink/windows/setitimer.c:115: SYS   6c04         1676058074 setitimer(0, {{0, 16666}, {0, 16666}}, NULL) -> 0 No error
+
+blink/syscall.c:1228: OpFstat(m, di, si)
+
+blink/syscall.c:1241: OpWritev(m, di, si, dx)
+
+blink/windows/writev.c:138: SYS   6c04         1676058074 writev(1, ioctl, 1) -> 12 No error
+
+blink/tui.c:2228: Interrupt 256 triggered, no specific handler found

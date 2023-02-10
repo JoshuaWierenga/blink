@@ -267,7 +267,12 @@ static uint64_t readaddr;
 static uint64_t readsize;
 static uint64_t writeaddr;
 static uint64_t writesize;
-//static const char *logpath;
+#ifdef _WIN32
+static char winlogpath[MAX_PATH + 10];
+static const char *logpath = winlogpath;
+#else
+static const char *logpath;
+#endif
 static char *statusmessage;
 static int64_t framesstart;
 static uint64_t last_opcount;
@@ -605,6 +610,7 @@ static void TuiRejuvinate(void) {
   term.c_cflag &= ~(CSIZE | PARENB);
   term.c_cflag |= CS8 | CREAD;
 #else
+  term.c_iflag |= ISIG;
   term.c_lflag &= ~(IEXTEN | ICANON | ECHO | ECHOE);
   term.c_cflag &= ~CSIZE;
   term.c_cflag |= CS8;
@@ -739,7 +745,10 @@ static int DrainInput(int fd) {
   for (;;) {
     fds[0].fd = fd;
     fds[0].events = POLLIN;
+    fds[0].revents = 0;
+#ifndef _WIN32
     if (poll(fds, ARRAYLEN(fds), 0) == -1) return -1;
+#endif
     if (!(fds[0].revents & POLLIN)) break;
     if (read(fd, buf, sizeof(buf)) == -1) return -1;
   }
@@ -1729,7 +1738,9 @@ static bool HasPendingInput(int fd) {
   fds[0].fd = fd;
   fds[0].events = POLLIN;
   fds[0].revents = 0;
+#ifndef _WIN32
   poll(fds, ARRAYLEN(fds), 0);
+#endif
   return fds[0].revents & (POLLIN | POLLERR);
 }
 
@@ -1831,7 +1842,7 @@ static int OnPtyFdIoctl(int fd, uint64_t request, void *memory) {
   } else*/ {
     errno = EINVAL;
     LOGF("Ioctl %d is not supported", request);
-    abort();
+    exit(1);
     return -1;
   }
 }
@@ -2481,11 +2492,11 @@ static void OnMouse(char *p) {
         break;
     }
   }
-}
+}*/
 
 static void OnHelp(void) {
   dialog = HELP;
-}*/
+}
 
 static void ReadKeyboard(void) {
   char buf[64], *p = buf;
@@ -2500,8 +2511,8 @@ static void ReadKeyboard(void) {
   }
   switch (*p++) {
     CASE('q', OnQ());
-    /*CASE('v', OnV());
-    CASE('?', OnHelp());*/
+    //CASE('v', OnV());
+    CASE('?', OnHelp());
     CASE('s', OnStep());
     /*CASE('n', OnNext());
     CASE('f', OnFinish());
@@ -2830,7 +2841,12 @@ static void Tui(void) {
 
 static void GetOpts(int argc, char *argv[]) {
   int opt;
-  //logpath = "/tmp/blink.log";
+#ifdef _WIN32
+  DWORD length = GetTempPathA(MAX_PATH + 1, winlogpath);
+  strcpy(winlogpath + length, "blink.log");
+#else
+  logpath = "/tmp/blink.log";
+#endif
   while ((opt = getopt(argc, argv, "hvtrzRsb:HL:")) != -1) {
     switch (opt) {
       case 't':
@@ -2856,7 +2872,7 @@ static void GetOpts(int argc, char *argv[]) {
         //++verbose;
         break;
       case 'L':
-        //logpath = optarg;
+        logpath = optarg;
         break;
       case 'z':
         /*++codeview.zoom;
@@ -2870,15 +2886,16 @@ static void GetOpts(int argc, char *argv[]) {
         PrintUsage(48, stderr);
     }
   }
-  //g_log = fopen(logpath, "w");
-  //setvbuf(g_log, malloc(4096), _IOLBF, 4096);
+
+  g_log = fopen(logpath, "w");
+  setvbuf(g_log, malloc(4096), _IOLBF, 4096);
 }
 
 
 static int OpenDevTty(void) {
 #ifdef _WIN32
   LOGF("Cannot open /dev/tty on windows");
-  abort();
+  exit(1);
 #else
   return open("/dev/tty", O_RDWR | O_NOCTTY);
 #endif
@@ -2989,6 +3006,5 @@ int main(int argc, char *argv[]) {
   sigaction(SIGALRM, &sa, 0);
 #endif
   if (optind == argc) PrintUsage(48, stderr);
-  g_log = stderr;
   return Emulator(argc, argv);
 }

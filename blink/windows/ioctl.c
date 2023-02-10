@@ -116,6 +116,7 @@ static int ioctl_tcgets_nt(int fd, struct termios *tio) {
     HANDLE in, out;
     BOOL inok, outok;
     DWORD inmode, outmode;
+    // Should any of this use fd?
     inok = GetConsoleMode((in = (HANDLE)_get_osfhandle(0)), &inmode);
     outok = GetConsoleMode((out = (HANDLE)_get_osfhandle(1)), &outmode);
     if (inok | outok) {
@@ -195,6 +196,7 @@ static int ioctl_tcsets_nt(int ignored, uint64_t request,
     HANDLE in, out;
     BOOL ok, inok, outok;
     DWORD inmode, outmode;
+    // Should any of this use fd?
     inok = GetConsoleMode((in = (HANDLE)_get_osfhandle(0)), &inmode);
     outok = GetConsoleMode((out = (HANDLE)_get_osfhandle(1)), &outmode);
     if (inok | outok) {
@@ -224,7 +226,7 @@ static int ioctl_tcsets_nt(int ignored, uint64_t request,
                 inmode |= kNtEnableVirtualTerminalInput;
             }*/
             ok = SetConsoleMode(in, inmode);
-            STRACE("SetConsoleMode(%p, flags) -> %hhhd", in, ok);
+            STRACE("SetConsoleMode(%p, 0x%X) -> %hhhd", in, inmode, ok);
         }
 
         if (outok) {
@@ -238,7 +240,7 @@ static int ioctl_tcsets_nt(int ignored, uint64_t request,
                 outmode |= kNtEnableVirtualTerminalProcessing;
             }*/
             ok = SetConsoleMode(out, outmode);
-            STRACE("SetConsoleMode(%p, flags) -> %hhhd", out, ok);
+            STRACE("SetConsoleMode(%p, 0x%X) -> %hhhd", out, outmode, ok);
         }
 
         return 0;
