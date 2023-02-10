@@ -22,7 +22,7 @@
 #include <unistd.h>
 
 #include "blink/endian.h"
-//#include "blink/linux.h"
+#include "blink/linux.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/signal.h"

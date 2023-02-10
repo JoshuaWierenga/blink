@@ -2886,7 +2886,6 @@ static void GetOpts(int argc, char *argv[]) {
         PrintUsage(48, stderr);
     }
   }
-
   g_log = fopen(logpath, "w");
   setvbuf(g_log, malloc(4096), _IOLBF, 4096);
 }

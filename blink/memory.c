@@ -104,8 +104,7 @@ void *FindReal(struct Machine *m, int64_t virt) {
 void *ResolveAddress(struct Machine *m, int64_t v) {
   void *r;
   if ((r = FindReal(m, v))) return r;
-  //printf("Crashing in resolve address, mode: %i\n", (m->mode & 3));
-  ThrowSegmentationFault(m, 0xF0F0F0F0F0);
+  ThrowSegmentationFault(m, v);
 }
 
 void VirtualSet(struct Machine *m, int64_t v, char c, uint64_t n) {

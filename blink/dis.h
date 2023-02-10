@@ -1,8 +1,8 @@
 #ifndef BLINK_DIS_H_
 #define BLINK_DIS_H_
 #include <stdbool.h>
-/*#include <stddef.h>
-#include <stdint.h>*/
+#include <stddef.h>
+#include <stdint.h>
 
 #include "blink/loader.h"
 #include "blink/x86.h"
@@ -53,18 +53,18 @@ struct Dis {
   char buf[512];
 };
 
-//extern bool g_disisprog_disable;
+extern bool g_disisprog_disable;
 
 long Dis(struct Dis *, struct Machine *, uint64_t, uint64_t, int);
 long DisFind(struct Dis *, int64_t);
 void DisFree(struct Dis *);
-//void DisFreeOp(struct DisOp *);
+void DisFreeOp(struct DisOp *);
 void DisFreeOps(struct DisOps *);
 void DisLoadElf(struct Dis *, struct Elf *);
 long DisFindSym(struct Dis *, int64_t);
 //long DisFindSymByName(struct Dis *, const char *);
 bool DisIsText(struct Dis *, int64_t);
-//bool DisIsProg(struct Dis *, int64_t);
+bool DisIsProg(struct Dis *, int64_t);
 char *DisInst(struct Dis *, char *, const char *);
 char *DisArg(struct Dis *, char *, const char *);
 const char *DisSpec(struct XedDecodedInst *, char *);

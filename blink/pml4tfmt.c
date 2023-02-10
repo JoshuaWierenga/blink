@@ -24,7 +24,7 @@
 #include "blink/buffer.h"
 #include "blink/endian.h"
 #include "blink/macros.h"
-//#include "blink/memory.h"
+#include "blink/memory.h"
 #include "blink/pml4t.h"
 
 struct Pml4tFormater {

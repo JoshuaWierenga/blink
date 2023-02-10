@@ -69,9 +69,9 @@ ssize_t PtyWrite(struct Pty *, const void *, size_t);
 ssize_t PtyWriteInput(struct Pty *, const void *, size_t);
 int PtyAppendLine(struct Pty *, struct Buffer *, unsigned);
 void PtyFullReset(struct Pty *);
-//void PtyMemmove(struct Pty *, long, long, long);
+void PtyMemmove(struct Pty *, long, long, long);
 void PtyErase(struct Pty *, long, long);
-/*void PtySetY(struct Pty *, int);
-void PtySetX(struct Pty *, int);*/
+void PtySetY(struct Pty *, int);
+void PtySetX(struct Pty *, int);
 
 #endif /* BLINK_PTY_H_ */
