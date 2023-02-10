@@ -4,9 +4,7 @@
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(termios.h)
 
-#ifdef _WIN32
 #include "blink/windows/termios.h"
-#endif
 
 /*#ifndef TCGETS
 #define TCGETS TIOCGETA

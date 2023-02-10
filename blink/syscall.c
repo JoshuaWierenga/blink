@@ -21,13 +21,13 @@
 #include <inttypes.h>
 //#include <poll.h>
 #include <sched.h>
-//#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/file.h>
+#include <sys/file.h>
 #include <sys/time.h>
-/*#include <sys/types.h>
-#include <sys/wait.h>*/
+#include <sys/types.h>
+//#include <sys/wait.h>
 #include <time.h>
 
 #ifdef _WIN32
@@ -49,10 +49,10 @@
 #include "blink/errno.h"
 #include "blink/iovs.h"
 #include "blink/log.h"
-//#include "blink/machine.h"
+#include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
-//#include "blink/pml4t.h"
+#include "blink/pml4t.h"
 #include "blink/signal.h"
 #include "blink/syscall.h"
 #include "blink/throw.h"
@@ -273,19 +273,14 @@ static int OpClose(struct Machine *m, int fd) {
   int rc;
   if (0 <= fd && fd < m->fds.i) {
     if (!m->fds.p[fd].cb) {
-    //printf("Why!?!?!\n");
     return ebadf();
     }
     rc = m->fds.p[fd].cb->close(m->fds.p[fd].fd);
     MachineFdRemove(&m->fds, fd);
-    //printf("party");
     return rc;
   } else {
-    //printf("party2");
     return ebadf();
   }
-  
-  //printf("Now I am confused\n");
 }
 
 static int OpOpenat(struct Machine *m, int dirfd, int64_t pathaddr, int flags,
@@ -300,7 +295,6 @@ static int OpOpenat(struct Machine *m, int dirfd, int64_t pathaddr, int flags,
     m->fds.p[i].cb = &kMachineFdCbHost;
     m->fds.p[i].fd = fd;
     fd = i;
-    //printf("Openat: host fd: %i, client fd: %i\n", m->fds.p[i].fd, i);
   } else {
     MachineFdRemove(&m->fds, i);
   }
@@ -516,7 +510,6 @@ static int64_t OpRead(struct Machine *m, int fd, int64_t addr, uint64_t size) {
   if ((0 <= fd && fd < m->fds.i) && m->fds.p[fd].cb) {
     InitIovs(&iv);
     if ((rc = AppendIovsReal(m, &iv, addr, size)) != -1) {
-      //printf("Read: host fd: %i, client fd: %i\n", m->fds.p[fd].fd, fd);
       if ((rc = m->fds.p[fd].cb->readv(m->fds.p[fd].fd, iv.p, iv.i)) != -1) {
         SetWriteAddr(m, addr, rc);
       }
@@ -569,7 +562,6 @@ static int64_t OpWrite(struct Machine *m, int fd, int64_t addr, uint64_t size) {
     FreeIovs(&iv);
     return rc;
   } else {
-    printf("OOO\n");
     return ebadf();
   }
 }
@@ -580,7 +572,6 @@ static int IoctlTiocgwinsz(struct Machine *m, int fd, int64_t addr,
   struct winsize ws;
   struct winsize_linux gws;
   if ((rc = fn(fd, TIOCGWINSZ, &ws)) != -1) {
-    //printf("Height: %d, Width: %d\n", ws.ws_row, ws.ws_col);
     XlatWinsizeToLinux(&gws, &ws);
     VirtualRecvWrite(m, addr, &gws, sizeof(gws));
   }

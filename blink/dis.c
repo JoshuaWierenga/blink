@@ -24,14 +24,14 @@
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(string.h)
 
-//#include "blink/cp437.h"
+#include "blink/cp437.h"
 #include "blink/dis.h"
 #include "blink/endian.h"
 #include "blink/high.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
-/*#include "blink/modrm.h"
-#include "blink/tpenc.h"*/
+#include "blink/modrm.h"
+#include "blink/tpenc.h"
 #include "blink/util.h"
 
 #define ADDRLEN 8

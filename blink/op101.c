@@ -19,6 +19,7 @@
 #include <stdio.h>
 
 #include "blink/endian.h"
+#include "blink/log.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/op101.h"
@@ -205,13 +206,13 @@ void Op101(struct Machine *m, uint32_t rde) {
             OpRdtscp(m, rde);
             break;
           default:
-            printf("Unsupported x86 op101 instruction 7 %d detected.\n", ModrmRm(rde));
+            LOGF("Unsupported x86 op101 instruction 7 %d detected.\n", ModrmRm(rde));
             OpUd(m, rde);
         }
       }
       break;
     default:
-      printf("Unsupported x86 op101 instruction %d detected.\n", ModrmReg(rde));
+      LOGF("Unsupported x86 op101 instruction %d detected.\n", ModrmReg(rde));
       OpUd(m, rde);
   }
 }

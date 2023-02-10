@@ -52,7 +52,7 @@
 double FpuPop(struct Machine *);
 int FpuGetTag(struct Machine *, unsigned);
 void FpuPush(struct Machine *, double);
-//void FpuSetTag(struct Machine *, unsigned, unsigned);
+void FpuSetTag(struct Machine *, unsigned, unsigned);
 void OpFinit(struct Machine *);
 void OpFpu(struct Machine *, uint32_t);
 void OpFwait(struct Machine *, uint32_t);

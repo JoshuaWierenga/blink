@@ -19,13 +19,13 @@
 #include <assert.h>
 
 #include "blink/address.h"
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/endian.h"
-//#include "blink/machine.h"
+#include "blink/machine.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
-/*#include "blink/throw.h"
-#include "blink/x86.h"*/
+#include "blink/throw.h"
+#include "blink/x86.h"
 
 struct AddrSeg LoadEffectiveAddress(const struct Machine *m, uint32_t rde) {
   const uint8_t *s = m->ds;

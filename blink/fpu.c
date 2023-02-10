@@ -21,14 +21,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/fpu.h"
 #include "blink/ldbl.h"
+#include "blink/log.h"
 #include "blink/machine.h"
-//#include "blink/macros.h"
+#include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/pun.h"
@@ -789,7 +790,6 @@ static void OpFldConstant(struct Machine *m) {
     CASE(5, x = Fldln2());
     CASE(6, x = Fldz());
     default:
-      printf("Fld constant issue\n");
       OpUd(m, m->xedd->op.rde);
   }
   FpuPush(m, x);
@@ -1151,7 +1151,7 @@ void OpFpu(struct Machine *m, uint32_t rde) {
         /*CASE(4, OpFtst(m));
         CASE(5, OpFxam(m));*/
         default:
-          printf("Unsupported x86 fpu instruction (0xD9, Register, 4, %d) detected\n", ModrmRm(rde));
+          LOGF("Unsupported x86 fpu instruction (0xD9, Register, 4, %d) detected", ModrmRm(rde));
           OpUd(m, rde);
       }
       break;
@@ -1180,7 +1180,7 @@ void OpFpu(struct Machine *m, uint32_t rde) {
         CASE(6, OpFsin(m));
         CASE(7, OpFcos(m));*/
         default:
-          printf("Unsupported x86 fpu instruction (0xD9, Register, 7, %d) detected\n", ModrmRm(rde));
+          LOGF("Unsupported x86 fpu instruction (0xD9, Register, 7, %d) detected\n", ModrmRm(rde));
           __builtin_unreachable();
       }
       break;
@@ -1193,7 +1193,7 @@ void OpFpu(struct Machine *m, uint32_t rde) {
       }
       break;*/
     default:
-      printf("Unsupported x86 fpu instruction (0x%X, %s, %d) detected\n", m->xedd->op.opcode, ismemory ? "Memory" : "Register", ModrmReg(rde));//DISP(op, ismemory, ModrmReg(rde)));
+      LOGF("Unsupported x86 fpu instruction (0x%X, %s, %d) detected\n", m->xedd->op.opcode, ismemory ? "Memory" : "Register", ModrmReg(rde));
       OpUd(m, rde);
   }
 }

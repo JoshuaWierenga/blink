@@ -295,7 +295,7 @@ static struct Dis dis[1];
 static long double last_seconds;
 static long double statusexpires;
 static struct termios oldterm;
-//static char systemfailure[128];
+static char systemfailure[128];
 #ifdef SIGCONT
 static struct sigaction oldsig[4];
 #endif
@@ -2738,11 +2738,11 @@ static void Tui(void) {
         CopyMachineState(&laststate);
       }
       if (dialog) {
-        //PrintMessageBox(ttyout, dialog, tyn, txn);
+        PrintMessageBox(ttyout, dialog, tyn, txn);
       }
       if (action & FAILURE) {
         LOGF("TUI FAILURE");
-        //PrintMessageBox(ttyout, systemfailure, tyn, txn);
+        PrintMessageBox(ttyout, systemfailure, tyn, txn);
         ReadKeyboard();
         if (action & INT) {
           LOGF("TUI INT");

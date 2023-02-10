@@ -18,8 +18,6 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <string.h>
 
-#include <stdio.h>
-
 #include "blink/case.h"
 #include "blink/endian.h"
 #include "blink/machine.h"
@@ -1445,7 +1443,6 @@ void Op171(struct Machine *m, uint32_t rde) {
       OpPsb(m, rde, MmxPsllw, SsePsllw);
       break;
     default:
-      printf("Op171 issue\n");
       OpUd(m, rde);
   }
 }
@@ -1462,7 +1459,6 @@ void Op172(struct Machine *m, uint32_t rde) {
       OpPsb(m, rde, MmxPslld, SsePslld);
       break;
     default:
-      printf("Op172 issue\n");
       OpUd(m, rde);
   }
 }
@@ -1482,7 +1478,6 @@ void Op173(struct Machine *m, uint32_t rde) {
       OpPsb(m, rde, MmxPslldq, SsePslldq);
       break;
     default:
-      printf("Op173 issue\n");
       OpUd(m, rde);
   }
 }

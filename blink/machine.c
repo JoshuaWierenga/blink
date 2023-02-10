@@ -29,10 +29,11 @@
 #include "blink/cpuid.h"
 #include "blink/cvt.h"
 #include "blink/divmul.h"
-//#include "blink/endian.h"
+#include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/fpu.h"
 #include "blink/ioports.h"
+#include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
@@ -47,8 +48,6 @@
 #include "blink/throw.h"
 #include "blink/time.h"
 #include "blink/util.h"
-
-#include "blink/log.h"
 
 #define OpLfence    OpNoop
 #define OpMfence    OpNoop
@@ -471,7 +470,6 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
           OpCmpxchg8b(m, rde);
         }
       } else {
-        LOGF("Op1c7 1 issue");
         OpUd(m, rde);
       }
       break;
@@ -479,7 +477,6 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
       if (!ismem) {
         OpRdrand(m, rde);
       } else {
-        LOGF("Op1c7 6 issue");
         OpUd(m, rde);
       }
       break;
@@ -491,12 +488,10 @@ static void Op1c7(struct Machine *m, uint32_t rde) {
           OpRdseed(m, rde);
         }
       } else {
-        LOGF("Op1c7 7 issue");
         OpUd(m, rde);
       }
       break;
     default:
-      LOGF("Op1c7 issue");
       OpUd(m, rde);
   }
 }
@@ -582,7 +577,6 @@ static void OpBit(struct Machine *m, uint32_t rde) {
       z = Btc(x, y);
       break;
     default:
-      LOGF("OpBit issue");
       OpUd(m, rde);
   }
   WriteRegisterOrMemory(rde, p, z);
@@ -1376,7 +1370,6 @@ static void Op1b8(struct Machine *m, uint32_t rde) {
   if (Rep(rde) == 3) {
     Bitscan(m, rde, AluPopcnt);
   } else {
-    LOGF("Op1b8 issue");
     OpUd(m, rde);
   }
 }
@@ -1484,7 +1477,6 @@ static void Op0fe(struct Machine *m, uint32_t rde) {
       AluEb(m, rde, Dec8);
       break;
     default:
-      LOGF("Op0fe issue");
       OpUd(m, rde);
   }
 }
@@ -1616,7 +1608,6 @@ static void Op1ae(struct Machine *m, uint32_t rde) {
       if (ismem) {
         OpXsave(m, rde);
       } else {
-        LOGF("Op1ae 4 issue");
         OpUd(m, rde);
       }
       break;
@@ -1634,7 +1625,6 @@ static void Op1ae(struct Machine *m, uint32_t rde) {
       }
       break;
     default:
-      LOGF("Op1ae issue");
       OpUd(m, rde);
   }
 }
@@ -1703,7 +1693,6 @@ static void OpMovRqCq(struct Machine *m, uint32_t rde) {
       Write64(RegRexbRm(m, rde), m->cr4);
       break;
     default:
-      LOGF("OpMovRqCq issue");
       OpUd(m, rde);
   }
 }
@@ -1729,7 +1718,6 @@ static void OpMovCqRq(struct Machine *m, uint32_t rde) {
       m->cr4 = Read64(RegRexbRm(m, rde));
       break;
     default:
-      LOGF("OpMovCqRq issue");
       OpUd(m, rde);
   }
 }

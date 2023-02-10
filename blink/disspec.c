@@ -19,7 +19,7 @@
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(string.h)
 
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/modrm.h"
 #include "blink/x86.h"

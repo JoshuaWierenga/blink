@@ -20,20 +20,19 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <stdio.h>
-
 #include "blink/address.h"
 #include "blink/alu.h"
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
-/*#include "blink/ioports.h"
-#include "blink/machine.h"*/
+#include "blink/ioports.h"
+#include "blink/log.h"
+#include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/string.h"
-//#include "blink/throw.h"
+#include "blink/throw.h"
 
 static uint64_t ReadInt(uint8_t p[8], unsigned long w) {
   switch (w) {
@@ -187,7 +186,7 @@ static void StringOp(struct Machine *m, uint32_t rde, int op) {
         EndStore(m, v, n, p, s[0]);
         break;*/
       default:
-        printf("Unsupported x86 string instruction %d detected.\n", op);
+        LOGF("Unsupported x86 string instruction %d detected.\n", op);
         abort();
     }
     if (Rep(rde)) {

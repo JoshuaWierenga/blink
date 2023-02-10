@@ -25,7 +25,7 @@
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/memory.h"
-//#include "blink/pml4t.h"
+#include "blink/pml4t.h"
 #include "blink/throw.h"
 
 void SetReadAddr(struct Machine *m, int64_t addr, uint32_t size) {

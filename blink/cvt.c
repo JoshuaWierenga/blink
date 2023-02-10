@@ -19,18 +19,17 @@
 #include <math.h>
 #include <string.h>
 
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/cvt.h"
 #include "blink/endian.h"
 #include "blink/fpu.h"
-/*#include "blink/machine.h"
+#include "blink/log.h"
+#include "blink/machine.h"
 #include "blink/macros.h"
-#include "blink/memory.h"*/
+#include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/pun.h"
 #include "blink/throw.h"
-
-#include <stdio.h>
 
 #define kOpCvt0f2a  0
 #define kOpCvtt0f2c 4
@@ -433,7 +432,7 @@ static void OpCvt(struct Machine *m, uint32_t rde, unsigned long op) {
       OpVpdWdqCvtdq2pd(m, rde);
       break;*/
     default:
-      printf("Unsupported x86 convert instruction %ld detected\n", op | Rep(rde) | Osz(rde));
+      LOGF("Unsupported x86 convert instruction %ld detected\n", op | Rep(rde) | Osz(rde));
       OpUd(m, rde);
   }
 }

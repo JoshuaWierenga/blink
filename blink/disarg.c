@@ -23,7 +23,7 @@
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(string.h)
 
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/dis.h"
 #include "blink/endian.h"
 #include "blink/high.h"

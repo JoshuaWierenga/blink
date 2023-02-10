@@ -18,13 +18,11 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <string.h>
 
-#include <stdio.h>
-
 #include "blink/address.h"
-/*#include "blink/builtin.h"
-#include "blink/endian.h"*/
+#include "blink/builtin.h"
+#include "blink/endian.h"
 #include "blink/memory.h"
-//#include "blink/modrm.h"
+#include "blink/modrm.h"
 #include "blink/ssemov.h"
 #include "blink/throw.h"
 
@@ -480,7 +478,6 @@ void OpMov0f16(struct Machine *m, uint32_t rde) {
       MovshdupVqWq(m, rde);
       break;
     default:
-      printf("OpMov0f16 issue\n");
       OpUd(m, rde);
       break;
   }
@@ -502,7 +499,6 @@ void OpMov0fD6(struct Machine *m, uint32_t rde) {
   } else if (Osz(rde)) {
     MovqWqVq(m, rde);
   } else {
-    printf("OpMov0fD6 issue\n");
     OpUd(m, rde);
   }
 }

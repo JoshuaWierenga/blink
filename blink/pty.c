@@ -28,11 +28,11 @@
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(wchar.h)
 
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/macros.h"
 #include "blink/pty.h"
-//#include "blink/termios.h"
+#include "blink/termios.h"
 #include "blink/thompike.h"
 #include "blink/tpenc.h"
 

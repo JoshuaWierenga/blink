@@ -15,7 +15,7 @@
 #define PAGE_XD   0x8000000000000000
 
 char **LoadStrList(struct Machine *, int64_t);
-/*int RegisterMemory(struct Machine *, int64_t, void *, size_t);*/
+//int RegisterMemory(struct Machine *, int64_t, void *, size_t);
 uint64_t FindPage(struct Machine *, int64_t);
 void *AccessRam(struct Machine *, int64_t, size_t, void *[2], uint8_t *, bool);
 //void *BeginLoadStore(struct Machine *, int64_t, size_t, void *[2], uint8_t *);

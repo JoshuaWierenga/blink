@@ -270,7 +270,6 @@ void OpPusha(struct Machine *m, uint32_t rde) {
       Pushad(m, rde);
       break;
     case XED_MODE_LONG:
-      printf("OpPusha issue\n");
       OpUd(m, rde);
     default:
       __builtin_unreachable();
@@ -286,7 +285,6 @@ void OpPopa(struct Machine *m, uint32_t rde) {
       Popad(m, rde);
       break;
     case XED_MODE_LONG:
-      printf("OpPopa issue\n");
       OpUd(m, rde);
     default:
       __builtin_unreachable();

@@ -621,14 +621,14 @@ typedef struct Elf64_Nhdr {
   /*uint8_t n_type[4];   /* uint32_t */
 /*} Elf64_Nhdr;*/
 
-//void CheckElfAddress(const Elf64_Ehdr *, size_t, intptr_t, size_t);
+void CheckElfAddress(const Elf64_Ehdr *, size_t, intptr_t, size_t);
 Elf64_Phdr *GetElfSegmentHeaderAddress(const Elf64_Ehdr *, size_t, uint64_t);
 char *GetElfStringTable(const Elf64_Ehdr *, size_t);
 Elf64_Shdr *GetElfSectionHeaderAddress(const Elf64_Ehdr *, size_t, uint16_t);
-/*const char *GetElfSectionName(const Elf64_Ehdr *, size_t, Elf64_Shdr *);
+const char *GetElfSectionName(const Elf64_Ehdr *, size_t, Elf64_Shdr *);
 char *GetElfString(const Elf64_Ehdr *, size_t, const char *, uint32_t);
 char *GetElfSectionNameStringTable(const Elf64_Ehdr *, size_t);
-void *GetElfSectionAddress(const Elf64_Ehdr *, size_t, const Elf64_Shdr *);*/
+void *GetElfSectionAddress(const Elf64_Ehdr *, size_t, const Elf64_Shdr *);
 Elf64_Sym *GetElfSymbolTable(const Elf64_Ehdr *, size_t, uint64_t *);
 
 #endif /* BLINK_ELF_H_ */

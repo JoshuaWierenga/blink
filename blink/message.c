@@ -16,57 +16,58 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <assert.h>
-#include <inttypes.h>
+#include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
-#include "blink/address.h"
-#include "blink/endian.h"
-#include "blink/throw.h"
+#include "blink/buffer.h"
+#include "blink/lines.h"
+#include "blink/macros.h"
+#include "blink/panel.h"
+#include "blink/strwidth.h"
 
-static bool IsHaltingInitialized(struct Machine *m) {
-  jmp_buf zb;
-  memset(zb, 0, sizeof(zb));
-  return memcmp(m->onhalt, zb, sizeof(m->onhalt)) != 0;
+static int GetWidthOfLongestLine(struct Lines *lines) {
+  int i, w, m;
+  for (m = i = 0; i < lines->n; ++i) {
+    w = strwidth(lines->p[i], 0);
+    m = MAX(m, w);
+  }
+  return m;
 }
 
-void HaltMachine(struct Machine *m, int code) {
-  if (!IsHaltingInitialized(m)) abort();
-  longjmp(m->onhalt, code);
-}
-
-void ThrowDivideError(struct Machine *m) {
-  HaltMachine(m, kMachineDivideError);
-}
-
-void ThrowSegmentationFault(struct Machine *m, int64_t va) {
-  m->faultaddr = va;
-  if (m->xedd) m->ip -= m->xedd->length;
-  fprintf(stderr,
-          "SEGMENTATION FAULT ADDR %012" PRIx64 " IP %012" PRIx64 " AX %" PRIx64
-          " CX %" PRIx64 " DX %" PRIx64 " BX %" PRIx64 " SP %" PRIx64 " "
-          "BP %" PRIx64 " SI %" PRIx64 " DI %" PRIx64 " R8 %" PRIx64
-          " R9 %" PRIx64 " R10 %" PRIx64 " R11 %" PRIx64 " R12 %" PRIx64 " "
-          "R13 %" PRIx64 " R14 %" PRIx64 " R15 %" PRIx64 "\r\n",
-          va, m->ip, Read64(m->ax), Read64(m->cx), Read64(m->dx), Read64(m->bx),
-          Read64(m->sp), Read64(m->bp), Read64(m->si), Read64(m->di),
-          Read64(m->r8), Read64(m->r9), Read64(m->r10), Read64(m->r11),
-          Read64(m->r12), Read64(m->r13), Read64(m->r14), Read64(m->r15));
-  HaltMachine(m, kMachineSegmentationFault);
-}
-
-void ThrowProtectionFault(struct Machine *m) {
-  HaltMachine(m, kMachineProtectionFault);
-}
-
-void OpUd(struct Machine *m, uint32_t rde) {
-  printf("OpUd time :(\n");
-  if (m->xedd) m->ip -= m->xedd->length;
-  HaltMachine(m, kMachineUndefinedInstruction);
-}
-
-void OpHlt(struct Machine *m, uint32_t rde) {
-  HaltMachine(m, kMachineHalt);
+void PrintMessageBox(int fd, const char *msg, long tyn, long txn) {
+  struct Buffer b;
+  int i, w, h, x, y;
+  struct Lines *lines;
+  lines = NewLines();
+  AppendLines(lines, msg);
+  h = 3 + lines->n + 3;
+  w = 4 + GetWidthOfLongestLine(lines) + 4;
+  x = rint(txn / 2. - w / 2.);
+  y = rint(tyn / 2. - h / 2.);
+  memset(&b, 0, sizeof(b));
+  AppendFmt(&b, "\033[%d;%dH", y++, x);
+  for (i = 0; i < w; ++i) AppendStr(&b, " ");
+  AppendFmt(&b, "\033[%d;%dH ╔", y++, x);
+  for (i = 0; i < w - 4; ++i) AppendStr(&b, "═");
+  AppendStr(&b, "╗ ");
+  AppendFmt(&b, "\033[%d;%dH ║  %-*s  ║ ", y++, x, w - 8, "");
+  for (i = 0; i < lines->n; ++i) {
+    AppendFmt(&b, "\033[%d;%dH ║  %-*s  ║ ", y++, x, w - 8, lines->p[i]);
+  }
+  FreeLines(lines);
+  AppendFmt(&b, "\033[%d;%dH ║  %-*s  ║ ", y++, x, w - 8, "");
+  AppendFmt(&b, "\033[%d;%dH ╚", y++, x);
+  for (i = 0; i < w - 4; ++i) AppendStr(&b, "═");
+  AppendStr(&b, "╝ ");
+  AppendFmt(&b, "\033[%d;%dH", y++, x);
+  for (i = 0; i < w; ++i) AppendStr(&b, " ");
+  if (WriteBuffer(&b, fd) == -1) {
+    fprintf(stderr, "WriteBuffer failed: %s\r\n", strerror(errno));
+    exit(1);
+  }
+  free(b.p);
 }
