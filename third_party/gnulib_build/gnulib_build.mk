@@ -49,7 +49,7 @@ GNULIB_LIB := third_party/gnulib_build/lib/libgnu.a
 
 o/$(MODE)/x86_64-mingw-w64/%.o: %.c third_party/gnulib_build/config.h
 	@mkdir -p $(@D)
-	$(MINGW-W64_TOOLCHAIN_CC) -static $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+	$(MINGW-W64_TOOLCHAIN_CC) -static $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -Iblink/windows/headerwrappers/ -c -o $@ $<
 
 o/$(MODE)/x86_64-mingw-w64/third_party/gnulib_build/lib/%.o: private	\
 	CFLAGS +=															\

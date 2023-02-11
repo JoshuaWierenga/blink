@@ -19,9 +19,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
-
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(string.h)
+#include <string.h>
 
 #include "blink/dis.h"
 #include "blink/high.h"

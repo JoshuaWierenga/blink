@@ -20,9 +20,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(string.h)
+#include <string.h>
 
 #include "blink/cp437.h"
 #include "blink/dis.h"

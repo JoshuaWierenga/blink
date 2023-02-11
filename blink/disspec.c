@@ -16,8 +16,7 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(string.h)
+#include <string.h>
 
 #include "blink/builtin.h"
 #include "blink/case.h"

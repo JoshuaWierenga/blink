@@ -20,7 +20,6 @@
 #include <string.h>
 
 #include "blink/lines.h"
-#include "blink/windows/strndup.h"
 
 struct Lines *NewLines(void) {
   return calloc(1, sizeof(struct Lines));

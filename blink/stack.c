@@ -18,12 +18,10 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <string.h>
 
-#include <stdio.h>
-
-/*#include "blink/address.h"
-#include "blink/builtin.h"*/
+#include "blink/address.h"
+#include "blink/builtin.h"
 #include "blink/endian.h"
-//#include "blink/macros.h"
+#include "blink/macros.h"
 #include "blink/memory.h"
 #include "blink/modrm.h"
 #include "blink/stack.h"

@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
-│vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
+│vi: set net ft=c ts=8 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,27 +16,28 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdio.h>
-#include <string.h>
+#include <stddef.h>
+#include <string.h> 
+#include <stdlib.h>
 
-#include "blink/high.h"
+#include "blink/windows/headerwrappers/string.h"
 
-struct High g_high;
-
-char *HighStart(char *p, int h) {
-  if (h) {
-    p = stpcpy(p, "\033[38;5;");
-    p += sprintf(p, "%u", h);
-    p = stpcpy(p, "m");
-    g_high.active = true;
+/**
+ * Allocates new copy of string, with byte limit.
+ *
+ * @param s is a NUL-terminated byte string
+ * @param n if less than strlen(s) will truncate the string
+ * @return new string or NULL w/ errno
+ * @error ENOMEM
+ * @threadsafe
+ */
+char *strndup(const char *s, size_t n) {
+  char *s2;
+  size_t len = strnlen(s, n);
+  if ((s2 = malloc(len + 1))) {
+    memcpy(s2, s, len);
+    s2[len] = '\0';
+    return s2;
   }
-  return p;
-}
-
-char *HighEnd(char *p) {
-  if (g_high.active) {
-    p = stpcpy(p, "\033[39m");
-    g_high.active = false;
-  }
-  return p;
+  return s2;
 }
