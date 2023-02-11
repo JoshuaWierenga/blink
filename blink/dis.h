@@ -62,7 +62,7 @@ void DisFreeOp(struct DisOp *);
 void DisFreeOps(struct DisOps *);
 void DisLoadElf(struct Dis *, struct Elf *);
 long DisFindSym(struct Dis *, int64_t);
-//long DisFindSymByName(struct Dis *, const char *);
+long DisFindSymByName(struct Dis *, const char *);
 bool DisIsText(struct Dis *, int64_t);
 bool DisIsProg(struct Dis *, int64_t);
 char *DisInst(struct Dis *, char *, const char *);

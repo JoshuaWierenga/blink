@@ -170,7 +170,7 @@ long DisFindSym(struct Dis *d, int64_t addr) {
   return -1;
 }
 
-/*long DisFindSymByName(struct Dis *d, const char *s) {
+long DisFindSymByName(struct Dis *d, const char *s) {
   long i;
   for (i = 0; i < d->syms.i; ++i) {
     if (strcmp(s, d->syms.stab + d->syms.p[i].name) == 0) {
@@ -178,7 +178,7 @@ long DisFindSym(struct Dis *d, int64_t addr) {
     }
   }
   return -1;
-}*/
+}
 
 void DisLoadElf(struct Dis *d, struct Elf *elf) {
   if (!elf || !elf->ehdr) return;

@@ -16,11 +16,11 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-//#include <assert.h>
+#include <assert.h>
 #include <string.h>
 
 #include "blink/bitscan.h"
-//#include "blink/builtin.h"
+#include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/macros.h"
 #include "blink/modrm.h"
@@ -961,7 +961,7 @@ struct XedDecodedInst *InitializeInstruction(struct XedDecodedInst *x,
     case XED_MACHINE_MODE_LEGACY_16:
     case XED_MACHINE_MODE_LONG_COMPAT_16:
       mode = XED_MODE_REAL;
-    break;
+      break;
   }
   x->op.realmode = real;
   x->op.rde = mode << 26;

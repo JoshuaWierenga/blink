@@ -17,19 +17,19 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <assert.h>
-//#include <ctype.h>
+#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <inttypes.h>
-/*#include <poll.h>
+//#include <poll.h>
 #include <stdarg.h>
 #include <stdint.h>
-//#include <stdio.h>*/
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <sys/stat.h>
+#include <sys/stat.h>
 #include <sys/time.h>
-//#include <sys/types.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
 /*#include <wchar.h>
@@ -46,13 +46,13 @@
 #include WINDOWSHEADER(mman/mman.h,sys/mman.h)
 
 #include "blink/address.h"
-/*#include "blink/breakpoint.h"
-#include "blink/builtin.h"*/
+#include "blink/breakpoint.h"
+#include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/cga.h"
 #include "blink/cp437.h"
 #include "blink/dis.h"
-//#include "blink/endian.h"
+#include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/fpu.h"
 #include "blink/high.h"
@@ -61,19 +61,19 @@
 #include "blink/macros.h"
 #include "blink/mda.h"
 #include "blink/memory.h"
-//#include "blink/modrm.h"
+#include "blink/modrm.h"
 #include "blink/panel.h"
-//#include "blink/pml4t.h"
+#include "blink/pml4t.h"
 #include "blink/pty.h"
 #include "blink/signal.h"
 #include "blink/strwidth.h"
 #include "blink/syscall.h"
 #include "blink/termios.h"
-//#include "blink/thompike.h"
+#include "blink/thompike.h"
 #include "blink/throw.h"
-//#include "blink/tpenc.h"
+#include "blink/tpenc.h"
 #include "blink/util.h"
-//#include "blink/xlat.h"
+#include "blink/xlat.h"
 #include "blink/xmmtype.h"
 #include "blink/windows/ioctl.h"
 #include "blink/windows/readv.h"
@@ -277,11 +277,11 @@ static char *statusmessage;
 static int64_t framesstart;
 static uint64_t last_opcount;
 static unsigned long opcount;
-//static int64_t breakpointsstart;
+static int64_t breakpointsstart;
 
 static struct Panels pan;
 static struct Signals signals;
-//static struct Breakpoints breakpoints;
+static struct Breakpoints breakpoints;
 static struct MemoryView codeview;
 static struct MemoryView readview;
 static struct MemoryView writeview;
@@ -646,8 +646,8 @@ static void OnQ(void) {
   vidya = !vidya;
 }*/
 
-// TODO: Figure out why the window's signal function can return a si_code
-// like value in some cases but gnulib's sigaction can't.
+// TODO: Figure out why window's signal function can return a si_code like
+// value in some cases but gnulib's sigaction can't.
 // https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/signal
 static void OnSignal(int sig, siginfo_t *si, void *uc) {
 #ifdef _WIN32
@@ -708,7 +708,7 @@ static void TuiCleanup(void) {
   LeaveScreen();
 }
 
-/*static void ResolveBreakpoints(void) {
+static void ResolveBreakpoints(void) {
   long i, sym;
   for (i = 0; i < breakpoints.i; ++i) {
     if (breakpoints.p[i].symbol && !breakpoints.p[i].addr) {
@@ -723,15 +723,14 @@ static void TuiCleanup(void) {
       }
     }
   }
-}*/
+}
 
 static void BreakAtNextInstruction(void) {
-  // TODO Add breakpoints
-  /*struct Breakpoint b;
+  struct Breakpoint b;
   memset(&b, 0, sizeof(b));
   b.addr = GetIp() + m->xedd->length;
   b.oneshot = true;
-  PushBreakpoint(&breakpoints, &b);*/
+  PushBreakpoint(&breakpoints, &b);
 }
 
 static void LoadSyms(void) {
@@ -782,10 +781,9 @@ static int GetCursorPosition(int *out_y, int *out_x) {
 void CommonSetup(void) {
   static bool once;
   if (!once) {
-    // TODO Support breakpoints
-    if (tuimode/* || breakpoints.i*/) {
+    if (tuimode || breakpoints.i) {
       LoadSyms();
-      //ResolveBreakpoints();
+      ResolveBreakpoints();
     }
     once = true;
   }
@@ -1455,7 +1453,7 @@ static void DrawMaps(struct Panel *p) {
   free(text);
 }
 
-/*static void DrawBreakpoints(struct Panel *p) {
+static void DrawBreakpoints(struct Panel *p) {
   int64_t addr;
   const char *name;
   char *s, buf[256];
@@ -1478,7 +1476,7 @@ static void DrawMaps(struct Panel *p) {
     }
     ++line;
   }
-}*/
+}
 
 static int GetPreferredStackAlignmentMask(void) {
   switch (m->mode & 3) {
@@ -1670,7 +1668,7 @@ static void Redraw(void) {
   DrawDisplay(&pan.display);
   DrawCpu(&pan.registers);
   DrawSse(&pan.sse);
-  //DrawHr(&pan.breakpointshr, "BREAKPOINTS");
+  DrawHr(&pan.breakpointshr, "BREAKPOINTS");
   DrawHr(&pan.mapshr, "PML4T");
   DrawHr(&pan.frameshr, m->bofram[0] ? "PROTECTED FRAMES" : "FRAMES");
   DrawHr(&pan.ssehr, "SSE");
@@ -1680,7 +1678,7 @@ static void Redraw(void) {
   DrawHr(&pan.stackhr, "STACK");
   DrawMaps(&pan.maps);
   DrawFrames(&pan.frames);
-  //DrawBreakpoints(&pan.breakpoints);
+  DrawBreakpoints(&pan.breakpoints);
   DrawMemory(&pan.code, &codeview, GetIp(), GetIp() + m->xedd->length);
   DrawMemory(&pan.readdata, &readview, readaddr, readaddr + readsize);
   DrawMemory(&pan.writedata, &writeview, writeaddr, writeaddr + writesize);
@@ -2238,8 +2236,7 @@ static void OnBinbase(struct Machine *m) {
   LOGF("skew binbase %" PRId64 " @ %012" PRIx64 "", skew, GetIp());
   for (i = 0; i < dis->syms.i; ++i) dis->syms.p[i].addr += skew;
   for (i = 0; i < dis->loads.i; ++i) dis->loads.p[i].addr += skew;
-  // TODO Add breakpoints
-  //for (i = 0; i < breakpoints.i; ++i) breakpoints.p[i].addr += skew;
+  for (i = 0; i < breakpoints.i; ++i) breakpoints.p[i].addr += skew;
   Disassemble();
 }
 
@@ -2351,7 +2348,7 @@ static void OnFinish(void) {
   action &= ~NEXT;
   action &= ~FAILURE;
   action &= ~CONTINUE;
-}
+}*/
 
 static void OnContinueTui(void) {
   action ^= CONTINUE;
@@ -2361,7 +2358,7 @@ static void OnContinueTui(void) {
   action &= ~FAILURE;
 }
 
-static void OnContinueExec(void) {
+/*static void OnContinueExec(void) {
   tuimode = false;
   action |= CONTINUE;
   action &= ~STEP;
@@ -2406,6 +2403,7 @@ static bool HasPendingKeyboard(void) {
   return HasPendingInput(ttyin);
 }
 
+// Renamed to avoid conflict with windows Sleep function
 static void TuiSleep(int ms) {
   poll((struct pollfd[]){{ttyin, POLLIN}}, 1, ms);
 }
@@ -2515,17 +2513,17 @@ static void ReadKeyboard(void) {
     CASE('?', OnHelp());
     CASE('s', OnStep());
     /*CASE('n', OnNext());
-    CASE('f', OnFinish());
+    CASE('f', OnFinish());*/
     CASE('c', OnContinueTui());
-    CASE('C', OnContinueExec());
+    /*CASE('C', OnContinueExec());
     CASE('R', OnRestart());
     CASE('x', OnXmmDisp());
     CASE('t', OnXmmType());
     CASE('T', OnXmmSize());
     CASE('u', OnUp());
-    CASE('d', OnDown());
+    CASE('d', OnDown());*/
     CASE('B', PopBreakpoint(&breakpoints));
-    CASE('M', ToggleMouseTracking());
+    /*CASE('M', ToggleMouseTracking());
     CASE('\t', OnTab());
     CASE('\r', OnEnter());
     CASE('\n', OnEnter());
@@ -2573,7 +2571,7 @@ static void ReadKeyboard(void) {
   }
 }
 
-/*static int64_t ParseHexValue(const char *s) {
+static int64_t ParseHexValue(const char *s) {
   char *ep;
   int64_t x;
   x = strtoll(s, &ep, 16);
@@ -2596,7 +2594,7 @@ static void HandleBreakpointFlag(const char *s) {
     b.symbol = optarg;
   }
   PushBreakpoint(&breakpoints, &b);
-}*/
+}
 
 _Noreturn static void PrintUsage(int rc, FILE *f) {
   fprintf(f, "SYNOPSIS\r\n\r\n  %s%s", "blink", USAGE);
@@ -2619,12 +2617,11 @@ static void LogInstruction(void) {
 
 static void Exec(void) {
   int sig;
-  //ssize_t bp;
+  ssize_t bp;
   int interrupt;
   ExecSetup();
   if (!(interrupt = setjmp(m->onhalt))) {
-    // TODO Support breakpoints
-    /*if (!(action & CONTINUE) &&
+    if (!(action & CONTINUE) &&
         (bp = IsAtBreakpoint(&breakpoints, GetIp())) != -1) {
       LOGF("BREAK1 %012" PRIx64 "", breakpoints.p[bp].addr);
       tuimode = true;
@@ -2632,23 +2629,27 @@ static void Exec(void) {
       if (verbose) LogInstruction();
       ExecuteInstruction(m);
       if (signals.n && signals.i < signals.n) {
+// TODO Check if SIGALRM sent internally? If so define it.
+#ifdef SIGALRM
         if ((sig = ConsumeSignal(m, &signals)) && sig != SIGALRM) {
+#else
+        if ((sig = ConsumeSignal(m, &signals))) {
+#endif
           TerminateSignal(m, sig);
         }
       }
       ++opcount;
       CheckFramePointer();
-    } else*/ {
+    } else {
       action &= ~CONTINUE;
       for (;;) {
         LoadInstruction(m);
-        // TODO Support breakpoints
-        /*if ((bp = IsAtBreakpoint(&breakpoints, GetIp())) != -1) {
+        if ((bp = IsAtBreakpoint(&breakpoints, GetIp())) != -1) {
           LOGF("BREAK2 %012" PRIx64 "", breakpoints.p[bp].addr);
           action &= ~(FINISH | NEXT | CONTINUE);
           tuimode = true;
           break;
-        }*/
+        }
         if (verbose) LogInstruction();
         ExecuteInstruction(m);
         if (signals.n && signals.i < signals.n) {
@@ -2695,7 +2696,7 @@ static void Exec(void) {
 
 static void Tui(void) {
   int sig;
-  //ssize_t bp;
+  ssize_t bp;
   int interrupt;
   bool interactive;
   /* LOGF("TUI"); */
@@ -2706,12 +2707,11 @@ static void Tui(void) {
     do {
       if (!(action & FAILURE)) {
         LoadInstruction(m);
-        // TODO Support breakpoints
-        /*if ((action & (FINISH | NEXT | CONTINUE)) &&
+        if ((action & (FINISH | NEXT | CONTINUE)) &&
             (bp = IsAtBreakpoint(&breakpoints, GetIp())) != -1) {
           action &= ~(FINISH | NEXT | CONTINUE);
           LOGF("BREAK %012" PRIx64 "", breakpoints.p[bp].addr);
-        }*/
+        }
       } else {
         m->xedd = (struct XedDecodedInst *)m->icache[0];
         m->xedd->length = 1;
@@ -2863,7 +2863,7 @@ static void GetOpts(int argc, char *argv[]) {
         //printstats = true;
         break;
       case 'b':
-        //HandleBreakpointFlag(optarg);
+        HandleBreakpointFlag(optarg);
         break;
       case 'H':
         memset(&g_high, 0, sizeof(g_high));

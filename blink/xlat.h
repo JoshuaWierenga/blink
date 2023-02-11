@@ -1,8 +1,8 @@
 #ifndef BLINK_XLAT_H_
 #define BLINK_XLAT_H_
-//#include <signal.h>
+#include <signal.h>
 #include <sys/stat.h>
-//#include <sys/time.h>
+#include <sys/time.h>
 
 #ifndef _WIN32
 #include <netinet/in.h>
