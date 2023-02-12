@@ -1,5 +1,5 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
-│vi: set net ft=c ts=8 sts=2 sw=2 fenc=utf-8                                :vi│
+│vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
 │ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
@@ -16,30 +16,24 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
-#include "blink/windows/headerwrappers/string.h"
+#include "blink/windows/cosmo/libc/intrin/pandn.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/mem/strndup.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/pandn.c
+// TODO See if this can be replaced by SsePandn in sse2.c
 
 /**
- * Allocates new copy of string, with byte limit.
+ * Nands 128-bit integers.
  *
- * @param s is a NUL-terminated byte string
- * @param n if less than strlen(s) will truncate the string
- * @return new string or NULL w/ errno
- * @error ENOMEM
- * @threadsafe
+ * @param 𝑎 [w/o] receives result
+ * @param 𝑏 [r/o] supplies first input vector
+ * @param 𝑐 [r/o] supplies second input vector
+ * @mayalias
  */
-char *strndup(const char *s, size_t n) {
-  char *s2;
-  size_t len = strnlen(s, n);
-  if ((s2 = malloc(len + 1))) {
-    memcpy(s2, s, len);
-    s2[len] = '\0';
-    return s2;
+void pandn(uint64_t a[2], const uint64_t b[2], const uint64_t c[2]) {
+  unsigned i;
+  for (i = 0; i < 2; ++i) {
+    a[i] = ~b[i] & c[i];
   }
-  return s2;
 }

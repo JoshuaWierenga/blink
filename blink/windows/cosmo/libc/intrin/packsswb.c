@@ -1,5 +1,5 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
-│vi: set net ft=c ts=8 sts=2 sw=2 fenc=utf-8                                :vi│
+│vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
 │ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
@@ -16,30 +16,26 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
-#include "blink/windows/headerwrappers/string.h"
+#include "blink/macros.h"
+#include "blink/windows/cosmo/libc/intrin/packsswb.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/mem/strndup.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/packssdw.c
+// TODO See if this can be replaced by SsePacksswb in sse.c
 
 /**
- * Allocates new copy of string, with byte limit.
+ * Casts shorts to signed chars w/ saturation.
  *
- * @param s is a NUL-terminated byte string
- * @param n if less than strlen(s) will truncate the string
- * @return new string or NULL w/ errno
- * @error ENOMEM
- * @threadsafe
+ *   𝑎 ← {CLAMP[𝑏ᵢ]|𝑖∈[0,4)} ║ {CLAMP[𝑐ᵢ]|𝑖∈[4,8)}
+ *
+ * @see packuswb()
+ * @mayalias
  */
-char *strndup(const char *s, size_t n) {
-  char *s2;
-  size_t len = strnlen(s, n);
-  if ((s2 = malloc(len + 1))) {
-    memcpy(s2, s, len);
-    s2[len] = '\0';
-    return s2;
-  }
-  return s2;
+void packsswb(int8_t a[16], const int16_t b[8], const int16_t c[8]) {
+  unsigned i;
+  int8_t r[16];
+  for (i = 0; i < 8; ++i) r[i + 0] = MIN(INT8_MAX, MAX(INT8_MIN, b[i]));
+  for (i = 0; i < 8; ++i) r[i + 8] = MIN(INT8_MAX, MAX(INT8_MIN, c[i]));
+  __builtin_memcpy(a, r, 16);
 }

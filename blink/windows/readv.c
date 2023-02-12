@@ -117,7 +117,7 @@ static ssize_t sys_read_nt(HANDLE handle, const struct iovec *iov,
 
 // Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/readv-nt.c#L25-L36
 static ssize_t sys_readv_nt(int fd, const struct iovec *iov,
-                            int iovlen) {  
+                            int iovlen) {
     HANDLE handle = (HANDLE)_get_osfhandle(fd);
     switch (GetFileType(handle)) {
         case FILE_TYPE_DISK:

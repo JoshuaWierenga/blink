@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
 //#include <poll.h>
@@ -38,7 +39,6 @@
 #endif
 
 #include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(dirent.h)
 #include WINDOWSGNULIBHEADER(fcntl.h)
 #include WINDOWSGNULIBHEADER(signal.h)
 #include WINDOWSHEADER(mman/mman.h,sys/mman.h)
@@ -521,21 +521,39 @@ static int64_t OpRead(struct Machine *m, int fd, int64_t addr, uint64_t size) {
   }
 }
 
+// This is slightly messy now but will get refactored when I get to
+// https://github.com/jart/blink/commit/80b33e5 so it should be fine.
 static int OpGetdents(struct Machine *m, int fd, int64_t addr, uint32_t size) {
   int rc;
+#ifdef _WIN32
+  WDIR *wdir;
+#else
   DIR *dir;
+#endif
   struct dirent *ent;
   if (size < sizeof(struct dirent)) errno = EINVAL;
   return -1;
   if (0 <= fd && fd < m->fds.i) {
+#ifdef _WIN32
+    if ((wdir = fdopendirw(m->fds.p[fd].fd))) {
+#else
     if ((dir = fdopendir(m->fds.p[fd].fd))) {
+#endif
       rc = 0;
       while (rc + sizeof(struct dirent) <= size) {
+#ifdef _WIN32
+        if (!(ent = readdirw(wdir))) break;
+#else
         if (!(ent = readdir(dir))) break;
+#endif
         VirtualRecvWrite(m, addr + rc, ent, ent->d_reclen);
         rc += ent->d_reclen;
       }
+#ifdef _WIN32
+      free(wdir);
+#else
       free(dir);
+#endif
     } else {
       rc = -1;
     }

@@ -1,5 +1,5 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
-│vi: set net ft=c ts=8 sts=2 sw=2 fenc=utf-8                                :vi│
+│vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
 │ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
@@ -16,30 +16,23 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdint.h>
 
-#include "blink/windows/headerwrappers/string.h"
+#include "blink/windows/cosmo/libc/intrin/pmovmskb.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/mem/strndup.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/pmovmskb.c
+// TODO See if this can be replaced by pmovmskb in ssemov.c
 
 /**
- * Allocates new copy of string, with byte limit.
+ * Turns result of byte comparison into bitmask.
  *
- * @param s is a NUL-terminated byte string
- * @param n if less than strlen(s) will truncate the string
- * @return new string or NULL w/ errno
- * @error ENOMEM
- * @threadsafe
+ * @param 𝑝 is byte vector to crunch
+ * @see pcmpeqb(), bsf(), etc.
  */
-char *strndup(const char *s, size_t n) {
-  char *s2;
-  size_t len = strnlen(s, n);
-  if ((s2 = malloc(len + 1))) {
-    memcpy(s2, s, len);
-    s2[len] = '\0';
-    return s2;
+uint32_t pmovmskb(const uint8_t p[16]) {
+  uint32_t i, m;
+  for (m = i = 0; i < 16; ++i) {
+    if (p[i] & 0x80) m |= 1 << i;
   }
-  return s2;
+  return m;
 }

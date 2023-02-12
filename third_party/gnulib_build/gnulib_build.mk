@@ -14,7 +14,6 @@ MINGW-W64_TOOLCHAIN_RANLIB := $(MINGW-W64_TOOLCHAIN_PREFIX)-ranlib-$(MINGW-W64_T
 GNULIB_MODULES :=								\
 	faccessat									\
 	fcntl										\
-	fdopendir									\
 	fcntl-h										\
 	fstatat										\
 	getrusage									\
@@ -31,12 +30,11 @@ GNULIB_MODULES :=								\
 
 GNULIB_FILES :=									\
 	third_party/gnulib_build/config.h			\
-	third_party/gnulib_build/lib/dirent.h		\
 	third_party/gnulib_build/lib/fcntl.h		\
 	third_party/gnulib_build/lib/poll.h			\
-	third_party/gnulib_build/lib/string.h		\
 	third_party/gnulib_build/lib/signal.h		\
 	third_party/gnulib_build/lib/stat-size.h	\
+	third_party/gnulib_build/lib/string.h		\
 	third_party/gnulib_build/lib/sys/ioctl.h	\
 	third_party/gnulib_build/lib/sys/resource.h	\
 	third_party/gnulib_build/lib/sys/stat.h		\
@@ -49,7 +47,7 @@ GNULIB_LIB := third_party/gnulib_build/lib/libgnu.a
 
 o/$(MODE)/x86_64-mingw-w64/%.o: %.c third_party/gnulib_build/config.h
 	@mkdir -p $(@D)
-	$(MINGW-W64_TOOLCHAIN_CC) -static $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -Iblink/windows/headerwrappers/ -c -o $@ $<
+	$(MINGW-W64_TOOLCHAIN_CC) -static $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -D_WIN32_WINNT=0x0600 -Iblink/windows/headerwrappers/ -c -o $@ $<
 
 o/$(MODE)/x86_64-mingw-w64/third_party/gnulib_build/lib/%.o: private	\
 	CFLAGS +=															\
