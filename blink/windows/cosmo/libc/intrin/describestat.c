@@ -16,43 +16,83 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <limits.h>
+#include <minwindef.h>
+#include <stdbool.h>
+#include <stdio.h>
 #include <sys/stat.h>
-#include <uchar.h>
-#include <windef.h>
-#include <winbase.h>
 
-#include "blink/errno.h"
-#include "blink/macros.h"
-#include "blink/windows/macros.h"
-#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
-#include "blink/windows/cosmo/libc/sysv/errfuns.h"
-#include "third_party/gnulib_build/lib/fcntl.h"
+#include "blink/windows/cosmo/libc/calls/struct/stat.internal.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/mkntpathat.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/describestat.c
 
-int __mkntpathat(int dirfd, const char *path, int flags,
-                 char16_t file[PATH_MAX]) {
-  char16_t dir[PATH_MAX];
-  uint32_t dirlen, filelen;
-  HANDLE handle;
-  if ((filelen = __mkntpath2(path, file, flags)) == -1) return -1;
-  if (!filelen) return enoent();
-  if (file[0] != u'\\' && dirfd != AT_FDCWD) { /* ProTip: \\?\C:\foo */
-    handle = (HANDLE)_get_osfhandle(dirfd);
-    if (dirfd < 0 || GetFileType(handle) != FILE_TYPE_DISK) return ebadf();
-    dirlen = GetFinalPathNameByHandleW(handle, dir, ARRAYLEN(dir),
-                                       FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-    if (!dirlen) return __winerr();
-    if (dirlen + 1 + filelen + 1 > ARRAYLEN(dir)) {
-      STRACE("path too long: %#.*hs\\%#.*hs", dirlen, dir, filelen, file);
-      return enametoolong();
-    }
-    dir[dirlen] = u'\\';
-    memcpy(dir + dirlen + 1, file, (filelen + 1) * sizeof(char16_t));
-    memcpy(file, dir, (dirlen + 1 + filelen + 1) * sizeof(char16_t));
-    return dirlen + 1 + filelen;
-  } else {
-    return filelen;
+#ifdef DescribeStat
+#undef DescribeStat
+#endif
+
+#define N 300
+
+
+//Safely is not relevant, that is mingw's stdlib(mostly window's stdlib of course) job.
+#define append(...) o += /*k*/snprintf(buf + o, N - o, __VA_ARGS__)
+
+const char *DescribeStat(char buf[N], int rc, const struct stat *st) {
+  int o = 0;
+
+  if (rc == -1) return "n/a";
+  if (!st) return "NULL";
+  // Again not relevant.
+  /*if (kisdangerous(st)) {
+    ksnprintf(buf, N, "%p", st);
+    return buf;
+  }*/
+
+  append("{.st_%s=%'lld", "size", st->st_size);
+
+  if (st->st_blocks) {
+    append(", .st_blocks=%'lld/512", st->st_blocks * (uint64_t)512);
   }
+
+  if (st->st_mode) {
+    append(", .st_%s=%#o", "mode", st->st_mode);
+  }
+
+  if (st->st_nlink != 1) {
+    append(", .st_%s=%'llu", "nlink", st->st_nlink);
+  }
+
+  if (st->st_uid) {
+    append(", .st_%s=%u", "uid", st->st_uid);
+  }
+
+  if (st->st_gid) {
+    append(", .st_%s=%u", "gid", st->st_gid);
+  }
+
+  if (st->st_dev) {
+    append(", .st_%s=%llu", "dev", st->st_dev);
+  }
+
+  if (st->st_ino) {
+    append(", .st_%s=%llu", "ino", st->st_ino);
+  }
+
+  if (st->st_gen) {
+    append(", .st_%s=%'llu", "gen", st->st_gen);
+  }
+
+  if (st->st_flags) {
+    append(", .st_%s=%x", "flags", st->st_flags);
+  }
+
+  if (st->st_rdev) {
+    append(", .st_%s=%'llu", "rdev", st->st_rdev);
+  }
+
+  if (st->st_blksize != PAGESIZE) {
+    append(", .st_%s=%'lld", "blksize", st->st_blksize);
+  }
+
+  append("}");
+
+  return buf;
 }

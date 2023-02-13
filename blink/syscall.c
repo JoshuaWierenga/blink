@@ -32,9 +32,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#ifdef _WIN32
-#include "third_party/gnulib_build/lib/sys/stat.h"
-#else
+#ifndef _WIN32
 #include <sys/socket.h>
 #endif
 

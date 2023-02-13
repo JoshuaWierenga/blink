@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
 │vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2021 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,43 +16,44 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <limits.h>
 #include <sys/stat.h>
 #include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
-#include "blink/errno.h"
-#include "blink/macros.h"
-#include "blink/windows/macros.h"
+#include "blink/windows/cosmo/libc/calls/struct/stat.internal.h"
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
-#include "blink/windows/cosmo/libc/sysv/errfuns.h"
 #include "third_party/gnulib_build/lib/fcntl.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/mkntpathat.c
+/*#include "libc/calls/struct/stat.h"
+#include "libc/calls/struct/stat.internal.h"
+#include "libc/calls/syscall_support-nt.internal.h"
+#include "libc/nt/createfile.h"
+#include "libc/nt/enum/accessmask.h"
+#include "libc/nt/enum/creationdisposition.h"
+#include "libc/nt/enum/fileflagandattributes.h"
+#include "libc/nt/enum/filesharemode.h"
+#include "libc/nt/runtime.h"
+#include "libc/sysv/consts/at.h"*/
 
-int __mkntpathat(int dirfd, const char *path, int flags,
-                 char16_t file[PATH_MAX]) {
-  char16_t dir[PATH_MAX];
-  uint32_t dirlen, filelen;
-  HANDLE handle;
-  if ((filelen = __mkntpath2(path, file, flags)) == -1) return -1;
-  if (!filelen) return enoent();
-  if (file[0] != u'\\' && dirfd != AT_FDCWD) { /* ProTip: \\?\C:\foo */
-    handle = (HANDLE)_get_osfhandle(dirfd);
-    if (dirfd < 0 || GetFileType(handle) != FILE_TYPE_DISK) return ebadf();
-    dirlen = GetFinalPathNameByHandleW(handle, dir, ARRAYLEN(dir),
-                                       FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-    if (!dirlen) return __winerr();
-    if (dirlen + 1 + filelen + 1 > ARRAYLEN(dir)) {
-      STRACE("path too long: %#.*hs\\%#.*hs", dirlen, dir, filelen, file);
-      return enametoolong();
-    }
-    dir[dirlen] = u'\\';
-    memcpy(dir + dirlen + 1, file, (filelen + 1) * sizeof(char16_t));
-    memcpy(file, dir, (dirlen + 1 + filelen + 1) * sizeof(char16_t));
-    return dirlen + 1 + filelen;
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/fstatat-nt.c
+
+int sys_fstatat_nt(int dirfd, const char *path, struct stat *st,
+                               int flags) {
+  int rc;
+  HANDLE fh;
+  uint16_t path16[PATH_MAX];
+  if (__mkntpathat(dirfd, path, 0, path16) == -1) return -1;
+  if ((fh = CreateFileW(
+           path16, FILE_READ_ATTRIBUTES, 0, 0, OPEN_EXISTING,
+           FILE_ATTRIBUTE_NORMAL | FILE_FLAG_BACKUP_SEMANTICS |
+               ((flags & AT_SYMLINK_NOFOLLOW) ? FILE_FLAG_OPEN_REPARSE_POINT
+                                              : 0),
+           0)) != (HANDLE)-1) {
+    rc = st ? sys_fstat_nt(fh, st) : 0;
+    CloseHandle(fh);
   } else {
-    return filelen;
+    rc = __winerr();
   }
+  return __fix_enotdir(rc, path16);
 }

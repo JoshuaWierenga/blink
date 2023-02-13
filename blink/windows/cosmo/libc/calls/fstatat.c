@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
 │vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2021 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,43 +16,40 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <limits.h>
+#include <minwindef.h>
 #include <sys/stat.h>
-#include <uchar.h>
-#include <windef.h>
-#include <winbase.h>
 
-#include "blink/errno.h"
-#include "blink/macros.h"
 #include "blink/windows/macros.h"
-#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
-#include "blink/windows/cosmo/libc/sysv/errfuns.h"
+#include "blink/windows/cosmo/libc/calls/struct/stat.internal.h"
+#include "blink/windows/cosmo/libc/fmt/itoa.h"
+#include "blink/windows/cosmo/libc/intrin/describeflags.internal.h"
 #include "third_party/gnulib_build/lib/fcntl.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/mkntpathat.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/fstatat.c
 
-int __mkntpathat(int dirfd, const char *path, int flags,
-                 char16_t file[PATH_MAX]) {
-  char16_t dir[PATH_MAX];
-  uint32_t dirlen, filelen;
-  HANDLE handle;
-  if ((filelen = __mkntpath2(path, file, flags)) == -1) return -1;
-  if (!filelen) return enoent();
-  if (file[0] != u'\\' && dirfd != AT_FDCWD) { /* ProTip: \\?\C:\foo */
-    handle = (HANDLE)_get_osfhandle(dirfd);
-    if (dirfd < 0 || GetFileType(handle) != FILE_TYPE_DISK) return ebadf();
-    dirlen = GetFinalPathNameByHandleW(handle, dir, ARRAYLEN(dir),
-                                       FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-    if (!dirlen) return __winerr();
-    if (dirlen + 1 + filelen + 1 > ARRAYLEN(dir)) {
-      STRACE("path too long: %#.*hs\\%#.*hs", dirlen, dir, filelen, file);
-      return enametoolong();
-    }
-    dir[dirlen] = u'\\';
-    memcpy(dir + dirlen + 1, file, (filelen + 1) * sizeof(char16_t));
-    memcpy(file, dir, (dirlen + 1 + filelen + 1) * sizeof(char16_t));
-    return dirlen + 1 + filelen;
-  } else {
-    return filelen;
-  }
+static inline const char *__strace_fstatat_flags(char buf[12], int flags) {
+  if (flags == AT_SYMLINK_NOFOLLOW) return "AT_SYMLINK_NOFOLLOW";
+  FormatInt32(buf, flags);
+  return buf;
+}
+
+/**
+ * Returns information about thing.
+ *
+ * @param dirfd is normally AT_FDCWD but if it's an open directory and
+ *     file is a relative path, then file becomes relative to dirfd
+ * @param st is where result is stored
+ * @param flags can have AT_SYMLINK_NOFOLLOW
+ * @return 0 on success, or -1 w/ errno
+ * @see S_ISDIR(st.st_mode), S_ISREG()
+ * @asyncsignalsafe
+ * @vforksafe
+ */
+int fstatat(int dirfd, const char *path, struct stat *st, int flags) {
+  /* execve() depends on this */
+  int rc;
+  rc = sys_fstatat_nt(dirfd, path, st, flags);
+  STRACE("fstatat(%s, %#s, [%s], %s) → %d% m", DescribeDirfd(dirfd), path,
+         DescribeStat(rc, st), __strace_fstatat_flags(alloca(12), flags), rc);
+  return rc;
 }

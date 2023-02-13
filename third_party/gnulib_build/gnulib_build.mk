@@ -14,14 +14,13 @@ MINGW-W64_TOOLCHAIN_RANLIB := $(MINGW-W64_TOOLCHAIN_PREFIX)-ranlib-$(MINGW-W64_T
 GNULIB_MODULES :=								\
 	fcntl										\
 	fcntl-h										\
-	fstatat										\
 	getrusage									\
 	ioctl										\
+	openat										\
 	poll-h										\
 	poll										\
 	pread										\
 	sigaction									\
-	stat-size									\
 	stpcpy										\
 	sys_uio										\
 	termios										\
@@ -32,11 +31,9 @@ GNULIB_FILES :=									\
 	third_party/gnulib_build/lib/fcntl.h		\
 	third_party/gnulib_build/lib/poll.h			\
 	third_party/gnulib_build/lib/signal.h		\
-	third_party/gnulib_build/lib/stat-size.h	\
 	third_party/gnulib_build/lib/string.h		\
 	third_party/gnulib_build/lib/sys/ioctl.h	\
 	third_party/gnulib_build/lib/sys/resource.h	\
-	third_party/gnulib_build/lib/sys/stat.h		\
 	third_party/gnulib_build/lib/sys/uio.h		\
 	third_party/gnulib_build/lib/termios.h		\
 	third_party/gnulib_build/lib/unistd.h		\

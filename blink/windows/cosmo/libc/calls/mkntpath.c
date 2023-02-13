@@ -16,11 +16,11 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <fcntl.h>
 #include <fileapi.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <uchar.h>
 
 #include "blink/errno.h"
@@ -30,6 +30,7 @@
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 #include "blink/windows/cosmo/libc/str/str.h"
 #include "blink/windows/cosmo/libc/sysv/errfuns.h"
+#include "third_party/gnulib_build/lib/fcntl.h"
 
 // Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/mkntpath.c
 

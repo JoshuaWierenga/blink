@@ -31,8 +31,6 @@
 
 #ifdef _WIN32
 #include <winsock.h>
-#include "third_party/gnulib_build/config.h"
-#include "third_party/gnulib_build/lib/stat-size.h"
 
 #define EPFNOSUPPORT WSAEPFNOSUPPORT
 #else
@@ -774,20 +772,25 @@ void XlatStatToLinux(struct stat_linux *dst, const struct stat *src) {
   Write32(dst->__pad, 0);
   Write64(dst->st_rdev, src->st_rdev);
   Write64(dst->st_size, src->st_size);
-#if _WIN32
-  Write64(dst->st_blksize, ST_BLKSIZE(*src));
-  Write64(dst->st_blocks, ST_NBLOCKS(*src));
-#else
   Write64(dst->st_blksize, src->st_blksize);
   Write64(dst->st_blocks, src->st_blocks);
-#endif
   Write64(dst->st_dev, src->st_dev);
+  // TODO Decide if ns accuracy is required, if not then just add macros like lunux.
+#if _WIN32
+  Write64(dst->st_atim.tv_sec, (uint64_t)src->st_atim.tv_sec);
+  Write64(dst->st_atim.tv_nsec, (uint64_t)src->st_atim.tv_nsec);
+  Write64(dst->st_mtim.tv_sec, (uint64_t)src->st_mtim.tv_sec);
+  Write64(dst->st_mtim.tv_nsec, (uint64_t)src->st_mtim.tv_nsec);
+  Write64(dst->st_ctim.tv_sec, (uint64_t)src->st_ctim.tv_sec);
+  Write64(dst->st_ctim.tv_nsec, (uint64_t)src->st_ctim.tv_nsec);
+#else
   Write64(dst->st_atim.tv_sec, src->st_atime);
   Write64(dst->st_atim.tv_nsec, 0);
   Write64(dst->st_mtim.tv_sec, src->st_mtime);
   Write64(dst->st_mtim.tv_nsec, 0);
   Write64(dst->st_ctim.tv_sec, src->st_ctime);
   Write64(dst->st_ctim.tv_nsec, 0);
+#endif
 }
 
 void XlatRusageToLinux(struct rusage_linux *dst, const struct rusage *src) {

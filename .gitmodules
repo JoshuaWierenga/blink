@@ -3,4 +3,4 @@
 	url = https://git.savannah.gnu.org/git/gnulib.git
 [submodule "third_party/mman"]
 	path = third_party/mman
-	url = https://github.com/alitrack/mman-win32.git
+	url = https://github.com/JoshuaWierenga/mman-win32.git
