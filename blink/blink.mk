@@ -4,7 +4,7 @@
 PKGS += BLINK
 BLINK_FILES := $(wildcard blink/*)
 ifneq (,$(findstring x86_64-mingw-w64, $(MAKECMDGOALS)))
-BLINK_FILES += $(shell find blink/windows/ -type f -name '*.c') third_party/mman/mman.c third_party/mmap/mmap.h $(GNULIB_FILES)
+BLINK_FILES += $(shell find blink/windows/ -type f) third_party/mman/mman.c third_party/mmap/mmap.h $(GNULIB_FILES)
 endif
 BLINK_SRCS = $(filter %.c,$(BLINK_FILES))
 BLINK_HDRS = $(filter %.h,$(BLINK_FILES))

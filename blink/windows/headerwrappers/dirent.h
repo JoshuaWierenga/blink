@@ -1,6 +1,8 @@
 #ifndef BLINK_WIN_DIRENT_H_
 #define BLINK_WIN_DIRENT_H_
 
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/struct/dirent.h
+
 #ifdef _WIN32
 #include <stdint.h>
 
@@ -19,6 +21,12 @@ typedef struct dirstream WDIR;
 
 WDIR *fdopendirw(int);
 struct dirent *readdirw(WDIR *);
+#else
+// Cannot use on windows because of conflicting defintion of struct dirent.
+// Everything required for blink is already implemented above and if more
+// is later required then it will likely have to use cosmo's struct dirent
+// and dirstream defintions anyway.
+#include_next <dirent.h>
 #endif
 
-#endif /* BLINK_WIN_UNISTD_H_ */
+#endif /* BLINK_WIN_DIRENT_H_ */

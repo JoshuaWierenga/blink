@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
 │vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2020 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,57 +16,27 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <error.h>
-#include <fileapi.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <uchar.h>
 
-#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
+#include "blink/windows/cosmo/libc/intrin/pcmpgtb.h"
+#include "blink/windows/cosmo/libc/str/str.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/fixenotdir.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/pcmpgtb.c
+// TODO See if this can be replaced by SsePcmpgtb in sse.c
 
-static bool SubpathExistsThatsNotDirectory(wchar_t *path) {
-  int e;
-  wchar_t *p;
-  uint32_t attrs;
-  e = errno;
-  while ((p = wcsrchr(path, '\\'))) {
-    *p = u'\0';
-    if ((attrs = GetFileAttributesW(path)) != -1u) {
-      if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      errno = e;
-    }
-  }
-  return false;
-}
-
-int64_t __fix_enotdir3(int64_t rc, wchar_t *path1, wchar_t *path2) {
-  if (rc == -1 && errno == ERROR_PATH_NOT_FOUND) {
-    if ((!path1 || !SubpathExistsThatsNotDirectory(path1)) &&
-        (!path2 || !SubpathExistsThatsNotDirectory(path2))) {
-      errno = ERROR_FILE_NOT_FOUND;
-    }
-  }
-  return rc;
-}
-
-// WIN32 doesn't distinguish between ENOTDIR and ENOENT. UNIX strictly
-// requires that a directory component *exists* but is not a directory
-// whereas WIN32 will return ENOTDIR if a dir label simply isn't found
-//
-// - ENOTDIR: A component used as a directory in pathname is not, in
-//   fact, a directory. -or- pathname is relative and dirfd is a file
-//   descriptor referring to a file other than a directory.
-//
-// - ENOENT: A directory component in pathname does not exist or is a
-//   dangling symbolic link.
-//
-int64_t __fix_enotdir(int64_t rc, wchar_t *path) {
-  return __fix_enotdir3(rc, path, 0);
+/**
+ * Compares signed 8-bit integers w/ greater than predicate.
+ *
+ * Note that operands can be xor'd with 0x80 for unsigned compares.
+ *
+ * @param 𝑎 [w/o] receives result
+ * @param 𝑏 [r/o] supplies first input vector
+ * @param 𝑐 [r/o] supplies second input vector
+ * @mayalias
+ */
+void pcmpgtb(int8_t a[16], const int8_t b[16], const int8_t c[16]) {
+  unsigned i;
+  int8_t r[16];
+  for (i = 0; i < 16; ++i) r[i] = -(b[i] > c[i]);
+  __builtin_memcpy(a, r, 16);
 }

@@ -18,6 +18,7 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdarg.h>
 #include <stdint.h>
+#include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 #include <wincon.h>
@@ -25,16 +26,11 @@
 #include "blink/errno.h"
 #include "blink/macros.h"
 #include "blink/windows/ioctl.h"
-#include "blink/windows/winerr.h"
+#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
+#include "blink/windows/cosmo/libc/sysv/errfuns.h"
 
 #define EQUAL(X, Y) ((X) == (Y))
 #define CTRL(x)  ((x) ^ 0100)
-
-static int enotty(void) {
-    errno = ENOTTY;
-    return -1;
-}
-
 
 // Based on https://github.com/jart/cosmopolitan/blob/4b8874c/libc/calls/ioctl_tiocgwinsz-nt.c#L36-L84
 static int ioctl_tiocgwinsz_nt(int fd, struct winsize *ws) {

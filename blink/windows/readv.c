@@ -16,7 +16,7 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <unistd.h>
+#include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
@@ -26,7 +26,7 @@
 #include "blink/macros.h"
 #include "blink/windows/macros.h"
 #include "blink/windows/readv.h"
-#include "blink/windows/winerr.h"
+#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 
 #define __SIG_POLLING_INTERVAL_MS 50
 

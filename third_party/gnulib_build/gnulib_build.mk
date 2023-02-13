@@ -12,7 +12,6 @@ MINGW-W64_TOOLCHAIN_RANLIB := $(MINGW-W64_TOOLCHAIN_PREFIX)-ranlib-$(MINGW-W64_T
 # TODO Try to replace at minimum the gpl licenced modules with files from cosmo
 # Ideally, even the lgpl modules would be replaced with comso files
 GNULIB_MODULES :=								\
-	faccessat									\
 	fcntl										\
 	fcntl-h										\
 	fstatat										\

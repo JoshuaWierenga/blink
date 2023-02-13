@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
 │vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2021 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,57 +16,42 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <error.h>
-#include <fileapi.h>
-#include <stdbool.h>
-#include <stdint.h>
+#include <limits.h>
 #include <uchar.h>
+#include <windef.h>
+#include <winbase.h>
 
+#include "blink/errno.h"
+#include "blink/macros.h"
+#include "blink/windows/macros.h"
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
+#include "blink/windows/cosmo/libc/sysv/errfuns.h"
+#include "third_party/gnulib_build/lib/fcntl.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/fixenotdir.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/mkntpathat.c
 
-static bool SubpathExistsThatsNotDirectory(wchar_t *path) {
-  int e;
-  wchar_t *p;
-  uint32_t attrs;
-  e = errno;
-  while ((p = wcsrchr(path, '\\'))) {
-    *p = u'\0';
-    if ((attrs = GetFileAttributesW(path)) != -1u) {
-      if (attrs & FILE_ATTRIBUTE_DIRECTORY) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      errno = e;
+int __mkntpathat(int dirfd, const char *path, int flags,
+                 char16_t file[PATH_MAX]) {
+  char16_t dir[PATH_MAX];
+  uint32_t dirlen, filelen;
+  HANDLE handle;
+  if ((filelen = __mkntpath2(path, file, flags)) == -1) return -1;
+  if (!filelen) return enoent();
+  if (file[0] != u'\\' && dirfd != AT_FDCWD) { /* ProTip: \\?\C:\foo */
+    handle = (HANDLE)_get_osfhandle(dirfd);
+    if (dirfd < 0 || GetFileType(handle) != FILE_TYPE_DISK) return ebadf();
+    dirlen = GetFinalPathNameByHandleW(handle, dir, ARRAYLEN(dir),
+                                       FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
+    if (!dirlen) return __winerr();
+    if (dirlen + 1 + filelen + 1 > ARRAYLEN(dir)) {
+      STRACE("path too long: %#.*hs\\%#.*hs", dirlen, dir, filelen, file);
+      return enametoolong();
     }
+    dir[dirlen] = u'\\';
+    memcpy(dir + dirlen + 1, file, (filelen + 1) * sizeof(char16_t));
+    memcpy(file, dir, (dirlen + 1 + filelen + 1) * sizeof(char16_t));
+    return dirlen + 1 + filelen;
+  } else {
+    return filelen;
   }
-  return false;
-}
-
-int64_t __fix_enotdir3(int64_t rc, wchar_t *path1, wchar_t *path2) {
-  if (rc == -1 && errno == ERROR_PATH_NOT_FOUND) {
-    if ((!path1 || !SubpathExistsThatsNotDirectory(path1)) &&
-        (!path2 || !SubpathExistsThatsNotDirectory(path2))) {
-      errno = ERROR_FILE_NOT_FOUND;
-    }
-  }
-  return rc;
-}
-
-// WIN32 doesn't distinguish between ENOTDIR and ENOENT. UNIX strictly
-// requires that a directory component *exists* but is not a directory
-// whereas WIN32 will return ENOTDIR if a dir label simply isn't found
-//
-// - ENOTDIR: A component used as a directory in pathname is not, in
-//   fact, a directory. -or- pathname is relative and dirfd is a file
-//   descriptor referring to a file other than a directory.
-//
-// - ENOENT: A directory component in pathname does not exist or is a
-//   dangling symbolic link.
-//
-int64_t __fix_enotdir(int64_t rc, wchar_t *path) {
-  return __fix_enotdir3(rc, path, 0);
 }

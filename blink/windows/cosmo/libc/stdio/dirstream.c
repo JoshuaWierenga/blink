@@ -21,17 +21,14 @@
 #include <io.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
 #include "blink/errno.h"
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 #include "blink/windows/cosmo/libc/str/str.h"
-
-static long enametoolong() {
-  errno = 36; // From linux errno list
-  return -1;
-}
+#include "blink/windows/cosmo/libc/sysv/errfuns.h"
 
 // Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/sysv/consts/dt.h
 

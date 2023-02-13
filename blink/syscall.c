@@ -30,9 +30,9 @@
 #include <sys/types.h>
 //#include <sys/wait.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifdef _WIN32
-#include "third_party/gnulib_build/config.h"
 #include "third_party/gnulib_build/lib/sys/stat.h"
 #else
 #include <sys/socket.h>
@@ -42,7 +42,6 @@
 #include WINDOWSGNULIBHEADER(fcntl.h)
 #include WINDOWSGNULIBHEADER(signal.h)
 #include WINDOWSHEADER(mman/mman.h,sys/mman.h)
-#include WINDOWSGNULIBHEADER(unistd.h)
 
 #include "blink/case.h"
 #include "blink/endian.h"

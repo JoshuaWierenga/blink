@@ -16,7 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <unistd.h>
+#include <errno.h>
+#include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
@@ -26,7 +27,7 @@
 #include "blink/macros.h"
 #include "blink/windows/macros.h"
 #include "blink/windows/writev.h"
-#include "blink/windows/winerr.h"
+#include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 
 // Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/write-nt.c#L39-L84
 static ssize_t sys_write_nt_impl(int fd, void *data, size_t size,
