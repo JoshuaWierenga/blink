@@ -16,6 +16,7 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#define _GNU_SOURCE // For vasprintf
 #include <errno.h>
 #include <stdarg.h>
 #include <stdbool.h>
