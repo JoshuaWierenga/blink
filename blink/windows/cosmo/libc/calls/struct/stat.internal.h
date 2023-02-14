@@ -1,10 +1,6 @@
 #ifndef BLINK_WIN_COSMO_LIBC_CALLS_STRUCT_STAT_INTERNAL_H_
 #define BLINK_WIN_COSMO_LIBC_CALLS_STRUCT_STAT_INTERNAL_H_
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/integral/normalize.inc
-
-#define PAGESIZE    0x1000  /* i386+ */
-
 // Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/calls/struct/stat.h
 
 int sys_fstat_nt(HANDLE, struct stat *);

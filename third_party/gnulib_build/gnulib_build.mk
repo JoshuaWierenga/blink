@@ -9,14 +9,12 @@ MINGW-W64_TOOLCHAIN_AR     := $(MINGW-W64_TOOLCHAIN_PREFIX)-ar-$(MINGW-W64_TOOLC
 MINGW-W64_TOOLCHAIN_CC     := $(MINGW-W64_TOOLCHAIN_PREFIX)-$(MINGW-W64_TOOLCHAIN_SUFFIX)
 MINGW-W64_TOOLCHAIN_RANLIB := $(MINGW-W64_TOOLCHAIN_PREFIX)-ranlib-$(MINGW-W64_TOOLCHAIN_SUFFIX)
 
-# TODO Try to replace at minimum the gpl licenced modules with files from cosmo
-# Ideally, even the lgpl modules would be replaced with comso files
+# TODO Ideally, all remaining modules would be replaced with comso versions
 GNULIB_MODULES :=								\
 	fcntl										\
 	fcntl-h										\
 	getrusage									\
 	ioctl										\
-	openat										\
 	poll-h										\
 	poll										\
 	pread										\
@@ -55,7 +53,7 @@ o/$(MODE)/x86_64-mingw-w64/third_party/gnulib_build/lib/%.o: private	\
 third_party/gnulib_build/config.h:
 	@case "$(MAKECMDGOALS)" in \
 	*x86_64-mingw-w64*) cd third_party/gnulib_build || exit 1; \
-		../gnulib/gnulib-tool --import $(GNULIB_MODULES) && \
+		../gnulib/gnulib-tool --lgpl --import $(GNULIB_MODULES) && \
 		autoreconf -i && \
 		./configure --host=$(MINGW-W64_TOOLCHAIN_HOST) AR=$(MINGW-W64_TOOLCHAIN_AR) RANLIB=$(MINGW-W64_TOOLCHAIN_RANLIB) && \
 		$(MAKE) -C lib;; \

@@ -1,7 +1,7 @@
 /*-*- mode:c;indent-tabs-mode:nil;c-basic-offset:2;tab-width:8;coding:utf-8 -*-│
 │vi: set net ft=c ts=2 sts=2 sw=2 fenc=utf-8                                :vi│
 ╞══════════════════════════════════════════════════════════════════════════════╡
-│ Copyright 2021 Justine Alexandra Roberts Tunney                              │
+│ Copyright 2022 Justine Alexandra Roberts Tunney                              │
 │                                                                              │
 │ Permission to use, copy, modify, and/or distribute this software for         │
 │ any purpose with or without fee is hereby granted, provided that the         │
@@ -16,84 +16,34 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <minwindef.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <sys/stat.h>
+#include <stddef.h>
 
-#include "blink/windows/cosmo/libc/calls/struct/stat.internal.h"
+#include "blink/windows/cosmo/libc/fmt/magnumstrs.internal.h"
 #include "blink/windows/cosmo/libc/integral/normalize.inc"
+#include "blink/windows/cosmo/libc/intrin/describeflags.internal.h"
 
-// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/describestat.c
+// Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/intrin/describeopenflags.c
 
-#ifdef DescribeStat
-#undef DescribeStat
+#ifdef DescribeOpenFlags
+#undef DescribeOpenFlags
 #endif
 
-#define N 300
+#define N (PAGESIZE / 2 / sizeof(struct DescribeFlags))
 
-
-//Safely is not relevant, that is mingw's stdlib(mostly window's stdlib of course) job.
-#define append(...) o += /*k*/snprintf(buf + o, N - o, __VA_ARGS__)
-
-const char *DescribeStat(char buf[N], int rc, const struct stat *st) {
-  int o = 0;
-
-  if (rc == -1) return "n/a";
-  if (!st) return "NULL";
-  // Again not relevant.
-  /*if (kisdangerous(st)) {
-    ksnprintf(buf, N, "%p", st);
-    return buf;
-  }*/
-
-  append("{.st_%s=%'lld", "size", st->st_size);
-
-  if (st->st_blocks) {
-    append(", .st_blocks=%'lld/512", st->st_blocks * (uint64_t)512);
+/**
+ * Describes clock_gettime() clock argument.
+ */
+const char *DescribeOpenFlags(char buf[128], int x) {
+  int i, n;
+  struct DescribeFlags d[N];
+  if (x == -1) return "-1";
+  // TODO(jart): unify DescribeFlags and MagnumStr data structures
+  for (n = 0; kOpenFlags[n].x != MAGNUM_TERMINATOR; ++n) {
+    if (n == N) __builtin_unreachable();
   }
-
-  if (st->st_mode) {
-    append(", .st_%s=%#o", "mode", st->st_mode);
+  for (i = 0; i < n; ++i) {
+    d[i].flag = MAGNUM_NUMBER(kOpenFlags, i);
+    d[i].name = MAGNUM_STRING(kOpenFlags, i);
   }
-
-  if (st->st_nlink != 1) {
-    append(", .st_%s=%'llu", "nlink", st->st_nlink);
-  }
-
-  if (st->st_uid) {
-    append(", .st_%s=%u", "uid", st->st_uid);
-  }
-
-  if (st->st_gid) {
-    append(", .st_%s=%u", "gid", st->st_gid);
-  }
-
-  if (st->st_dev) {
-    append(", .st_%s=%llu", "dev", st->st_dev);
-  }
-
-  if (st->st_ino) {
-    append(", .st_%s=%llu", "ino", st->st_ino);
-  }
-
-  if (st->st_gen) {
-    append(", .st_%s=%'llu", "gen", st->st_gen);
-  }
-
-  if (st->st_flags) {
-    append(", .st_%s=%x", "flags", st->st_flags);
-  }
-
-  if (st->st_rdev) {
-    append(", .st_%s=%'llu", "rdev", st->st_rdev);
-  }
-
-  if (st->st_blksize != PAGESIZE) {
-    append(", .st_%s=%'lld", "blksize", st->st_blksize);
-  }
-
-  append("}");
-
-  return buf;
+  return DescribeFlags(buf, 128, d, n, "O_", x);
 }

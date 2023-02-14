@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
+#include <fcntl.h>
 /*#include <netinet/tcp.h>
 #include <netinet/udp.h>*/
 #include <signal.h>
@@ -38,7 +39,6 @@
 #endif
 
 #include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(fcntl.h)
 #include WINDOWSGNULIBHEADER(signal.h)
 #include WINDOWSHEADER(mman/mman.h,sys/mman.h)
 

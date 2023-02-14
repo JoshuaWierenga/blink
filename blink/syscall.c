@@ -19,6 +19,7 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <inttypes.h>
 //#include <poll.h>
 #include <sched.h>
@@ -37,7 +38,6 @@
 #endif
 
 #include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(fcntl.h)
 #include WINDOWSGNULIBHEADER(signal.h)
 #include WINDOWSHEADER(mman/mman.h,sys/mman.h)
 

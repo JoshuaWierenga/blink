@@ -31,6 +31,7 @@
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 #include "blink/windows/cosmo/libc/calls/struct/stat.internal.h"
 #include "blink/windows/cosmo/libc/fmt/conv.h"
+#include "blink/windows/cosmo/libc/integral/normalize.inc"
 #include "blink/windows/cosmo/libc/str/utf16.h"
 
 // Based on https://github.com/jart/cosmopolitan/blob/9634227/libc/macros.internal.h
