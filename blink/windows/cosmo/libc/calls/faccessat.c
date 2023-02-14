@@ -51,7 +51,7 @@ int faccessat(int dirfd, const char *path, int amode, int flags) {
   } else {
     rc = sys_faccessat_nt(dirfd, path, amode, flags);
   }
-  STRACE("faccessat(%s, %#s, %#o, %#x) → %d% m", DescribeDirfd(dirfd), path,
+  STRACE("faccessat(%s, %#s, %#o, %#x) -> %d %m", DescribeDirfd(dirfd), path,
          amode, flags, rc);
   return rc;
 }

@@ -44,6 +44,6 @@ int fstat(int fd, struct stat *st) {
   } else {
     rc = sys_fstat_nt(handle, st);
   }
-  STRACE("fstat(%d, [%s]) → %d% m", fd, DescribeStat(rc, st), rc);
+  STRACE("fstat(%d, [%s]) -> %d %m", fd, DescribeStat(rc, st), rc);
   return rc;
 }

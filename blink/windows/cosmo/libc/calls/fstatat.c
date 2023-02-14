@@ -49,7 +49,7 @@ int fstatat(int dirfd, const char *path, struct stat *st, int flags) {
   /* execve() depends on this */
   int rc;
   rc = sys_fstatat_nt(dirfd, path, st, flags);
-  STRACE("fstatat(%s, %#s, [%s], %s) → %d% m", DescribeDirfd(dirfd), path,
+  STRACE("fstatat(%s, %#s, [%s], %s) -> %d %m", DescribeDirfd(dirfd), path,
          DescribeStat(rc, st), __strace_fstatat_flags(alloca(12), flags), rc);
   return rc;
 }

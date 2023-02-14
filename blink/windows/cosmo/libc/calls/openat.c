@@ -140,7 +140,7 @@ int openat(int dirfd, const char *file, int flags, ...) {
     rc = efault();
   }
 
-  STRACE("openat(%s, %#s, %s, %#o) → %d% m", DescribeDirfd(dirfd), file,
+  STRACE("openat(%s, %#s, %s, %#o) -> %d %m", DescribeDirfd(dirfd), file,
          DescribeOpenFlags(flags), (flags & O_CREAT) ? mode : 0,
          rc);
   return rc;
