@@ -6,11 +6,8 @@ same thing as the `qemu-x86_64` command, except rather than being a 10mb
 binary, blink only has a ~200kb footprint. For further details on the
 motivations for this tool, please read <https://justine.lol/ape.html>.
 
-Note that only blink builds currently as blinkenlights/tui has been
-removed.
-
 Currently, this branch is focused on adding support for Windows x86-64
-to blink for cosmopolitan binaries and enabling compilation with th
+to blink for cosmopolitan binaries and enabling compilation with the
 MinGW-w64 compiler. This is somewhat redundant since I have already made
 changes to cosmo to ensure that Windows Vista, 7 and 8 x86-64 remain
 supported and have made some experimental changes to enable binaries to
@@ -49,6 +46,8 @@ hello world
 To compile blink for x86-64 Windows, mingw-w64 is required, I have
 tested `x86_64-w64-mingw32-gcc-posix (GCC) 10-posix 20220113` on x86-64
 WSL2 Ubuntu running on Windows 10 which works.
+Note that many syscalls and even a few instructions are missing and
+logging is left on by default to allow catching when this happens.
 
 ```sh
 $ make o//x86_64-mingw-w64/blink/blink
@@ -58,12 +57,23 @@ $ o//x86_64-mingw-w64/blink/blink.exe third_party/cosmo/tinyhello.elf
 hello world
 ```
 
-There's a terminal interface for debugging(currently unavailable):
+There's a terminal interface for debugging:
 
 ```
 $ build/bootstrap/make.com -j8 o///blink/tui
 $ o///blink/tui -t third_party/cosmo/tinyhello.elf
 ```
+
+And for x86-64 Windows noting that many keyboard shortcuts are missing:
+
+```
+$ make o//x86_64-mingw-w64/blink/tui
+$ o//x86_64-mingw-w64/blink/tui.exe -t third_party/cosmo/tinyhello.elf
+```
+
+The missing shortcuts also impact other builds so they should only be
+used to ensure that the windows build is behaving the same as the ones
+for other oses.
 
 On x86-64 Linux you can cross-compile blink for Linux systems with x86,
 arm, m68k, riscv, mips, s390x, powerpc, or microblaze cpus. This happens
