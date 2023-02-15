@@ -6,7 +6,7 @@ BLINK_FILES := $(wildcard blink/*)
 ifneq (,$(findstring x86_64-mingw-w64, $(MAKECMDGOALS)))
 BLINK_FILES += $(shell find blink/windows/ -type f) third_party/mman/mman.c third_party/mmap/mmap.h $(GNULIB_FILES)
 endif
-BLINK_SRCS = $(filter %.c,$(BLINK_FILES))
+BLINK_SRCS = $(filter %.c,$(BLINK_FILES)) $(filter %.S,$(BLINK_FILES))
 BLINK_HDRS = $(filter %.h,$(BLINK_FILES))
 
 o/$(MODE)/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/%.o)
@@ -14,7 +14,9 @@ o/$(MODE)/i486/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/i486/%.o)
 o/$(MODE)/m68k/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/m68k/%.o)
 o/$(MODE)/x86_64/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/x86_64/%.o)
 o/$(MODE)/x86_64-gcc48/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/x86_64-gcc48/%.o)
-o/$(MODE)/x86_64-mingw-w64/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/x86_64-mingw-w64/%.o)
+o/$(MODE)/x86_64-mingw-w64/blink/blink.a:				\
+	$(BLINK_SRCS:%.c=o/$(MODE)/x86_64-mingw-w64/%.o)	\
+	$(BLINK_SRCS:%.S=o/$(MODE)/x86_64-mingw-w64/%.o)
 o/$(MODE)/arm/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/arm/%.o)
 o/$(MODE)/aarch64/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/aarch64/%.o)
 o/$(MODE)/riscv64/blink/blink.a: $(BLINK_SRCS:%.c=o/$(MODE)/riscv64/%.o)

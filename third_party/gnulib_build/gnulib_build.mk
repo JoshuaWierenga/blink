@@ -21,8 +21,7 @@ GNULIB_MODULES :=								\
 	sigaction									\
 	stpcpy										\
 	sys_uio										\
-	termios										\
-	wcwidth
+	termios
 
 GNULIB_FILES :=									\
 	third_party/gnulib_build/config.h			\
@@ -34,10 +33,14 @@ GNULIB_FILES :=									\
 	third_party/gnulib_build/lib/sys/resource.h	\
 	third_party/gnulib_build/lib/sys/uio.h		\
 	third_party/gnulib_build/lib/termios.h		\
-	third_party/gnulib_build/lib/unistd.h		\
-	third_party/gnulib_build/lib/wchar.h
+	third_party/gnulib_build/lib/unistd.h
 
 GNULIB_LIB := third_party/gnulib_build/lib/libgnu.a
+
+o/$(MODE)/x86_64-mingw-w64/%.o: %.S
+	@mkdir -p $(@D)
+	$(MINGW-W64_TOOLCHAIN_CC) -static $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c -o $@ $<
+
 
 o/$(MODE)/x86_64-mingw-w64/%.o: %.c third_party/gnulib_build/config.h
 	@mkdir -p $(@D)

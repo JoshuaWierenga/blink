@@ -24,9 +24,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <uchar.h>
-
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(wchar.h)
+#include <wchar.h>
 
 #include "blink/builtin.h"
 #include "blink/endian.h"

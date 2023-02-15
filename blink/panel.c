@@ -19,9 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(wchar.h)
+#include <wchar.h>
 
 #include "blink/bitscan.h"
 #include "blink/buffer.h"
