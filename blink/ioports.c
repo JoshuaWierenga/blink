@@ -16,7 +16,7 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-//#include <sys/uio.h>
+#include <sys/uio.h>
 
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(poll.h)
