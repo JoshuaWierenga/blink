@@ -16,9 +16,10 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+//#include <sys/uio.h>
+
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(poll.h)
-#include WINDOWSGNULIBHEADER(sys/uio.h)
 
 #include "blink/ioports.h"
 #include "blink/uart.h"

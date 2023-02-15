@@ -2,9 +2,7 @@
 #define BLINK_IOVS_H_
 #include <stddef.h>
 #include <stdint.h>
-
-#include "blink/windows/macros.h"
-#include WINDOWSGNULIBHEADER(sys/uio.h)
+#include <sys/uio.h>
 
 struct Iovs {
   unsigned i, n;

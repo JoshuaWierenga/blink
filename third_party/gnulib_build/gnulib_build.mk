@@ -19,8 +19,6 @@ GNULIB_MODULES :=								\
 	poll										\
 	pread										\
 	sigaction									\
-	stpcpy										\
-	sys_uio										\
 	termios
 
 GNULIB_FILES :=									\
@@ -28,10 +26,8 @@ GNULIB_FILES :=									\
 	third_party/gnulib_build/lib/fcntl.h		\
 	third_party/gnulib_build/lib/poll.h			\
 	third_party/gnulib_build/lib/signal.h		\
-	third_party/gnulib_build/lib/string.h		\
 	third_party/gnulib_build/lib/sys/ioctl.h	\
 	third_party/gnulib_build/lib/sys/resource.h	\
-	third_party/gnulib_build/lib/sys/uio.h		\
 	third_party/gnulib_build/lib/termios.h		\
 	third_party/gnulib_build/lib/unistd.h
 

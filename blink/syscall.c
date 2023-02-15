@@ -58,8 +58,6 @@
 #include "blink/xlat.h"
 #include "blink/windows/getids.h"
 #include "blink/windows/ioctl.h"
-#include "blink/windows/readv.h"
-#include "blink/windows/writev.h"
 
 #define POLLING_INTERVAL_MS 50
 

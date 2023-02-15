@@ -17,16 +17,15 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
+#include <stddef.h>
+#include <sys/uio.h>
 #include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
-#include "third_party/gnulib_build/lib/sys/uio.h"
-
 #include "blink/errno.h"
 #include "blink/macros.h"
 #include "blink/windows/macros.h"
-#include "blink/windows/writev.h"
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 
 // Based on https://github.com/jart/cosmopolitan/blob/6d36584/libc/calls/write-nt.c#L39-L84

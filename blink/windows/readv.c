@@ -16,16 +16,15 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stddef.h>
+#include <sys/uio.h>
 #include <uchar.h>
 #include <windef.h>
 #include <winbase.h>
 
-#include "third_party/gnulib_build/lib/sys/uio.h"
-
 #include "blink/errno.h"
 #include "blink/macros.h"
 #include "blink/windows/macros.h"
-#include "blink/windows/readv.h"
 #include "blink/windows/cosmo/libc/calls/syscall_support-nt.internal.h"
 
 #define __SIG_POLLING_INTERVAL_MS 50

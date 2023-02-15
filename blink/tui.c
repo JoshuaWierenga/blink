@@ -76,7 +76,6 @@
 #include "blink/xlat.h"
 #include "blink/xmmtype.h"
 #include "blink/windows/ioctl.h"
-#include "blink/windows/readv.h"
 #include "blink/windows/setitimer.h"
 
 #define USAGE \

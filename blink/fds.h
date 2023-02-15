@@ -2,10 +2,10 @@
 #define BLINK_FDS_H_
 
 #include <stdint.h>
+#include <sys/uio.h>
 
 #include "blink/windows/macros.h"
 #include WINDOWSGNULIBHEADER(poll.h)
-#include WINDOWSGNULIBHEADER(sys/uio.h)
 
 struct MachineFdClosed {
   int fd;
