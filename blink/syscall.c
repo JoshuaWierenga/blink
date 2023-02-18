@@ -1035,14 +1035,14 @@ static i64 SysBrk(struct Machine *m, i64 addr) {
   MEM_LOGF("brk(%#" PRIx64 ") currently %#" PRIx64, addr, m->system->brk);
   pagesize = GetSystemPageSize();
   addr = ROUNDUP(addr, pagesize);
-  if (addr >= kNullPageSize) {
+  if (addr >= kNullSize) {
     if (addr > m->system->brk) {
       size = addr - m->system->brk;
       CleanseMemory(m->system, size);
       if (m->system->rss < GetMaxRss(m->system)) {
         if (size / 4096 + m->system->vss < GetMaxVss(m->system)) {
           if (ReserveVirtual(m->system, m->system->brk, addr - m->system->brk,
-                             PAGE_RW | PAGE_U, -1, 0, false) != -1) {
+                             PAGE_RW | PAGE_U, -1, 0, 0, 0) != -1) {
             MEM_LOGF("increased break %" PRIx64 " -> %" PRIx64, m->system->brk,
                      addr);
             m->system->brk = addr;
@@ -1097,8 +1097,7 @@ static i64 SysMmapImpl(struct Machine *m, i64 virt, u64 size, int prot,
                        int flags, int fildes, i64 offset) {
   u64 key;
   int oflags;
-  ssize_t rc;
-  long pagesize;
+  bool fixedmap;
   i64 newautomap;
   if (!IsValidAddrSize(virt, size)) return einval();
   if (flags & MAP_GROWSDOWN_LINUX) return enotsup();
@@ -1137,7 +1136,9 @@ static i64 SysMmapImpl(struct Machine *m, i64 virt, u64 size, int prot,
     }
   }
   newautomap = -1;
+  fixedmap = false;
   if (flags & MAP_FIXED_LINUX) {
+    fixedmap = true;
     goto CreateTheMap;
   }
   if (flags & MAP_FIXED_NOREPLACE_LINUX) {
@@ -1152,23 +1153,24 @@ static i64 SysMmapImpl(struct Machine *m, i64 virt, u64 size, int prot,
       goto Finished;
     }
   }
+  if (HasLinearMapping(m) && FLAG_vabits <= 47 && !kSkew && !virt) {
+    goto CreateTheMap;
+  }
   if ((!virt || !IsFullyUnmapped(m->system, virt, size))) {
     if ((virt = FindVirtual(m->system, m->system->automap, size)) == -1) {
       goto Finished;
     }
-    pagesize = GetSystemPageSize();
-    newautomap = ROUNDUP(virt + size, pagesize);
-    if (newautomap >= kAutomapEnd) {
-      newautomap = kAutomapStart;
+    newautomap = ROUNDUP(virt + size, GetSystemPageSize());
+    if (newautomap >= FLAG_automapend) {
+      newautomap = FLAG_automapstart;
     }
   }
 CreateTheMap:
-  rc = ReserveVirtual(m->system, virt, size, key, fildes, offset,
-                      !!(flags & MAP_SHARED_LINUX));
-  if (rc != -1 && newautomap != -1) {
+  virt = ReserveVirtual(m->system, virt, size, key, fildes, offset,
+                        !!(flags & MAP_SHARED_LINUX), fixedmap);
+  if (virt != -1 && newautomap != -1) {
     m->system->automap = newautomap;
   }
-  if (rc == -1) virt = -1;
 Finished:
   return virt;
 }
@@ -2463,6 +2465,45 @@ static i64 SysPwritev(struct Machine *m, i32 fildes, i64 iovaddr, u32 iovlen,
   return SysPwritev2(m, fildes, iovaddr, iovlen, offset, 0);
 }
 
+static i64 SysSendfile(struct Machine *m, i32 out_fd, i32 in_fd, i64 offsetaddr,
+                       u64 count) {
+  u64 toto, offset;
+  ssize_t got, wrote;
+  u8 *buf, *offsetp = 0;
+  size_t chunk, maxchunk = 16384;
+  if (CheckFdAccess(m, out_fd, true, EBADF) == -1) return -1;
+  if (CheckFdAccess(m, in_fd, false, EBADF) == -1) return -1;
+  if (offsetaddr && !(offsetp = (u8 *)SchlepRW(m, offsetaddr, 8))) return -1;
+  if (!(buf = (u8 *)AddToFreeList(m, malloc(maxchunk)))) return -1;
+  if (offsetp) {
+    offset = Read64(offsetp);
+    if ((i64)offset < 0) return einval();
+    if (Read64(offsetp) + count < count ||
+        Read64(offsetp) + count > NUMERIC_MAX(off_t)) {
+      return eoverflow();
+    }
+  }
+  for (toto = 0; toto < count; toto += wrote) {
+    chunk = MIN(count - toto, maxchunk);
+    if (offsetp) {
+      got = pread(in_fd, buf, chunk, offset + toto);
+    } else {
+      got = read(in_fd, buf, chunk);
+    }
+    if (got == -1) goto OnFailure;
+    if (offsetp) Write64(offsetp, offset + toto + got);
+    if ((wrote = write(out_fd, buf, got)) == -1) goto OnFailure;
+  }
+  return count;
+OnFailure:
+  if (toto) {
+    LOGF("sendfile() partial failure: %s", DescribeHostErrno(errno));
+    return toto;
+  } else {
+    return -1;
+  }
+}
+
 static int UnXlatDt(int x) {
 #ifndef DT_UNKNOWN
   return DT_UNKNOWN_LINUX;
@@ -2806,7 +2847,7 @@ static int SysSync(struct Machine *m) {
 }
 
 static int CheckSyncable(int fildes) {
-#ifdef __FreeBSD__
+#ifndef __linux
   // FreeBSD doesn't return EINVAL like Linux does when trying to
   // synchronize character devices, e.g. /dev/null. An unresolved
   // question though is if FreeBSD actually does something here.
@@ -4660,8 +4701,6 @@ static int SysTkill(struct Machine *m, int tid, int sig) {
 #if defined(HAVE_FORK) || defined(HAVE_THREADS)
   int err;
   bool found;
-  struct Dll *e;
-  struct Machine *m2;
   if (tid < 0) return einval();
   if (!(0 <= sig && sig <= 64)) {
     LOGF("tkill(%d, %d) failed due to bogus signal", tid, sig);
@@ -4690,22 +4729,29 @@ static int SysTkill(struct Machine *m, int tid, int sig) {
     return esrch();
   }
   err = 0;
-  LOCK(&m->system->machines_lock);
-  for (e = dll_first(m->system->machines); e;
-       e = dll_next(m->system->machines, e)) {
-    m2 = MACHINE_CONTAINER(e);
-    if (m2->tid == tid) {
-      if (sig) {
-        EnqueueSignal(m2, sig);
-        err = pthread_kill(m2->thread, SIGSYS);
-      } else {
-        err = pthread_kill(m2->thread, 0);
+  found = 0;
+#ifndef DISABLE_THREADS
+  {
+    struct Dll *e;
+    LOCK(&m->system->machines_lock);
+    for (e = dll_first(m->system->machines); e;
+         e = dll_next(m->system->machines, e)) {
+      struct Machine *m2;
+      m2 = MACHINE_CONTAINER(e);
+      if (m2->tid == tid) {
+        if (sig) {
+          EnqueueSignal(m2, sig);
+          err = pthread_kill(m2->thread, SIGSYS);
+        } else {
+          err = pthread_kill(m2->thread, 0);
+        }
+        found = true;
+        break;
       }
-      found = true;
-      break;
     }
+    UNLOCK(&m->system->machines_lock);
   }
-  UNLOCK(&m->system->machines_lock);
+#endif
   if (!found) {
     return SysKill(m, tid, sig);
   }
@@ -5228,6 +5274,7 @@ void OpSyscall(P) {
 #endif /* defined(HAVE_FORK) || defined(HAVE_THREADS) */
 
 #ifndef DISABLE_NONPOSIX
+    SYSCALL4(0x028, "sendfile", SysSendfile, STRACE_4);
     SYSCALL3(0x0CC, "sched_get_affinity", SysSchedGetaffinity, STRACE_3);
     SYSCALL1(0x00C, "brk", SysBrk, STRACE_1);
     SYSCALL1(0x063, "sysinfo", SysSysinfo, STRACE_1);

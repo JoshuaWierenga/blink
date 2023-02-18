@@ -42,7 +42,8 @@
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
-/*#include "blink/overlays.h"
+/*#include "blink/map.h"
+#include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/signal.h"
 #include "blink/sigwinch.h"*/
@@ -241,7 +242,7 @@ static void GetOpts(int argc, char *argv[]) {
         FLAG_nojit = true;
         break;
       case 's':
-        FLAG_strace = true;
+        ++FLAG_strace;
         break;
       case 'm':
         FLAG_nolinear = true;
@@ -322,6 +323,9 @@ int main(int argc, char *argv[]) {
   WriteErrorInit();
 #endif
   GetOpts(argc, argv);
+#ifndef _WIN32
+  InitMap();
+#endif
   if (optind_ == argc) PrintUsage(argc, argv, 48, 2);
 #ifndef DISABLE_OVERLAYS
   if (SetOverlays(FLAG_overlays, true)) {
