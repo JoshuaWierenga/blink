@@ -46,6 +46,9 @@
 #define pthread_mutexattr_t_ char
 
 #define pthread_self()                     0
+#if defined(_WIN32) && defined(pthread_sigmask) // signal.h defines it to 0
+#undef pthread_sigmask
+#endif
 #define pthread_sigmask(x, y, z)           sigprocmask(x, y, z)
 #define pthread_setcancelstate(x, y)       ((void)(y), 0)
 #define pthread_mutex_init(x, y)           ((void)(y), 0)

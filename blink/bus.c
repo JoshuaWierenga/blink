@@ -19,18 +19,26 @@
 #include <limits.h>
 
 #include "blink/assert.h"
+#ifndef _WIN32
 #include "blink/atomic.h"
+#endif
 #include "blink/builtin.h"
 #include "blink/bus.h"
 #include "blink/dll.h"
+#ifndef _WIN32
 #include "blink/endian.h"
+#endif
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/map.h"
 #include "blink/rde.h"
 #include "blink/swap.h"
+#endif
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 
 #ifdef HAVE_PTHREAD_PROCESS_SHARED
 #define BUS_MEMORY MAP_SHARED
@@ -40,6 +48,7 @@
 
 struct Bus *g_bus;
 
+#ifndef _WIN32
 void InitBus(void) {
   unsigned i;
   pthread_condattr_t_ cattr;
@@ -367,3 +376,4 @@ i64 ReadRegisterOrMemoryBW(u64 rde, u8 p[8]) {
     return ReadMemoryBW(rde, p);
   }
 }
+#endif /* _WIN32 */

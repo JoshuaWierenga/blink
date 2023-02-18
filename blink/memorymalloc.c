@@ -18,11 +18,15 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <unistd.h>
+#ifndef _WIN32
+#include <sys/mman.h>
+#endif
 
 #include "blink/assert.h"
+#ifndef _WIN32
 #include "blink/atomic.h"
+#endif
 #include "blink/bus.h"
 #include "blink/debug.h"
 #include "blink/errno.h"
@@ -30,14 +34,21 @@
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/map.h"
 #include "blink/pml4t.h"
+#endif
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/timespec.h"
+#endif
 #include "blink/types.h"
 #include "blink/util.h"
+#ifndef _WIN32
 #include "blink/x86.h"
+#endif
 
+#ifndef _WIN32
 struct Allocator {
   pthread_mutex_t_ lock;
   long count;
@@ -245,6 +256,7 @@ bool IsOrphan(struct Machine *m) {
   UNLOCK(&m->system->machines_lock);
   return res;
 }
+#endif
 
 void KillOtherThreads(struct System *s) {
 #ifdef HAVE_THREADS
@@ -281,6 +293,7 @@ void KillOtherThreads(struct System *s) {
 #endif
 }
 
+#ifndef _WIN32
 void RemoveOtherThreads(struct System *s) {
 #ifdef HAVE_THREADS
   struct Dll *e, *g;
@@ -1181,3 +1194,4 @@ FinishedCrawling:
   }
   return rc;
 }
+#endif

@@ -1,10 +1,12 @@
 #ifndef BLINK_UTIL_H_
 #define BLINK_UTIL_H_
+#include <fcntl.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
+#include <uchar.h>
 #include <wchar.h>
 
 #include "blink/builtin.h"
@@ -16,22 +18,31 @@ extern const short kCp437[256];
 extern bool g_exitdontabort;
 
 _Noreturn void Abort(void);
+#ifndef _WIN32
 char *ExpandUser(const char *);
+#endif
 int GetOpt(int, char *const[], const char *);
+#ifndef _WIN32
 u64 tpenc(wint_t);
 bool mulo(u64, u64, u64 *);
 const char *DescribeSignal(int);
+#endif
 const char *DescribeHostErrno(int);
+#ifndef _WIN32
 bool endswith(const char *, const char *);
 bool startswith(const char *, const char *);
 const char *doublenul(const char *, unsigned);
 ssize_t readansi(int, char *, size_t);
+#endif
 char *FormatInt64(char *, int64_t);
+#ifndef _WIN32
 char *FormatUint64(char *, uint64_t);
 char *FormatInt64Thousands(char *, int64_t);
 char *FormatUint64Thousands(char *, uint64_t);
 char *FormatSize(char *, uint64_t, uint64_t);
+#endif
 char *Commandv(const char *, char *, size_t);
+#ifndef _WIN32
 char *Demangle(char *, const char *, size_t);
 void *Deflate(const void *, unsigned, unsigned *);
 void Inflate(void *, unsigned, const void *, unsigned);
@@ -45,6 +56,7 @@ char *realpath_(const char *, char *);
 void *memccpy_(void *, const void *, int, size_t);
 int wcwidth_(wchar_t);
 u64 Vigna(u64[1]);
+#endif
 
 #ifndef HAVE_STRCHRNUL
 #ifdef strchrnul

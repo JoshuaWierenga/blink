@@ -5,7 +5,9 @@
 #include <sys/types.h>
 
 #include "blink/builtin.h"
+#ifndef _WIN32
 #include "blink/fds.h"
+#endif
 #include "blink/machine.h"
 #include "blink/types.h"
 
@@ -54,6 +56,7 @@
 
 extern char *g_blink_path;
 
+#ifndef _WIN32
 void OpSyscall(P);
 
 void SysCloseExec(struct System *);
@@ -75,6 +78,7 @@ bool CheckInterrupt(struct Machine *, bool);
 int SysStatfs(struct Machine *, i64, i64);
 int SysFstatfs(struct Machine *, i32, i64);
 int mkfifoat_(int, const char *, mode_t);
+#endif
 
 #ifndef HAVE_MKFIFOAT
 #ifdef mkfifoat

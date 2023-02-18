@@ -22,37 +22,57 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+#ifndef _WIN32
 #include "blink/alu.h"
+#endif
 #include "blink/assert.h"
+#ifndef _WIN32
 #include "blink/atomic.h"
 #include "blink/bitscan.h"
+#endif
 #include "blink/builtin.h"
 #include "blink/bus.h"
+#ifndef _WIN32
 #include "blink/case.h"
+#endif
 #include "blink/debug.h"
+#ifndef _WIN32
 #include "blink/endian.h"
+#endif
 #include "blink/flag.h"
+#ifndef _WIN32
 #include "blink/flags.h"
 #include "blink/fpu.h"
 #include "blink/jit.h"
 #include "blink/likely.h"
+#endif
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/random.h"
 #include "blink/signal.h"
 #include "blink/sse.h"
+#endif
 #include "blink/stats.h"
+#ifndef _WIN32
 #include "blink/string.h"
 #include "blink/swap.h"
+#endif
 #include "blink/syscall.h"
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/time.h"
+#endif
 #include "blink/util.h"
+#ifndef _WIN32
 #include "blink/x86.h"
+#endif
 
 _Thread_local struct Machine *g_machine;
 
+#ifndef _WIN32
 static void OpHintNopEv(P) {
 }
 
@@ -2223,3 +2243,4 @@ void Actor(struct Machine *mm) {
     CheckForSignals(m);
   }
 }
+#endif

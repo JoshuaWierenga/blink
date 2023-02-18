@@ -26,7 +26,10 @@
 #include <unistd.h>
 
 #include "blink/builtin.h"
+#include "blink/fdat.h"
+#ifndef _WIN32
 #include "blink/overlays.h"
+#endif
 #include "blink/util.h"
 
 #ifdef DISABLE_OVERLAYS

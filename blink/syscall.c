@@ -19,65 +19,88 @@
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <grp.h>
 #include <inttypes.h>
 #include <limits.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/file.h>
+#include <sys/param.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+#ifndef _WIN32
+#include <grp.h>
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <poll.h>
-#include <signal.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/mount.h>
-#include <sys/param.h>
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/statvfs.h>
-#include <sys/time.h>
 #include <sys/times.h>
-#include <sys/types.h>
 #include <sys/wait.h>
-#include <time.h>
-#include <unistd.h>
+#endif
 
+#ifndef _WIN32
 #include "blink/ancillary.h"
+#endif
 #include "blink/assert.h"
+#ifndef _WIN32
 #include "blink/atomic.h"
+#endif
 #include "blink/bus.h"
+#ifndef _WIN32
 #include "blink/case.h"
+#endif
 #include "blink/debug.h"
+#ifndef _WIN32
 #include "blink/endian.h"
+#endif
 #include "blink/errno.h"
+#ifndef _WIN32
 #include "blink/iovs.h"
 #include "blink/limits.h"
+#endif
 #include "blink/linux.h"
+#ifndef _WIN32
 #include "blink/loader.h"
+#endif
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/map.h"
 #include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/preadv.h"
 #include "blink/random.h"
 #include "blink/signal.h"
+#endif
 #include "blink/stats.h"
+#ifndef _WIN32
 #include "blink/strace.h"
 #include "blink/swap.h"
 #include "blink/syscall-macro.h"
+#endif
 #include "blink/syscall.h"
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/timespec.h"
+#endif
 #include "blink/util.h"
+#ifndef _WIN32
 #include "blink/xlat.h"
+#endif
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -119,6 +142,7 @@
 char *g_blink_path;
 bool FLAG_statistics;
 
+#ifndef _WIN32
 // delegate to work around function pointer errors, b/c
 // old musl toolchains using `int ioctl(int, int, ...)`
 static int SystemIoctl(int fd, unsigned long request, ...) {
@@ -5266,3 +5290,5 @@ void OpSyscall(P) {
   }
   CollectGarbage(m, mark);
 }
+
+#endif /*_WIN32*/

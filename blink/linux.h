@@ -1147,6 +1147,8 @@ struct ucred_linux {  // 8-byte aligned
   u8 gid[4];          // group id of sending process
 };
 
+#ifndef _WIN32
 int sysinfo_linux(struct sysinfo_linux *);
+#endif
 
 #endif /* BLINK_LINUX_H_ */

@@ -2,11 +2,13 @@
 #define BLINK_LOG_H_
 #include <stdio.h>
 
+#ifndef _WIN32
 #include "blink/atomic.h"
+#endif
 #include "blink/builtin.h"
 #include "blink/flag.h"
 
-#ifndef NDEBUG
+#if defined(NDEBUG) && !defined(_WIN32)
 #define LOG_ENABLED 1
 #else
 #define LOG_ENABLED 0
@@ -104,12 +106,16 @@
 
 extern char *g_progname;
 
+#ifndef _WIN32
 void LogInit(const char *);
 void LogSys(const char *, int, const char *, ...) printf_attr(3);
 void LogErr(const char *, int, const char *, ...) printf_attr(3);
 void LogInfo(const char *, int, const char *, ...) printf_attr(3);
+#endif
 int WriteError(int, const char *, int);
+#ifndef _WIN32
 void WriteErrorInit(void);
+#endif
 int WriteErrorString(const char *);
 
 #endif /* BLINK_LOG_H_ */

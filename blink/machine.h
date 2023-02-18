@@ -1,21 +1,41 @@
 #ifndef BLINK_MACHINE_H_
 #define BLINK_MACHINE_H_
+#undef _INC_TYPES
 #include <limits.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <sys/types.h>
 
+#ifndef _WIN32
 #include "blink/atomic.h"
+#include "blink/types.h"
+#endif
 #include "blink/builtin.h"
 #include "blink/dll.h"
+#ifndef _WIN32
 #include "blink/elf.h"
 #include "blink/fds.h"
 #include "blink/jit.h"
+#endif
 #include "blink/linux.h"
 #include "blink/log.h"
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 #include "blink/tunables.h"
+
+// I don't know why windows needs this when linux doesn't,
+// it's here because machine uses pthread_t.
+#if defined(_WIN32) && defined(DISABLE_THREADS)
+typedef uintptr_t pthread_t;
+#endif
+// I have no clue about this one, this should happen in sys/types.h as
+// long as _POSIX is defined. I have tried defining _POSIX to no affect.
+#if defined (_WIN32) && defined(_SIGSET_T_)
+typedef _sigset_t sigset_t;
+#endif
 
 #define kArgRde   1
 #define kArgDisp  2
@@ -98,6 +118,7 @@
 #define _Atomicish(t) t
 #endif
 
+#ifndef _WIN32
 MICRO_OP_SAFE u8 *ToHost(i64 v) {
   return (u8 *)(intptr_t)(v + kSkew);
 }
@@ -109,12 +130,14 @@ static inline i64 ToGuest(void *r) {
 
 struct Machine;
 typedef void (*nexgen32e_f)(P);
+#endif
 
 struct FreeList {
   int n;
   void **p;
 };
 
+#ifndef _WIN32
 struct HostPage {
   u8 *page;
   struct HostPage *next;
@@ -129,6 +152,7 @@ struct FileMap {
   u64 *present;     // bitset of present pages in [virt,virt+size)
   struct Dll elem;  // see System::filemaps
 };
+#endif
 
 struct MachineFpu {
 #ifndef DISABLE_X87
@@ -142,11 +166,13 @@ struct MachineFpu {
   i64 dp;
 };
 
+#ifndef _WIN32
 struct MachineMemstat {
   long tables;
   long reserved;
   long committed;
 };
+#endif
 
 // Segment descriptor cache
 // @see Intel Manual V3A §3.4.3
@@ -157,6 +183,7 @@ struct DescriptorCache {
   u64 base;  // base linear address
 };
 
+#ifndef _WIN32
 struct MachineState {
   u64 ip;
   struct DescriptorCache cs;
@@ -189,6 +216,7 @@ struct Elf {
   i64 at_entry;
   i64 at_phnum;
 };
+#endif
 
 struct OpCache {
   u8 stash[16];   // for memory ops that overlap page
@@ -200,6 +228,7 @@ struct OpCache {
   u64 icache[512][kInstructionBytes / 8];
 };
 
+#ifndef _WIN32
 struct System {
   u8 mode;
   bool dlab;
@@ -248,6 +277,7 @@ struct System {
   int (*exec)(char *, char *, char **, char **);
   void (*redraw)(bool);
 };
+#endif
 
 struct JitPath {
   int skip;
@@ -354,17 +384,22 @@ struct Machine {                           //
   bool restored;                           //
   bool interrupted;                        //
   bool issigsuspend;                       //
+#ifdef _WIN32
+  jmp_buf onhalt;                          //
+#else
   sigjmp_buf onhalt;                       //
+#endif
   struct sigaltstack_linux sigaltstack;    //
   i64 robust_list;                         //
   i64 ctid;                                //
-  int tid;                                 //
+  int tid;
   sigset_t spawn_sigmask;                  //
   struct Dll elem;                         //
   struct OpCache opcache[1];               //
 };                                         //
 
 extern _Thread_local struct Machine *g_machine;
+#ifndef _WIN32
 extern const nexgen32e_f kConvert[3];
 extern const nexgen32e_f kSax[3];
 
@@ -379,7 +414,9 @@ void Jitter(P, const char *, ...);
 void FreeMachine(struct Machine *);
 void InvalidateSystem(struct System *, bool, bool);
 void RemoveOtherThreads(struct System *);
+#endif
 void KillOtherThreads(struct System *);
+#ifndef _WIN32
 void ResetCpu(struct Machine *);
 void ResetTlb(struct Machine *);
 void CollectGarbage(struct Machine *, size_t);
@@ -695,6 +732,7 @@ void LogCodOp(struct Machine *, const char *);
 #define LogCodOp(m, s) (void)0
 #define WriteCod(...)  (void)0
 #endif
+#endif /*_WIN32*/
 
 #define BEGIN_NO_PAGE_FAULTS \
   {                          \

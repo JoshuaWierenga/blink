@@ -30,7 +30,12 @@
 static int g_errfd;
 
 int WriteErrorString(const char *buf) {
+// Basic error support on windows until fcntl works.
+#ifdef _WIN32
+  return WriteError(2, buf, strlen(buf));
+#else
   return WriteError(0, buf, strlen(buf));
+#endif
 }
 
 int WriteError(int fd, const char *buf, int len) {
@@ -42,6 +47,7 @@ int WriteError(int fd, const char *buf, int len) {
   return rc;
 }
 
+#ifndef _WIN32
 void WriteErrorInit(void) {
   if (g_errfd) return;
   g_errfd = fcntl(2, F_DUPFD_CLOEXEC, kMinBlinkFd);
@@ -59,3 +65,5 @@ char *ExpandUser(const char *path) {
     return strdup(path);
   }
 }
+
+#endif /*_WIN32*/

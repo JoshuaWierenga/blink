@@ -599,6 +599,7 @@ fi
 ( config sched_yield "checking for sched_yield()... " uncomment "#define HAVE_SCHED_YIELD" ) &
 ( config sched_h "checking for sched.h... " uncomment "#define HAVE_SCHED_H" ) &
 ( config pthread_process_shared "checking for PTHREAD_PROCESS_SHARED... " uncomment "#define HAVE_PTHREAD_PROCESS_SHARED" ) &
+( config faccessat "checking for faccessat()... " uncomment "#define HAVE_FACCESSAT" ) &
 
 wait
 rm -f "${LOCK}"

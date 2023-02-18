@@ -3,7 +3,9 @@
 #include <stdbool.h>
 
 #include "blink/builtin.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 
 #ifndef NDEBUG
 // we don't care about the accuracy of statistics across threads. some
@@ -38,7 +40,9 @@
 
 #define DEFINE_COUNTER(S) extern long S;
 #define DEFINE_AVERAGE(S) extern struct Average S;
+#ifndef _WIN32
 #include "blink/stats.inc"
+#endif
 #undef DEFINE_COUNTER
 #undef DEFINE_AVERAGE
 
@@ -49,6 +53,9 @@ struct Average {
 
 extern bool FLAG_statistics;
 
+
+#ifndef _WIN32
 void PrintStats(void);
+#endif
 
 #endif /* BLINK_STATS_H_ */

@@ -53,6 +53,10 @@ ifeq ($(USER), jart)
 CFLAGS += -Wall -Werror -Wno-unused-function
 endif
 
+ifeq ($(USER), joshua)
+CFLAGS += -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -Wno-unused-variable -Wno-comment
+endif
+
 ifeq ($(MODE), cosmo)
 CC = cosmocc
 CFLAGS += -fno-pie

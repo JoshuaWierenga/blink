@@ -30,7 +30,9 @@
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 #include "blink/types.h"
 #include "blink/util.h"
 
@@ -40,6 +42,8 @@
 #define DEFAULT_LOG_PATH "blink.log"
 
 #define APPEND(F, ...) n += F(b + n, PIPE_BUF - n, __VA_ARGS__)
+
+#ifndef _WIN32
 
 static struct Log {
   pthread_once_t_ once;
@@ -188,3 +192,5 @@ void LogInit(const char *path) {
   WriteErrorInit();
   SetLogPath(path);
 }
+
+#endif /*_WIN32*/

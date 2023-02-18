@@ -120,8 +120,12 @@ const char *DescribeHostErrno(int x) {
   if (x == EHOSTUNREACH) return "EHOSTUNREACH";
   if (x == EALREADY) return "EALREADY";
   if (x == EINPROGRESS) return "EINPROGRESS";
+#ifdef ESTALE
   if (x == ESTALE) return "ESTALE";
+#endif
+#ifdef EDQUOT
   if (x == EDQUOT) return "EDQUOT";
+#endif
   if (x == ECANCELED) return "ECANCELED";
   if (x == EOWNERDEAD) return "EOWNERDEAD";
   if (x == ENOTRECOVERABLE) return "ENOTRECOVERABLE";

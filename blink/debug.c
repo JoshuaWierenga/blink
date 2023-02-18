@@ -19,26 +19,34 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#ifndef _WIN32
+#include <sys/mman.h>
+#endif
 
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/debug.h"
+#ifndef _WIN32
 #include "blink/dis.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
 #include "blink/loader.h"
+#endif
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#ifndef _WIN32
 #include "blink/map.h"
 #include "blink/overlays.h"
+#endif
 #include "blink/stats.h"
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 #include "blink/util.h"
 
 #ifdef UNWIND
@@ -86,6 +94,7 @@ void PrintBacktrace(void) {
 #endif
 }
 
+#ifndef _WIN32
 static i64 ReadWord(struct Machine *m, u8 *p) {
   switch (2 << m->mode) {
     default:
@@ -279,3 +288,4 @@ bool CheckMemoryInvariants(struct System *s) {
     return false;
   }
 }
+#endif

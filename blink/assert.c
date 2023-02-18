@@ -24,7 +24,9 @@
 
 #include "blink/assert.h"
 #include "blink/debug.h"
+#ifndef _WIN32
 #include "blink/endian.h"
+#endif
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
@@ -38,6 +40,7 @@ void AssertFailed(const char *file, int line, const char *msg) {
            DescribeHostErrno(errno));
   b[sizeof(b) - 1] = 0;
   WriteErrorString(b);
+#ifndef _WIN32
   if (g_machine && !noreentry) {
     noreentry = true;
     RestoreIp(g_machine);
@@ -45,6 +48,7 @@ void AssertFailed(const char *file, int line, const char *msg) {
     WriteErrorString(GetBacktrace(g_machine));
     WriteErrorString("\n");
   }
+#endif
   PrintBacktrace();
   Abort();
 }

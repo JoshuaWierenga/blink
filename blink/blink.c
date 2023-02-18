@@ -16,38 +16,44 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#define _POSIX // Get MinGW to define sigset_t
 #include <locale.h>
 #include <signal.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <windef.h>
+#include <winbase.h>
+#include <wincon.h>
+#include <winnls.h>
 
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/bus.h"
-#include "blink/case.h"
+//#include "blink/case.h"
 #include "blink/debug.h"
 #include "blink/dll.h"
-#include "blink/endian.h"
+//#include "blink/endian.h"
 #include "blink/flag.h"
-#include "blink/jit.h"
-#include "blink/loader.h"
+/*#include "blink/jit.h"
+#include "blink/loader.h"*/
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
-#include "blink/overlays.h"
+/*#include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/signal.h"
-#include "blink/sigwinch.h"
+#include "blink/sigwinch.h"*/
 #include "blink/stats.h"
 #include "blink/syscall.h"
 #include "blink/thread.h"
 #include "blink/tunables.h"
 #include "blink/util.h"
 #include "blink/web.h"
-#include "blink/x86.h"
-#include "blink/xlat.h"
+/*#include "blink/x86.h"
+#include "blink/xlat.h"*/
 
 #define VERSION \
   "Blink Virtual Machine " BLINK_VERSION " (" BUILD_TIMESTAMP ")\n\
@@ -100,7 +106,7 @@ static bool FLAG_zero;
 static bool FLAG_nojit;
 static char g_pathbuf[PATH_MAX];
 
-static void OnSigSys(int sig) {
+/*static void OnSigSys(int sig) {
   // do nothing
 }
 
@@ -142,14 +148,14 @@ static void OnSigSegv(int sig, siginfo_t *si, void *ptr) {
     DeliverSignalToUser(g_machine, sig_linux);
   }
   siglongjmp(g_machine->onhalt, kMachineSegmentationFault);
-}
+}*/
 
 static int Exec(char *execfn, char *prog, char **argv, char **envp) {
   int i;
   sigset_t oldmask;
   struct Machine *old;
   if ((old = g_machine)) KillOtherThreads(old->system);
-  unassert((g_machine = NewMachine(NewSystem(XED_MODE_LONG), 0)));
+  /*unassert((g_machine = NewMachine(NewSystem(XED_MODE_LONG), 0)));
 #ifdef HAVE_JIT
   if (FLAG_nojit) DisableJit(&g_machine->system->jit);
 #endif
@@ -190,7 +196,8 @@ static int Exec(char *execfn, char *prog, char **argv, char **envp) {
     if (IsMakingPath(g_machine)) {
       AbandonPath(g_machine);
     }
-  }
+  }*/
+  return 1;
 }
 
 static void Print(int fd, const char *s) {
@@ -268,7 +275,7 @@ static void GetOpts(int argc, char *argv[]) {
 #endif
 }
 
-static void HandleSigs(void) {
+/*static void HandleSigs(void) {
   struct sigaction sa;
   sigfillset(&sa.sa_mask);
   sa.sa_flags = 0;
@@ -299,7 +306,7 @@ void exit(int status) {
   // main is called multiple times - don't perform cleanup
   _exit(status);
 }
-#endif
+#endif*/
 
 int main(int argc, char *argv[]) {
   SetupWeb();
@@ -311,7 +318,9 @@ int main(int argc, char *argv[]) {
   SetConsoleOutputCP(CP_UTF8);
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
+#ifndef _WIN32
   WriteErrorInit();
+#endif
   GetOpts(argc, argv);
   if (optind_ == argc) PrintUsage(argc, argv, 48, 2);
 #ifndef DISABLE_OVERLAYS
@@ -320,8 +329,10 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 #endif
-  HandleSigs();
+  //HandleSigs();
+#ifndef _WIN32
   InitBus();
+#endif
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
     WriteErrorString(": command not found: ");

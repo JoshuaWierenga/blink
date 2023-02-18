@@ -40,9 +40,11 @@ static inline struct Dll *dll_prev(struct Dll *list, struct Dll *e) {
   return prev;
 }
 
+#ifndef _WIN32
 void dll_make_first(struct Dll **, struct Dll *);
 void dll_make_last(struct Dll **, struct Dll *);
 void dll_remove(struct Dll **, struct Dll *);
 void dll_splice_after(struct Dll *, struct Dll *);
+#endif
 
 #endif /* BLINK_DLL_H_ */

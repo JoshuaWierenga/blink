@@ -2,13 +2,19 @@
 #define BLINK_MOP_H_
 #include <limits.h>
 
+#ifndef _WIN32
 #include "blink/atomic.h"
+#endif
 #include "blink/builtin.h"
 #include "blink/dll.h"
+#ifndef _WIN32
 #include "blink/endian.h"
 #include "blink/spin.h"
+#endif
 #include "blink/thread.h"
+#ifndef _WIN32
 #include "blink/tsan.h"
+#endif
 #include "blink/tunables.h"
 #include "blink/types.h"
 
@@ -20,6 +26,7 @@
 #define FENCE (void)0
 #endif
 
+#ifndef _WIN32
 struct Futex {
   i64 addr;
   int waiters;
@@ -101,4 +108,5 @@ static inline void StorePte(u8 *pte, u64 val) {
 #endif
 }
 
+#endif /* _WIN32 */
 #endif /* BLINK_MOP_H_ */
