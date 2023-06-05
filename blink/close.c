@@ -19,6 +19,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <unistd.h>
 
 #include "blink/assert.h"
@@ -138,3 +140,4 @@ int SysCloseRange(struct Machine *m, u32 first, u32 last, u32 flags) {
 }
 
 #endif /* DISABLE_NONPOSIX */
+#endif

@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include <ctype.h>
 #include <errno.h>
 #include <poll.h>
@@ -137,3 +140,4 @@ ssize_t readansi(int fd, char *buf, size_t size) {
     }
   }
 }
+#endif

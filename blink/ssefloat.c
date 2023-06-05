@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <math.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -846,3 +848,4 @@ void OpAddsubpsd(P) {
   }
   IGNORE_RACES_END();
 }
+#endif

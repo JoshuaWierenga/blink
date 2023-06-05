@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/cga.h"
 #include "blink/bda.h"
 
@@ -76,3 +79,4 @@ void DrawCga(struct Panel *p, u8 *vram) {
     AppendStr(&p->lines[y], "\033[0m");
   }
 }
+#endif

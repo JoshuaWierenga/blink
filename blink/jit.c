@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/jit.h"
 
 #include <errno.h>
@@ -2053,3 +2056,4 @@ bool AppendJitTrap(struct JitBlock *jb) {
 }
 
 #endif /* HAVE_JIT */
+#endif

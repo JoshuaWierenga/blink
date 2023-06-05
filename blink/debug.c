@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/debug.h"
 
 #include <errno.h>
@@ -309,3 +312,4 @@ bool CheckMemoryInvariants(struct System *s) {
   // TODO(jart): rewrite our memory accounting code
   return true;
 }
+#endif

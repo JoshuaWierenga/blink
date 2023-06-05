@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -266,3 +267,4 @@ char *FormatPml4t(struct Machine *m) {
   }
   return b;
 }
+#endif

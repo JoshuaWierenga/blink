@@ -19,6 +19,8 @@
 #include "blink/x86.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -793,3 +795,4 @@ int DecodeInstruction(struct XedDecodedInst *x, const void *itext, size_t bytes,
   x->op.rde = rde;
   return rc;
 }
+#endif

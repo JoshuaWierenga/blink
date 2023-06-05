@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/assert.h"
 #include "blink/endian.h"
 #include "blink/machine.h"
@@ -203,3 +206,4 @@ void OpCpuid(P) {
   Put64(m->cx, cx);
   Put64(m->dx, dx);
 }
+#endif

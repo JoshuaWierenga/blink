@@ -18,6 +18,8 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/debug.h"
 #include "blink/endian.h"
@@ -54,3 +56,4 @@ void LogCpu(struct Machine *m) {
           Read64(m->r12), Read64(m->r13), Read64(m->r14), Read64(m->r15),
           DescribeCpuFlags(m->flags), DescribeOp(m, GetPc(m)));
 }
+#endif

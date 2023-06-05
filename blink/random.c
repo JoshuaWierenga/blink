@@ -21,6 +21,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -132,3 +134,4 @@ ssize_t GetRandom(void *p, size_t n, int flags) {
   return GetWeakRandom((char *)p, n);
 #endif
 }
+#endif

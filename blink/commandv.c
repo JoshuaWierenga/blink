@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
@@ -116,3 +117,4 @@ char *Commandv(const char *name, char *buf, size_t size) {
     return 0;
   }
 }
+#endif

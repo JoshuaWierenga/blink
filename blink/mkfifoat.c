@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <fcntl.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/stat.h>
 
 #include "blink/errno.h"
@@ -31,3 +33,4 @@ int mkfifoat_(int dirfd, const char *path, mode_t mode) {
     return enosys();
   }
 }
+#endif

@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/ancillary.h"
 
 #include <fcntl.h>
@@ -367,3 +370,4 @@ int ReceiveAncillary(struct Machine *m, struct msghdr_linux *gm,
 
 #endif /* DISABLE_ANCILLARY */
 #endif /* DISABLE_SOCKETS */
+#endif

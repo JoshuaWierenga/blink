@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/machine.h"
 
 #include <errno.h>
@@ -2279,3 +2282,4 @@ void HandleFatalSystemSignal(struct Machine *m, const siginfo_t *si) {
   sig = UnXlatSignal(si->si_signo);
   DeliverSignalToUser(m, sig, UnXlatSiCode(sig, si->si_code));
 }
+#endif

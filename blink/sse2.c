@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/endian.h"
@@ -443,3 +445,4 @@ void OpSsePaddw(P) { OpSse(A, MmxPaddw, SsePaddw); }
 void OpSsePhaddsw(P) { OpSse(A, MmxPhaddsw, SsePhaddsw); }
 void OpSsePhsubsw(P) { OpSse(A, MmxPhsubsw, SsePhsubsw); }
 void OpSsePabsb(P) { OpSse(A, MmxPabsb, SsePabsb); }
+#endif

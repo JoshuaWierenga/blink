@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/endian.h"
@@ -93,3 +96,4 @@ u64 AddressDi(P) {
       __builtin_unreachable();
   }
 }
+#endif

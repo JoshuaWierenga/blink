@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/fds.h"
 
 #include <fcntl.h>
@@ -158,3 +160,4 @@ void AddStdFd(struct Fds *fds, int fildes) {
     InheritFd(AddFd(fds, fildes, flags));
   }
 }
+#endif

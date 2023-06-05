@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/builtin.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
@@ -98,3 +101,4 @@ relegated void OpDaa(P) {
     m->flags = SetFlag(m->flags, FLAGS_CF, true);
   }
 }
+#endif

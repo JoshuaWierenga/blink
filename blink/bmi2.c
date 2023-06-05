@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/bus.h"
 #include "blink/endian.h"
 #include "blink/flags.h"
@@ -207,3 +210,4 @@ void OpShx(P) {
 }
 
 #endif /* DISABLE_BMI2 */
+#endif

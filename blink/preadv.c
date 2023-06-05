@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/preadv.h"
 
 #include <stdlib.h>
@@ -83,3 +86,4 @@ ssize_t pwritev_(int fd, const struct iovec *iov, int iovcnt, off_t offset) {
   free(p);
   return rc;
 }
+#endif

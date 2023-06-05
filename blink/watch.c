@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/watch.h"
 
 #include <stdlib.h>
@@ -100,3 +103,4 @@ ssize_t IsAtWatchpoint(struct Watchpoints *wps, struct Machine *m) {
   }
   return -1;
 }
+#endif

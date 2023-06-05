@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/machine.h"
 
 // @asyncsignalsafe
@@ -43,3 +46,4 @@ int FixXnuSignal(struct Machine *m, int sig, siginfo_t *si) {
   }
   return sig;
 }
+#endif

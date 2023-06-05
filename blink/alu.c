@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/alu.h"
 
 #include "blink/endian.h"
@@ -757,3 +760,4 @@ i64 Ror16(struct Machine *m, u64 x64, u64 y) {
     return x;
   }
 }
+#endif

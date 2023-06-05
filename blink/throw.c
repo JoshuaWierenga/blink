@@ -21,6 +21,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -148,3 +149,4 @@ void OpHlt(P) {
     HaltMachine(m, kMachineHalt);
   }
 }
+#endif

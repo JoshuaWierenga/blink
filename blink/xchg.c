@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <limits.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/assert.h"
 #include "blink/atomic.h"
@@ -117,3 +119,4 @@ void OpXchgGvqpEvqp(P) {
     }
   }
 }
+#endif

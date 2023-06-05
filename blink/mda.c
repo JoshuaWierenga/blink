@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/mda.h"
 
 #include "blink/bda.h"
@@ -83,3 +86,4 @@ void DrawMda(struct Panel *p, u8 v[25][80][2], int curx, int cury) {
     }
   }
 }
+#endif

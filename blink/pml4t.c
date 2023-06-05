@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/pml4t.h"
 
 #include <stdlib.h>
@@ -67,3 +70,4 @@ int FindContiguousMemoryRanges(struct Machine *m,
   }
   return 0;
 }
+#endif

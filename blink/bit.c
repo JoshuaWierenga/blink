@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/bus.h"
 #include "blink/flags.h"
 #include "blink/machine.h"
@@ -86,3 +89,4 @@ void OpBit(P) {
   WriteRegisterOrMemory(rde, p, z);
   if (Lock(rde)) UnlockBus(p);
 }
+#endif

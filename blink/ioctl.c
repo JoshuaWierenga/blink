@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <errno.h>
 #include <fcntl.h>
 #include <net/if.h>
@@ -407,3 +409,4 @@ int SysIoctl(struct Machine *m, int fildes, u64 request, i64 addr) {
       return einval();
   }
 }
+#endif

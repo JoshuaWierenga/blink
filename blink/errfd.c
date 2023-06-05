@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
@@ -51,3 +52,4 @@ void WriteErrorInit(void) {
   g_errfd = fcntl(2, F_DUPFD_CLOEXEC, kMinBlinkFd);
   if (g_errfd == -1) exit(200);
 }
+#endif

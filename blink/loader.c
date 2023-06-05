@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/loader.h"
 
 #include <errno.h>
@@ -845,3 +848,4 @@ bool CanEmulateExecutable(struct Machine *m, char **prog, char ***argv) {
   errno = err;
   return res;
 }
+#endif

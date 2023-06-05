@@ -22,6 +22,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -167,3 +168,4 @@ Elf64_Sym_ *GetElfSymbolTable(const Elf64_Ehdr_ *elf, size_t mapsize,
   }
   return res;
 }
+#endif

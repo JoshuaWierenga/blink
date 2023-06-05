@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/stat.h>
 
@@ -82,3 +83,4 @@ void LoadDebugSymbols(struct System *s) {
     LoadFileMapSymbols(s, FILEMAP_CONTAINER(e));
   }
 }
+#endif

@@ -24,6 +24,7 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -189,3 +190,4 @@ void LogInit(const char *path) {
   WriteErrorInit();
   SetLogPath(path);
 }
+#endif

@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -118,3 +120,4 @@ void LoadInstruction(struct Machine *m, u64 pc) {
       HaltMachine(m, rc);
   }
 }
+#endif

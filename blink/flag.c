@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/flag.h"
 
 #include "blink/builtin.h"
@@ -50,3 +52,4 @@ const char *FLAG_overlays;
 const char *FLAG_prefix;
 #endif
 const char *FLAG_bios;
+#endif

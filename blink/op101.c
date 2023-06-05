@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdio.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/builtin.h"
 #include "blink/bus.h"
@@ -239,3 +241,4 @@ void Op101(P) {
       OpUdImpl(m);
   }
 }
+#endif

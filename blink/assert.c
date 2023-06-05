@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/assert.h"
 
 #include <errno.h>
@@ -47,3 +50,4 @@ void AssertFailed(const char *file, int line, const char *msg) {
   }
   Abort();
 }
+#endif

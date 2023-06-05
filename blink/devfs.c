@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/devfs.h"
 
 #include <stdlib.h>
@@ -151,3 +154,4 @@ struct VfsSystem g_devfs = {.name = "devfs",
                             }};
 
 #endif /* DISABLE_VFS */
+#endif

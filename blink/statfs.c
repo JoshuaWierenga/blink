@@ -19,6 +19,8 @@
 #include <sys/types.h>
 // ordering matters on openbsd
 #include <errno.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/param.h>
@@ -255,3 +257,4 @@ int SysStatfs(struct Machine *m, i64 path, i64 addr) {
 int SysFstatfs(struct Machine *m, i32 fildes, i64 addr) {
   return SysStatfsImpl(m, (uintptr_t)(u32)fildes, addr, Fstatfs);
 }
+#endif

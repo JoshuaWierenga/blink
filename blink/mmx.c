@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/endian.h"
@@ -187,3 +189,4 @@ relegated void MmxPhsubsw(u8 x[8], const u8 y[8]) {
 }
 
 #endif /* DISABLE_MMX */
+#endif

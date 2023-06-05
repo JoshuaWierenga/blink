@@ -18,6 +18,7 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/socket.h>
 #include <time.h>
@@ -35,3 +36,4 @@
 int main(int argc, char *argv[]) {
   return 0;
 }
+#endif

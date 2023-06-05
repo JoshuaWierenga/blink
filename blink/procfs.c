@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/procfs.h"
 
 #include <fcntl.h>
@@ -1504,3 +1507,4 @@ struct VfsSystem g_procfs = {.name = "proc",
                              }};
 
 #endif /* DISABLE_VFS */
+#endif

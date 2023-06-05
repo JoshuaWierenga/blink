@@ -19,6 +19,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
@@ -746,3 +748,4 @@ bool AddPath(P) {
 }
 
 #endif /* HAVE_JIT */
+#endif

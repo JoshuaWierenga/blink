@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -185,3 +186,4 @@ void DisLoadElf(struct Dis *d, Elf64_Ehdr_ *ehdr, size_t esize, i64 eskew) {
   DisLoadElfSyms(d, ehdr, esize, eskew);
   DisSortSyms(d);
 }
+#endif

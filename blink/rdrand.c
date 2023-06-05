@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/assert.h"
 #include "blink/bus.h"
 #include "blink/endian.h"
@@ -55,3 +58,4 @@ void OpRdseed(P) {
   unassert(GetRandom(&x, 8, 0) == 8);
   OpRand(A, x);
 }
+#endif

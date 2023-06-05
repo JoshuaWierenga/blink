@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/modrm.h"
 #include "blink/types.h"
 
@@ -33,3 +36,4 @@ const u8 kByteReg[32] = {0000, 0010, 0020, 0030, 0001, 0011, 0021, 0031,
                          0000, 0010, 0020, 0030, 0001, 0011, 0021, 0031,
                          0000, 0010, 0020, 0030, 0040, 0050, 0060, 0070,
                          0100, 0110, 0120, 0130, 0140, 0150, 0160, 0170};
+#endif

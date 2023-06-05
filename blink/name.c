@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+    
 #include "blink/builtin.h"
 #include "blink/case.h"
 #include "blink/debug.h"
@@ -557,3 +560,4 @@ const char *DescribeMopcode(int code) {
       return "UNKNOWN";
   }
 }
+#endif

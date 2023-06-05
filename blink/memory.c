@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <stddef.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/mman.h>
 
@@ -661,3 +662,4 @@ char **CopyStrList(struct Machine *m, i64 addr) {
     }
   }
 }
+#endif

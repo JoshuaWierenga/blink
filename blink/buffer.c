@@ -23,6 +23,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
@@ -110,3 +111,4 @@ ssize_t UninterruptibleWrite(int fd, const void *p, size_t n) {
   }
   return n;
 }
+#endif

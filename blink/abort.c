@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/stats.h"
 #include "blink/util.h"
@@ -35,3 +36,4 @@ void Abort(void) {
     abort();
   }
 }
+#endif

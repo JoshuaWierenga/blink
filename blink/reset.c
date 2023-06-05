@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <math.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/flags.h"
@@ -111,3 +113,4 @@ void ResetInstructionCache(struct Machine *m) {
   m->opcache->codevirt = 0;
   m->opcache->codehost = 0;
 }
+#endif

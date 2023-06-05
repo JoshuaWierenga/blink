@@ -18,6 +18,8 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <sys/param.h>
 #include <sys/types.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <unistd.h>
 
 #include "blink/atomic.h"
@@ -61,3 +63,4 @@ int GetCpuCount(void) {
   }
   return rc;
 }
+#endif

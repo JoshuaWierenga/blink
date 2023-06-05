@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/time.h"
 
 #include <time.h>
@@ -84,3 +87,4 @@ void OpRdtscp(P) {
 void OpRdpid(P) {
   Put64(RegRexbRm(m, rde), GetTscAux(m));
 }
+#endif

@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/alu.h"
 #include "blink/builtin.h"
 #include "blink/bus.h"
@@ -184,3 +187,4 @@ void OpAlui(P) {
 void OpTest(P) {
   AluiRo(A, kAlu[ALU_AND], kAluFast[ALU_AND]);
 }
+#endif

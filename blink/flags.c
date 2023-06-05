@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/flags.h"
 
 #include "blink/builtin.h"
@@ -60,3 +62,4 @@ u64 ExportFlags(u64 flags) {
   flags |= GetLazyParityBool(flags) << FLAGS_PF;
   return flags;
 }
+#endif

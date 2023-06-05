@@ -19,6 +19,7 @@
 #include "blink/lines.h"
 
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -57,3 +58,4 @@ void AppendLines(struct Lines *lines, const char *s) {
     }
   }
 }
+#endif

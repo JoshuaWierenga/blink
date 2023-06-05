@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/strace.h"
 
 #include <arpa/inet.h>
@@ -777,3 +780,4 @@ void Strace(struct Machine *m, const char *func, bool isentry, const char *fmt,
   SYS_LOGF("%s(%s%s%s%s%s%s) -> %s", func, buf[1], buf[2], buf[3], buf[4],
            buf[5], buf[6], buf[0]);
 }
+#endif

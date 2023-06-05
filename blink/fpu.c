@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/fpu.h"
 
 #include <math.h>
@@ -1213,3 +1215,4 @@ void(OpFpu)(P) {
 }
 
 #endif /* DISABLE_X87 */
+#endif

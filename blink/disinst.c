@@ -18,6 +18,7 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <ctype.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -209,3 +210,4 @@ char *DisInst(struct Dis *d, char *p, const char *spec) {
   }
   return p;
 }
+#endif

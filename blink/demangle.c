@@ -20,6 +20,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/uio.h>
 #include <sys/wait.h>
@@ -274,3 +275,4 @@ char *Demangle(char *p, const char *symbol, size_t n) {
   }
   return r;
 }
+#endif

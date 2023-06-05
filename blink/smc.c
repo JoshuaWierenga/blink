@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/flag.h"
@@ -153,3 +156,4 @@ bool IsSelfModifyingCodeSegfault(struct Machine *m, const siginfo_t *si) {
 }
 
 #endif /* DISABLE_JIT */
+#endif

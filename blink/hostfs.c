@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/hostfs.h"
 
 #include <errno.h>
@@ -2031,3 +2034,4 @@ struct VfsSystem g_hostfs = {.name = "hostfs",
                              }};
 
 #endif /* DISABLE_VFS */
+#endif

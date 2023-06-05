@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <math.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -489,3 +491,4 @@ void OpCvt0f5b(P) {
 void OpCvt0fE6(P) {
   OpCvt(A, kOpCvt0fE6);
 }
+#endif

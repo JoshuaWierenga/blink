@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
@@ -189,3 +190,4 @@ toolong:
 	errno = ENAMETOOLONG;
 	return 0;
 }
+#endif

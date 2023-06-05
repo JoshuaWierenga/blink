@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -150,3 +151,4 @@ int SysOpenat(struct Machine *m, i32 dirfildes, i64 pathaddr, i32 oflags,
   }
   return fildes;
 }
+#endif

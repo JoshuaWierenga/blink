@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/signal.h"
 
 #include <signal.h>
@@ -289,3 +292,4 @@ void CheckForSignals(struct Machine *m) {
     atomic_store_explicit(&m->attention, false, memory_order_relaxed);
   }
 }
+#endif

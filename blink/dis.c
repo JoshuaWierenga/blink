@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/dis.h"
 
 #include <limits.h>
@@ -283,3 +286,4 @@ const char *DisGetLine(struct Dis *d, struct Machine *m, int i) {
   if (DisLineCode(d, d->buf, err) - d->buf >= (int)sizeof(d->buf)) Abort();
   return d->buf;
 }
+#endif

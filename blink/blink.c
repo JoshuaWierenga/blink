@@ -20,6 +20,7 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/resource.h>
 #include <unistd.h>
@@ -361,7 +362,10 @@ void exit(int status) {
 }
 #endif
 
+#endif
+
 int main(int argc, char *argv[]) {
+  #ifndef __MINGW64_VERSION_MAJOR
   SetupWeb();
   GetStartDir();
 #ifndef DISABLE_STRACE
@@ -403,4 +407,7 @@ int main(int argc, char *argv[]) {
   }
   argv[optind_] = g_pathbuf;
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
+  #else
+  return 0;
+  #endif
 }

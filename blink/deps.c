@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/flags.h"
 #include "blink/rde.h"
 #include "blink/x86.h"
@@ -491,3 +494,4 @@ int ClassifyOp(u64 rde) {
       }
   }
 }
+#endif

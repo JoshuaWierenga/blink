@@ -19,6 +19,7 @@
 #include "blink/panel.h"
 
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/assert.h"
@@ -270,3 +271,4 @@ char *RenderPanels(long pn, struct Panel *p, long tyn, long txn, size_t *size) {
   if (size) *size = b.i;
   return b.p;
 }
+#endif

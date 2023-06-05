@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -1405,3 +1406,4 @@ i64 ConvertHostToGuestAddress(struct System *s, void *ha, u64 *out_pte) {
     return (uintptr_t)ha;
   }
 }
+#endif

@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdbool.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -1333,3 +1335,4 @@ const char *DisSpec(struct XedDecodedInst *x, char *p) {
       return UNKNOWN;
   }
 }
+#endif

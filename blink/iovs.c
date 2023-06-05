@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/iovs.h"
 
 #include <limits.h>
@@ -134,3 +137,4 @@ int AppendIovsGuest(struct Machine *m, struct Iovs *iv, i64 iovaddr, int iovlen,
     return -1;
   }
 }
+#endif

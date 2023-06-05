@@ -17,6 +17,8 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/thread.h"
 #include "blink/util.h"
@@ -163,3 +165,4 @@ const char *DescribeHostErrno(int x) {
   FormatInt64(buf, x);
   return buf;
 }
+#endif

@@ -24,6 +24,9 @@
 │ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR        │
 │ OTHER DEALINGS IN THE SOFTWARE.                                              │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/biosrom.h"
 
 #include <errno.h>
@@ -247,3 +250,4 @@ void SetDefaultBiosDataArea(struct Machine *m) {
 u32 GetDefaultBiosDisketteParamTable(void) {
   return kBiosSeg << 16 | (kBiosDefInt0x1E - kBiosBase);
 }
+#endif

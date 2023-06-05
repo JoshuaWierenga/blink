@@ -18,6 +18,8 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <errno.h>
 #include <fcntl.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -90,3 +92,4 @@ int SysPipe2(struct Machine *m, i64 pipefds_addr, i32 flags) {
 #endif
   return rc;
 }
+#endif

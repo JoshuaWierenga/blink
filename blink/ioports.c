@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <poll.h>
 #include <sys/uio.h>
 
@@ -158,3 +160,4 @@ int OpOut(struct Machine *m, u16 p, u32 x) {
 }
 
 #endif /* DISABLE_METAL */
+#endif

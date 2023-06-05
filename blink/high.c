@@ -19,6 +19,8 @@
 #include "blink/high.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/builtin.h"
@@ -59,3 +61,4 @@ char *HighEnd(char *p) {
   }
   return p;
 }
+#endif

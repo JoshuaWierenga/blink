@@ -16,6 +16,8 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/bus.h"
 
 #include <limits.h>
@@ -368,3 +370,4 @@ i64 ReadRegisterOrMemoryBW(u64 rde, u8 p[8]) {
     return ReadMemoryBW(rde, p);
   }
 }
+#endif

@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/dis.h"
@@ -50,3 +51,4 @@ void DisFree(struct Dis *d) {
   free(d->loads.p);
   memset(d, 0, sizeof(*d));
 }
+#endif

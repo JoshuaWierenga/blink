@@ -16,6 +16,9 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
+
 #include "blink/modrm.h"
 
 #include "blink/assert.h"
@@ -341,3 +344,4 @@ u8 *GetModrmWriteBW(P) {
     return ComputeReserveAddressWrite(A, 1 << RegLog2(rde));
   }
 }
+#endif
