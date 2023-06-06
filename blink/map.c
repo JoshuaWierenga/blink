@@ -17,7 +17,6 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/map.h"
 
@@ -26,24 +25,37 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef __MINGW64_VERSION_MAJOR
+#include <sysinfoapi.h>
+#endif
 #include <unistd.h>
 
 #include "blink/assert.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/bitscan.h"
 #include "blink/bus.h"
 #include "blink/debug.h"
+#endif
 #include "blink/log.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/macros.h"
+#endif
 #include "blink/tunables.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/types.h"
 #include "blink/util.h"
 #include "blink/vfs.h"
+#endif
 
 static long GetSystemPageSize(void) {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
   // "pages" in Emscripten only refer to the granularity the memory
   // buffer can be grown at but does not affect functions like mmap
   return 4096;
+#elif defined(__MINGW64_VERSION_MAJOR)
+  SYSTEM_INFO info;
+  GetSystemInfo(&info);
+  return info.dwPageSize; // dwAllocationGranularity?
 #else
   long z;
   unassert((z = sysconf(_SC_PAGESIZE)) > 0);
@@ -52,6 +64,7 @@ static long GetSystemPageSize(void) {
 #endif
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void *PortableMmap(void *addr,     //
                           size_t length,  //
                           int prot,       //
@@ -96,8 +109,34 @@ static void *PortableMmap(void *addr,     //
 #endif
   return res;
 }
+#endif
 
 static int GetBitsInAddressSpace(void) {
+#ifdef __MINGW64_VERSION_MAJOR
+#if defined(__i386__)
+  // Windows x86_32 without 4gt and/or IMAGE_FILE_LARGE_ADDRESS_AWARE: 2gb, 31 bits
+  // Windows x86_32 with 4gt and IMAGE_FILE_LARGE_ADDRESS_AWARE: 3gb, 32 bits but capping at 0xBFFFFFFF instead of 0xFFFFFFFF
+  // Windows x86_32 with 4gt, IMAGE_FILE_LARGE_ADDRESS_AWARE and a custom boot entry: 2gb to 3gb, 31 to 32 bits with the cap between 0x7FFFFFFF and 0xBFFFFFFF
+  // Windows x86_64 with a x86_32 program and without IMAGE_FILE_LARGE_ADDRESS_AWARE: 2gb, 31 bits
+  // Windows x86_64 with a x86_32 program and IMAGE_FILE_LARGE_ADDRESS_AWARE: 4gb, 32 bits
+#error Unsupported windows architecture
+#elif defined(__x86_64__)
+  // Assuing IMAGE_FILE_LARGE_ADDRESS_AWARE is set for now
+  // ignored: Windows x86_64 with a x86_64 program and without IMAGE_FILE_LARGE_ADDRESS_AWARE: 2gb, 31 bits
+  char* PEB = (char*)__readgsqword(0x60);
+  unsigned long majorVersion = *(PEB + 0x118);
+  unsigned long minorVersion = *(PEB + 0x11C);
+  // Windows x86_64 <= 8 with a x86_64 program and IMAGE_FILE_LARGE_ADDRESS_AWARE: 8tb, 43 bits
+  if (majorVersion < 8 || majorVersion == 8 && minorVersion == 0) {
+    return 43;
+  // Windows x86_64 >= 8.1 with a x86_64 program and IMAGE_FILE_LARGE_ADDRESS_AWARE: 128tb, 47 bits
+  } else {
+    return 47;
+  }
+#else
+#error Unsupported windows architecture
+#endif
+#else
   int i;
   void *ptr;
   uint64_t want;
@@ -112,6 +151,7 @@ static int GetBitsInAddressSpace(void) {
     }
   }
   Abort();
+#endif
 }
 
 static u64 GetVirtualAddressSpace(int vabits, long pagesize) {
@@ -149,6 +189,7 @@ void InitMap(void) {
   FLAG_stacktop = ScaleAddress(kStackTop);
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void *Mmap(void *addr,     //
            size_t length,  //
            int prot,       //

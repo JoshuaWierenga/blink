@@ -46,7 +46,9 @@
 #ifndef __MINGW64_VERSION_MAJOR
 #include "blink/machine.h"
 #include "blink/macros.h"
+#endif
 #include "blink/map.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/signal.h"
@@ -392,8 +394,8 @@ int main(int argc, char *argv[]) {
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
   WriteErrorInit();
-#ifndef __MINGW64_VERSION_MAJOR
   InitMap();
+#ifndef __MINGW64_VERSION_MAJOR
   GetOpts(argc, argv);
   if (optind_ == argc) {
     PrintUsage(argc, argv, 48, 2);
