@@ -16,6 +16,7 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include <stdbool.h>
 #include <stdlib.h>
 #ifndef __MINGW64_VERSION_MAJOR
 
@@ -135,10 +136,12 @@
       Strace(m, name, false, &(signature)[1], ax SYSARGS##arity); \
     }                                                             \
     break
+#endif
 
 char *g_blink_path;
 bool FLAG_statistics;
 
+#ifndef __MINGW64_VERSION_MAJOR
 // delegate to work around function pointer errors, b/c
 // old musl toolchains using `int ioctl(int, int, ...)`
 static int SystemIoctl(int fd, unsigned long request, ...) {

@@ -1,5 +1,6 @@
 #ifndef BLINK_SYSCALL_H_
 #define BLINK_SYSCALL_H_
+#ifndef __MINGW64_VERSION_MAJOR
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -52,9 +53,11 @@
       rc = -1;                       \
     }                                \
   } while (0)
+#endif
 
 extern char *g_blink_path;
 
+#ifndef __MINGW64_VERSION_MAJOR
 void OpSyscall(P);
 
 void SysCloseExec(struct System *);
@@ -86,4 +89,5 @@ void Strace(struct Machine *, const char *, bool, const char *, ...);
 #define mkfifoat mkfifoat_
 #endif
 
+#endif
 #endif /* BLINK_SYSCALL_H_ */

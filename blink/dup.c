@@ -16,39 +16,50 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <errno.h>
-#include <fcntl.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <stdarg.h>
+#include <stdint.h>
 
 #include "blink/assert.h"
-#include "blink/log.h"
-#include "blink/thread.h"
-#include "blink/tunables.h"
+#include "blink/errno.h"
 #include "blink/win.h"
 
-static int g_errfd;
+#ifdef __MINGW64_VERSION_MAJOR
+#include <io.h>
+#include <windef.h>
+#include <winbase.h>
 
-int WriteErrorString(const char *buf) {
-  return WriteError(0, buf, strlen(buf));
-}
+// Based on https://github.com/jart/cosmopolitan/blob/e1b8339/libc/calls/dup-nt.c#L32-L84
+int sys_dup_nt(int oldfd, int newfd, int flags) {
+  int64_t rc;
+  HANDLE proc, handle, newHandle;
+  handle = (HANDLE)_get_osfhandle(oldfd);
+  unassert(!(flags & ~O_CLOEXEC));
 
-int WriteError(int fd, const char *buf, int len) {
-  int rc, cs;
-#ifdef HAVE_PTHREAD_SETCANCELSTATE
-  unassert(!pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs));
-#endif
-  do rc = write(fd > 0 ? fd : g_errfd, buf, len);
-  while (rc == -1 && errno == EINTR);
-#ifdef HAVE_PTHREAD_SETCANCELSTATE
-  unassert(!pthread_setcancelstate(cs, 0));
-#endif
+  // Cosmo version only required newfd >= -1 as it picked newfd if not provided
+  // but now windows must pick it and so speicifying one manually is not supported
+  if (oldfd < 0 || newfd != -1 ||
+      (GetFileType(handle) != FILE_TYPE_DISK && GetFileType(handle) != FILE_TYPE_PIPE &&
+       GetFileType(handle) != FILE_TYPE_CHAR)) {
+    return ebadf();
+  }
+
+  proc = GetCurrentProcess();
+
+  if (DuplicateHandle(proc, handle, proc, &newHandle, 0, TRUE, DUPLICATE_SAME_ACCESS)) {
+    // Have to make sure CloseHandle is never called on newHandle from now on,
+    // since it isn't returned from this function that isn't an issue.
+    // close/_close on rc is fine though
+    // TODO Find a way to get the flags on oldfd to apply to the new handle, probably {low_, }info or
+    // fully wrapping fd management like cosmo does to keep track fd info would work, both would also
+    // solve the next todo as well, additionally some of this might be handled by DUPLICATE_SAME_ACCESS
+    // TODO Find a way to keep track of FD_CLOEXEC so it actually works
+    rc = _open_osfhandle((intptr_t)newHandle, 0);
+  } else {
+    CloseHandle(newHandle);
+    // TODO Add _winerr and dos error to errno mapping
+    rc = enosys();
+  }
+
   return rc;
 }
-
-void WriteErrorInit(void) {
-  if (g_errfd) return;
-  g_errfd = fcntl(2, F_DUPFD_CLOEXEC, kMinBlinkFd);
-  if (g_errfd == -1) exit(200);
-}
+#endif

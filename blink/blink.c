@@ -20,11 +20,17 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/resource.h>
 #include <unistd.h>
+#else
+#include <windef.h>
+#include <winnls.h>
+#include <wincon.h>
+#endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/bus.h"
@@ -35,7 +41,9 @@
 #include "blink/flag.h"
 #include "blink/jit.h"
 #include "blink/loader.h"
+#endif
 #include "blink/log.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/map.h"
@@ -44,12 +52,18 @@
 #include "blink/signal.h"
 #include "blink/sigwinch.h"
 #include "blink/stats.h"
+#endif
 #include "blink/syscall.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/thread.h"
 #include "blink/tunables.h"
+#endif
 #include "blink/util.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/vfs.h"
+#endif
 #include "blink/web.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
@@ -365,7 +379,6 @@ void exit(int status) {
 #endif
 
 int main(int argc, char *argv[]) {
-  #ifndef __MINGW64_VERSION_MAJOR
   SetupWeb();
   GetStartDir();
 #ifndef DISABLE_STRACE
@@ -374,11 +387,12 @@ int main(int argc, char *argv[]) {
   // Ensure utf-8 is printed correctly on windows, this method
   // has issues(http://stackoverflow.com/a/10884364/4279) but
   // should work for at least windows 7 and newer.
-#if defined(_WIN32) && !defined(__CYGWIN__)
+#ifdef __MINGW64_VERSION_MAJOR
   SetConsoleOutputCP(CP_UTF8);
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
   WriteErrorInit();
+#ifndef __MINGW64_VERSION_MAJOR
   InitMap();
   GetOpts(argc, argv);
   if (optind_ == argc) {

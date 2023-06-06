@@ -16,19 +16,21 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
-
 #include "blink/assert.h"
 
 #include <errno.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/debug.h"
 #include "blink/flag.h"
+#endif
 #include "blink/log.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/machine.h"
 #include "blink/thread.h"
+#endif
 #include "blink/util.h"
 
 void AssertFailed(const char *file, int line, const char *msg) {
@@ -38,6 +40,7 @@ void AssertFailed(const char *file, int line, const char *msg) {
   if (!noreentry) {
     noreentry = true;
     FLAG_nologstderr = false;
+#ifndef __MINGW64_VERSION_MAJOR
     RestoreIp(g_machine);
     snprintf(bp, sizeof(bp),
              "%s:%d:%d assertion failed: %s (%s)\n"
@@ -46,8 +49,8 @@ void AssertFailed(const char *file, int line, const char *msg) {
              file, line, g_machine ? g_machine->tid : 666, msg,
              DescribeHostErrno(errno), GetBacktrace(g_machine),
              GetBlinkBacktrace());
+#endif
     WriteErrorString(bp);
   }
   Abort();
 }
-#endif
