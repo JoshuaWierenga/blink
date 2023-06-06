@@ -6,7 +6,11 @@ bool IsSignalSerious(int);
 bool IsSignalQueueable(int);
 void SigRestore(struct Machine *);
 bool IsSignalIgnoredByDefault(int);
+#ifdef __MINGW64_VERSION_MAJOR
+void OnSignal(int);
+#else
 void OnSignal(int, siginfo_t *, void *);
+#endif
 void EnqueueSignal(struct Machine *, int);
 void DeliverSignal(struct Machine *, int, int);
 void TerminateSignal(struct Machine *, int, int);

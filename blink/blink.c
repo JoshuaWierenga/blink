@@ -23,14 +23,13 @@
 #include <string.h>
 #ifndef __MINGW64_VERSION_MAJOR
 #include <sys/resource.h>
-#include <unistd.h>
 #else
 #include <windef.h>
 #include <winnls.h>
 #include <wincon.h>
 #endif
+#include <unistd.h>
 
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/assert.h"
 #include "blink/builtin.h"
 #include "blink/bus.h"
@@ -41,31 +40,25 @@
 #include "blink/flag.h"
 #include "blink/jit.h"
 #include "blink/loader.h"
-#endif
 #include "blink/log.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/machine.h"
 #include "blink/macros.h"
-#endif
 #include "blink/map.h"
 #ifndef __MINGW64_VERSION_MAJOR
 #include "blink/overlays.h"
+#endif
 #include "blink/pml4t.h"
 #include "blink/signal.h"
 #include "blink/sigwinch.h"
 #include "blink/stats.h"
-#endif
 #include "blink/syscall.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/thread.h"
 #include "blink/tunables.h"
-#endif
 #include "blink/util.h"
 #ifndef __MINGW64_VERSION_MAJOR
 #include "blink/vfs.h"
 #endif
 #include "blink/web.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
@@ -107,7 +100,11 @@ Toolchain: " BUILD_TOOLCHAIN "\n\
 Revision: #" BLINK_COMMITS " " BLINK_GITSHA "\n\
 Config: ./configure MODE=" BUILD_MODE " " CONFIG_ARGUMENTS "\n"
 
+#ifndef __MINGW64_VERSION_MAJOR
 #define OPTS "hvjemZs0L:C:"
+#else
+#define OPTS "hvjm"
+#endif
 
 _Alignas(1) static const char USAGE[] =
     " [-" OPTS "] PROG [ARGS...]\n"
@@ -117,11 +114,14 @@ _Alignas(1) static const char USAGE[] =
     "  -j                   disable jit\n"
 #endif
     "  -v                   show version\n"
+#ifndef __MINGW64_VERSION_MAJOR
 #ifndef NDEBUG
     "  -e                   also log to stderr\n"
 #endif
     "  -0                   to specify argv[0]\n"
+#endif
     "  -m                   enable memory safety\n"
+#ifndef __MINGW64_VERSION_MAJOR
 #if !defined(DISABLE_STRACE) && !defined(TINY)
     "  -s                   enable system call logging\n"
 #endif
@@ -145,10 +145,14 @@ _Alignas(1) static const char USAGE[] =
 
     "  $BLINK_LOG_FILENAME  log filename (same as -L flag)\n"
 #endif
+#endif
     ;
 
+#ifndef __MINGW64_VERSION_MAJOR
 extern char **environ;
+#endif
 static bool FLAG_nojit;
+#ifndef __MINGW64_VERSION_MAJOR
 static char g_pathbuf[PATH_MAX];
 
 static void OnSigSys(int sig) {
@@ -193,7 +197,20 @@ void TerminateSignal(struct Machine *m, int sig, int code) {
   unassert(!kill(getpid(), syssig));
   Abort();
 }
+#endif
 
+#ifdef __MINGW64_VERSION_MAJOR
+static void OnFatalSystemSignal(int sig) {
+  struct Machine *m = g_machine;
+  SIG_LOGF("OnFatalSystemSignal(%s)", DescribeSignal(UnXlatSignal(sig)));
+#ifndef DISABLE_JIT
+  if (IsSelfModifyingCodeSegfault(m, si)) return;
+#endif
+  unassert(m);
+  unassert(m->canhalt);
+  longjmp(m->onhalt, kMachineFatalSystemSignal);
+}
+#else
 static void OnFatalSystemSignal(int sig, siginfo_t *si, void *ptr) {
   struct Machine *m = g_machine;
 #ifdef __APPLE__
@@ -211,7 +228,9 @@ static void OnFatalSystemSignal(int sig, siginfo_t *si, void *ptr) {
   unassert(m->canhalt);
   siglongjmp(m->onhalt, kMachineFatalSystemSignal);
 }
+#endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void ProgramLimit(struct System *s, int hresource, int gresource) {
   struct rlimit rlim;
   if (!getrlimit(hresource, &rlim)) {
@@ -263,6 +282,7 @@ static int Exec(char *execfn, char *prog, char **argv, char **envp) {
   }
   Blink(m);
 }
+#endif
 
 static void Print(int fd, const char *s) {
   (void)write(fd, s, strlen(s));
@@ -295,24 +315,33 @@ static void GetOpts(int argc, char *argv[]) {
 #endif
 #ifdef __COSMOPOLITAN__
   if (IsWindows()) {
+#endif
+#if defined(__COSMOPOLITAN__) || defined(__MINGW64_VERSION_MAJOR)
     FLAG_nojit = true;
     FLAG_nolinear = true;
+#ifdef __COSMOPOLITAN__
   }
+#endif
 #endif
   while ((opt = GetOpt(argc, argv, OPTS)) != -1) {
     switch (opt) {
+#ifndef __MINGW64_VERSION_MAJOR
       case '0':
         FLAG_zero = true;
         break;
+#endif
       case 'j':
         FLAG_nojit = true;
         break;
+#ifndef __MINGW64_VERSION_MAJOR
       case 's':
         ++FLAG_strace;
         break;
+#endif
       case 'm':
         FLAG_nolinear = true;
         break;
+#ifndef __MINGW64_VERSION_MAJOR
       case 'Z':
         FLAG_statistics = true;
         break;
@@ -332,6 +361,7 @@ static void GetOpts(int argc, char *argv[]) {
             "error: overlays and vfs support were both disabled\n");
 #endif
         break;
+#endif
       case 'v':
         PrintVersion();
       case 'h':
@@ -346,6 +376,14 @@ static void GetOpts(int argc, char *argv[]) {
 }
 
 static void HandleSigs(void) {
+#ifdef __MINGW64_VERSION_MAJOR
+  unassert(signal(SIGINT, OnSignal) != SIG_ERR);
+  unassert(signal(SIGTERM, OnSignal) != SIG_ERR);
+#if !defined(__SANITIZE_THREAD__) && !defined(__SANITIZE_ADDRESS__)
+  unassert(signal(SIGILL, OnFatalSystemSignal) != SIG_ERR);
+  unassert(signal(SIGSEGV, OnFatalSystemSignal) != SIG_ERR);
+#endif
+#else
   struct sigaction sa;
   signal(SIGPIPE, SIG_IGN);
   sigfillset(&sa.sa_mask);
@@ -369,6 +407,7 @@ static void HandleSigs(void) {
   unassert(!sigaction(SIGTRAP, &sa, 0));
   unassert(!sigaction(SIGSEGV, &sa, 0));
 #endif
+#endif
 }
 
 #if defined(__EMSCRIPTEN__)
@@ -376,8 +415,6 @@ void exit(int status) {
   // main is called multiple times - don't perform cleanup
   _exit(status);
 }
-#endif
-
 #endif
 
 int main(int argc, char *argv[]) {
@@ -395,7 +432,6 @@ int main(int argc, char *argv[]) {
   g_blink_path = argc > 0 ? argv[0] : 0;
   WriteErrorInit();
   InitMap();
-#ifndef __MINGW64_VERSION_MAJOR
   GetOpts(argc, argv);
   if (optind_ == argc) {
     PrintUsage(argc, argv, 48, 2);
@@ -413,6 +449,7 @@ int main(int argc, char *argv[]) {
   }
 #endif
   HandleSigs();
+#ifndef __MINGW64_VERSION_MAJOR
   InitBus();
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
@@ -423,7 +460,7 @@ int main(int argc, char *argv[]) {
   }
   argv[optind_] = g_pathbuf;
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
-  #else
+#else
   return 0;
-  #endif
+#endif
 }

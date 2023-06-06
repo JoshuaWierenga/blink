@@ -51,6 +51,9 @@
 #define pthread_condattr_t_  char
 #define pthread_mutexattr_t_ char
 
+// prevent warning on mingw64 about redefining pthread_sigmask
+#undef pthread_sigmask
+
 #define pthread_self()                     0
 #define pthread_sigmask(x, y, z)           sigprocmask(x, y, z)
 #define pthread_setcancelstate(x, y)       ((void)(y), 0)

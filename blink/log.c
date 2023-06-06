@@ -24,7 +24,6 @@
 #include <signal.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
@@ -55,6 +54,7 @@ static struct Log {
     LOG_ERR,
 };
 
+#ifndef __MINGW64_VERSION_MAJOR
 static char *GetTimestamp(void) {
   int x;
   struct timespec ts;
@@ -171,6 +171,7 @@ void LogSys(const char *file, int line, const char *fmt, ...) {
   Log(file, line, fmt, va, LOG_INFO);
   va_end(va);
 }
+#endif
 
 static void FreeLogPath(void) {
   free(g_log.path);
@@ -190,4 +191,3 @@ void LogInit(const char *path) {
   WriteErrorInit();
   SetLogPath(path);
 }
-#endif

@@ -1,5 +1,7 @@
 #ifndef BLINK_XLAT_H_
 #define BLINK_XLAT_H_
+#include <stdlib.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <netinet/in.h>
 #include <signal.h>
 #include <sys/ioctl.h>
@@ -15,7 +17,9 @@
 int UnXlatSiCode(int, int);
 int UnXlatOpenFlags(int);
 int UnXlatAccMode(int);
+#endif
 int UnXlatSignal(int);
+#ifndef __MINGW64_VERSION_MAJOR
 int UnXlatItimer(int);
 int XlatAccess(int);
 int XlatClock(int, clock_t *);
@@ -51,4 +55,5 @@ void XlatLinuxToSigset(sigset_t *, u64);
 void XlatRlimitToLinux(struct rlimit_linux *, const struct rlimit *);
 void XlatLinuxToRlimit(int, struct rlimit *, const struct rlimit_linux *);
 
+#endif
 #endif /* BLINK_XLAT_H_ */

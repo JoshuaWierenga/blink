@@ -16,8 +16,6 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdlib.h>
-
 #include "blink/map.h"
 
 #include <errno.h>
@@ -31,19 +29,15 @@
 #include <unistd.h>
 
 #include "blink/assert.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/bitscan.h"
 #include "blink/bus.h"
 #include "blink/debug.h"
-#endif
 #include "blink/log.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/macros.h"
-#endif
 #include "blink/tunables.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/types.h"
 #include "blink/util.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/vfs.h"
 #endif
 

@@ -18,6 +18,7 @@
 #include "blink/tunables.h"
 #include "blink/x86.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 #define kArgRde   1
 #define kArgDisp  2
 #define kArgUimm0 3
@@ -30,6 +31,7 @@
 
 #define kMaxThreadIds 32768
 #define kMinThreadId  262144
+#endif
 
 #define kInstructionBytes 40
 
@@ -46,6 +48,7 @@
 #define kMachineExitTrap             -10
 #define kMachineFatalSystemSignal    -11
 
+#ifndef __MINGW64_VERSION_MAJOR
 #define CR0_PE 0x01        // protected mode enabled
 #define CR0_MP 0x02        // monitor coprocessor
 #define CR0_EM 0x04        // no x87 fpu present if set
@@ -111,6 +114,7 @@
 #define MACHINE_CONTAINER(e)  DLL_CONTAINER(struct Machine, elem, e)
 #define FILEMAP_CONTAINER(e)  DLL_CONTAINER(struct FileMap, elem, e)
 #define HOSTPAGE_CONTAINER(e) DLL_CONTAINER(struct HostPage, elem, e)
+#endif
 
 #if defined(NOLINEAR) || defined(__SANITIZE_THREAD__) || \
     defined(__CYGWIN__) || defined(__NetBSD__) || defined(__COSMOPOLITAN__)
@@ -119,6 +123,7 @@
 #define CanHaveLinearMemory() CAN_64BIT
 #endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 #ifdef HAVE_JIT
 #define IsMakingPath(m) m->path.jb
 #else
@@ -126,6 +131,7 @@
 #endif
 
 #define HasLinearMapping() (CanHaveLinearMemory() && !FLAG_nolinear)
+#endif
 
 #if CAN_64BIT
 #define _Atomicish(t) _Atomic(t)
@@ -133,6 +139,7 @@
 #define _Atomicish(t) t
 #endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 MICRO_OP_SAFE u8 *ToHost(i64 v) {
   return (u8 *)(uintptr_t)(v + kSkew);
 }
@@ -143,14 +150,18 @@ static inline i64 ToGuest(void *r) {
 }
 
 struct Dis;
+#endif
 struct Machine;
+#ifndef __MINGW64_VERSION_MAJOR
 typedef void (*nexgen32e_f)(P);
+#endif
 
 struct FreeList {
   int n;
   void **p;
 };
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct HostPage {
   u8 *page;
   struct HostPage *next;
@@ -161,6 +172,7 @@ struct PageLock {
   u8 *pslot;
   int sysdepth;
 };
+#endif
 
 struct SmcQueue {
   i64 p[kSmcQueueSize];
@@ -208,6 +220,7 @@ struct DescriptorCache {
   u64 base;  // base linear address
 };
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct MachineState {
   u64 ip;
   struct DescriptorCache cs;
@@ -222,6 +235,7 @@ struct MachineState {
   struct MachineFpu fpu;
   struct MachineMemstat memstat;
 };
+#endif
 
 struct Elf {
   char *prog;
@@ -247,6 +261,7 @@ struct OpCache {
   u64 icache[512][kInstructionBytes / 8];
 };
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct System {
   struct XedMachineMode mode;
   bool dlab;
@@ -310,6 +325,7 @@ struct System {
 // Default segment selector values in non-metal mode, per Linux 5.9
 #define USER_DS_LINUX 0x2b  // default selector for ss (N.B.)
 #define USER_CS_LINUX 0x33  // default selector for cs
+#endif
 
 struct JitPath {
   int skip;
@@ -398,7 +414,9 @@ struct Machine {                         //
   };                                     //
   struct MachineFpu fpu;                 // FLOATING-POINT REGISTER FILE
   u32 mxcsr;                             // SIMD status control register
+#ifndef __MINGW64_VERSION_MAJOR
   pthread_t thread;                      // POSIX thread of this machine
+#endif
   struct FreeList freelist;              // to make system calls simpler
   struct PageLocks pagelocks;            // track page table entry locks
   struct JitPath path;                   // under construction jit route
@@ -426,19 +444,28 @@ struct Machine {                         //
   i8 trapno;                             //
   i8 segvcode;                           //
   struct MachineTlb tlb[32];             //
+#ifdef __MINGW64_VERSION_MAJOR
+  jmp_buf onhalt;                        //
+#else
   sigjmp_buf onhalt;                     //
+#endif
   struct sigaltstack_linux sigaltstack;  //
   i64 robust_list;                       //
   i64 ctid;                              //
   int tid;                               //
+#ifndef __MINGW64_VERSION_MAJOR
   sigset_t spawn_sigmask;                //
+#endif
   struct Dll elem;                       //
   struct SmcQueue smcqueue;              //
   struct OpCache opcache[1];             //
 };                                       //
 
+#ifndef __MINGW64_VERSION_MAJOR
 extern _Thread_local siginfo_t g_siginfo;
+#endif
 extern _Thread_local struct Machine *g_machine;
+#ifndef __MINGW64_VERSION_MAJOR
 extern const nexgen32e_f kConvert[3];
 extern const nexgen32e_f kSax[3];
 
@@ -819,4 +846,5 @@ MICRO_OP_SAFE u8 Cpl(struct Machine *m) {
   m->nofault = nofault_;   \
   }
 
+#endif
 #endif /* BLINK_MACHINE_H_ */

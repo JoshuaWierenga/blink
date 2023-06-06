@@ -16,9 +16,6 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
-
 #include "blink/signal.h"
 
 #include <signal.h>
@@ -39,6 +36,7 @@
 #include "blink/util.h"
 #include "blink/xlat.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct SignalFrame {
   u8 ret[8];
   struct siginfo_linux si;
@@ -265,6 +263,7 @@ int ConsumeSignal(struct Machine *m, int *delivered, bool *restart) {
   UNLOCK(&m->system->sig_lock);
   return rc;
 }
+#endif
 
 void EnqueueSignal(struct Machine *m, int sig) {
   if (m && (1 <= sig && sig <= 64)) {
@@ -275,6 +274,7 @@ void EnqueueSignal(struct Machine *m, int sig) {
   }
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void CheckForSignals(struct Machine *m) {
   int sig;
   if (atomic_load_explicit(&m->killed, memory_order_acquire)) {

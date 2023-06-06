@@ -22,15 +22,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/debug.h"
 #include "blink/flag.h"
-#endif
 #include "blink/log.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/machine.h"
 #include "blink/thread.h"
-#endif
 #include "blink/util.h"
 
 void AssertFailed(const char *file, int line, const char *msg) {

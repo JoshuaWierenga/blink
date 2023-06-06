@@ -18,42 +18,55 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdbool.h>
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 
 #include "blink/syscall.h"
 
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <grp.h>
+#endif
 #include <inttypes.h>
 #include <limits.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <poll.h>
+#endif
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/ioctl.h>
 #include <sys/mman.h>
+#endif
 #include <sys/param.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/resource.h>
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <sys/statvfs.h>
+#endif
 #include <sys/time.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/times.h>
+#endif
 #include <sys/types.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/wait.h>
+#endif
 #include <time.h>
 #include <unistd.h>
 
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/ancillary.h"
+#endif
 #include "blink/assert.h"
 #include "blink/atomic.h"
 #include "blink/bitscan.h"
@@ -64,7 +77,9 @@
 #include "blink/endian.h"
 #include "blink/errno.h"
 #include "blink/flag.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/iovs.h"
+#endif
 #include "blink/limits.h"
 #include "blink/linux.h"
 #include "blink/loader.h"
@@ -73,11 +88,16 @@
 #include "blink/macros.h"
 #include "blink/map.h"
 #include "blink/ndelay.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/overlays.h"
+#endif
 #include "blink/pml4t.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/preadv.h"
+#endif
 #include "blink/random.h"
 #include "blink/signal.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/stats.h"
 #include "blink/strace.h"
 #include "blink/swap.h"
@@ -85,6 +105,7 @@
 #include "blink/timespec.h"
 #include "blink/util.h"
 #include "blink/vfs.h"
+#endif
 #include "blink/xlat.h"
 
 #ifdef __linux
@@ -112,6 +133,7 @@
 #include <sys/mount.h>
 #endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 #ifdef SO_LINGER_SEC
 #define SO_LINGER_ SO_LINGER_SEC
 #else
@@ -3775,12 +3797,18 @@ static ssize_t SysGetrandom(struct Machine *m, i64 a, size_t n, int f) {
   }
   return rc;
 }
+#endif
 
+#ifdef __MINGW64_VERSION_MAJOR
+void OnSignal(int sig) {
+#else
 void OnSignal(int sig, siginfo_t *si, void *uc) {
+#endif
   SIG_LOGF("OnSignal(%s)", DescribeSignal(UnXlatSignal(sig)));
   EnqueueSignal(g_machine, UnXlatSignal(sig));
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 static int SysSigaction(struct Machine *m, int sig, i64 act, i64 old,
                         u64 sigsetsize) {
   int syssig;

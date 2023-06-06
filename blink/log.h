@@ -116,12 +116,16 @@
 #define LOG_ONCE(x) (void)0
 #endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 extern char *g_progname;
+#endif
 
 void LogInit(const char *);
+#ifndef __MINGW64_VERSION_MAJOR
 void LogSys(const char *, int, const char *, ...) printf_attr(3);
 void LogErr(const char *, int, const char *, ...) printf_attr(3);
 void LogInfo(const char *, int, const char *, ...) printf_attr(3);
+#endif
 int WriteError(int, const char *, int);
 void WriteErrorInit(void);
 int WriteErrorString(const char *);

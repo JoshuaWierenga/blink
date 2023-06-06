@@ -16,9 +16,6 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
-
 #include "blink/machine.h"
 
 #include <errno.h>
@@ -39,29 +36,42 @@
 #include "blink/endian.h"
 #include "blink/flag.h"
 #include "blink/flags.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/fpu.h"
+#endif
 #include "blink/jit.h"
 #include "blink/likely.h"
 #include "blink/log.h"
 #include "blink/macros.h"
 #include "blink/map.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/modrm.h"
+#endif
 #include "blink/random.h"
 #include "blink/signal.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/sse.h"
+#endif
 #include "blink/stats.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/string.h"
+#endif
 #include "blink/swap.h"
 #include "blink/syscall.h"
 #include "blink/thread.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/time.h"
+#endif
 #include "blink/util.h"
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 _Thread_local siginfo_t g_siginfo;
+#endif
 _Thread_local struct Machine *g_machine;
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void OpHintNopEv(P) {
 }
 

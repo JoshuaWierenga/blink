@@ -16,27 +16,30 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
-
 #include "blink/xlat.h"
 
 #include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
+#endif
 #include <signal.h>
 #include <stddef.h>
 #include <string.h>
 #include <sys/file.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
+#endif
 #include <sys/time.h>
 #include <sys/types.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/un.h>
 #include <sys/wait.h>
+#endif
 #include <time.h>
 #include <unistd.h>
 
@@ -58,6 +61,7 @@
 #define st_mtim st_mtimespec
 #endif
 
+#ifndef __MINGW64_VERSION_MAJOR
 // NSIG isn't POSIX but it's more common than SIGRTMAX which is.
 // Note: OpenBSD defines NSIG as 33, even though it only has 32.
 #ifdef NSIG
@@ -305,23 +309,37 @@ int XlatResource(int x) {
       return einval();
   }
 }
+#endif
 
 int UnXlatSignal(int x) {
+#ifdef SIGHUP
   if (x == SIGHUP) return SIGHUP_LINUX;
+#endif
   if (x == SIGINT) return SIGINT_LINUX;
+#ifdef SIGQUIT
   if (x == SIGQUIT) return SIGQUIT_LINUX;
+#endif
   if (x == SIGILL) return SIGILL_LINUX;
+#ifdef SIGTRAP
   if (x == SIGTRAP) return SIGTRAP_LINUX;
+#endif
   if (x == SIGABRT) return SIGABRT_LINUX;
+#ifdef SIGBUS
   if (x == SIGBUS) return SIGBUS_LINUX;
+#endif
   if (x == SIGFPE) return SIGFPE_LINUX;
+#ifndef __MINGW64_VERSION_MAJOR
   if (x == SIGKILL) return SIGKILL_LINUX;
   if (x == SIGUSR1) return SIGUSR1_LINUX;
+#endif
   if (x == SIGSEGV) return SIGSEGV_LINUX;
+#ifndef __MINGW64_VERSION_MAJOR
   if (x == SIGUSR2) return SIGUSR2_LINUX;
   if (x == SIGPIPE) return SIGPIPE_LINUX;
   if (x == SIGALRM) return SIGALRM_LINUX;
+#endif
   if (x == SIGTERM) return SIGTERM_LINUX;
+#ifndef __MINGW64_VERSION_MAJOR
   if (x == SIGCHLD) return SIGCHLD_LINUX;
   if (x == SIGCONT) return SIGCONT_LINUX;
   if (x == SIGTTIN) return SIGTTIN_LINUX;
@@ -350,9 +368,11 @@ int UnXlatSignal(int x) {
     return SIGRTMIN_LINUX + (x - SIGRTMIN);
   }
 #endif
+#endif
   return einval();
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 int UnXlatSiCode(int sig, int code) {
 #ifdef SI_USER
   if (code == SI_USER) return SI_USER_LINUX;
