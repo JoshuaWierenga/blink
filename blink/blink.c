@@ -55,10 +55,9 @@
 #include "blink/thread.h"
 #include "blink/tunables.h"
 #include "blink/util.h"
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/vfs.h"
-#endif
 #include "blink/web.h"
+#include "blink/win.h"
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
@@ -431,6 +430,7 @@ int main(int argc, char *argv[]) {
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
   WriteErrorInit();
+  InitMemory();
   InitMap();
   GetOpts(argc, argv);
   if (optind_ == argc) {
@@ -449,8 +449,8 @@ int main(int argc, char *argv[]) {
   }
 #endif
   HandleSigs();
-#ifndef __MINGW64_VERSION_MAJOR
   InitBus();
+#ifndef __MINGW64_VERSION_MAJOR
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
     WriteErrorString(": command not found: ");

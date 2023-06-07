@@ -1,13 +1,17 @@
 #ifndef BLINK_MAP_H_
 #define BLINK_MAP_H_
 #include <errno.h>
-#ifndef __MINGW64_VERSION_MAJOR
+#ifdef __MINGW64_VERSION_MAJOR
+#include <_mingw_off_t.h>
+#else
 #include <sys/mman.h>
+#endif
 
 #include "blink/builtin.h"
 #include "blink/thread.h"
 #include "blink/types.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 #ifndef MAP_NORESERVE
 #define MAP_NORESERVE 0
 #endif
@@ -20,6 +24,7 @@
 #define sys_icache_invalidate(addr, size) \
   __builtin___clear_cache((char *)(addr), (char *)(addr) + (size));
 #endif
+#endif
 
 #ifdef HAVE_MAP_ANONYMOUS
 #define MAP_ANONYMOUS_ MAP_ANONYMOUS
@@ -27,6 +32,7 @@
 #define MAP_ANONYMOUS_ 0x10000000
 #endif
 
+#ifdef __MINGW64_VERSION_MAJOR
 // MAP_DEMAND means use MAP_FIXED only if it won't clobber other maps
 #if defined(MAP_FIXED_NOREPLACE) && !defined(__SANITIZE_THREAD__)
 // The mmap() address parameter without MAP_FIXED is documented by
@@ -54,10 +60,12 @@
 #endif
 
 void InitMap(void);
-#ifndef __MINGW64_VERSION_MAJOR
 int Munmap(void *, size_t);
+#ifndef __MINGW64_VERSION_MAJOR
 int Msync(void *, size_t, int, const char *);
+#endif
 void *Mmap(void *, size_t, int, int, int, off_t, const char *);
+#ifndef __MINGW64_VERSION_MAJOR
 int Mprotect(void *, size_t, int, const char *);
 void OverridePageSize(long);
 

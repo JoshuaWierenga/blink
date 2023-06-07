@@ -62,4 +62,4 @@ int sys_dup_nt(int oldfd, int newfd, int flags) {
 
   return rc;
 }
-#endif
+#endif // __MINGW64_VERSION_MAJOR

@@ -17,9 +17,10 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/mman.h>
+#endif
 #include <unistd.h>
 
 #include "blink/assert.h"
@@ -42,8 +43,10 @@
 #include "blink/timespec.h"
 #include "blink/types.h"
 #include "blink/util.h"
+#include "blink/win.h"
 #include "blink/x86.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct Allocator {
   pthread_mutex_t_ lock;
   struct HostPage *pages GUARDED_BY(lock);
@@ -92,6 +95,7 @@ static void FreeFileMap(struct FileMap *fm) {
     free(fm);
   }
 }
+#endif
 
 void FreeBig(void *p, size_t n) {
   if (!p) return;
@@ -103,6 +107,7 @@ void *AllocateBig(size_t n, int prot, int flags, int fd, off_t off) {
   return p != MAP_FAILED ? p : 0;
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void FreePageTable(struct System *s, u8 *page) {
   FreeAnonymousPage(s, page);
   s->memstat.tables -= 1;

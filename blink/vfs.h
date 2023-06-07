@@ -1,26 +1,35 @@
 #ifndef BLINK_VFS_H_
 #define BLINK_VFS_H_
 #include <dirent.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <poll.h>
+#endif
 #include <stdarg.h>
 #include <stdbool.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/select.h>
 #include <sys/socket.h>
+#endif
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef __MINGW64_VERSION_MAJOR
 #include <sys/uio.h>
 #include <sys/un.h>
 #include <termios.h>
+#endif
 #include <unistd.h>
 
 #include "blink/dll.h"
 #include "blink/macros.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/overlays.h"
 #include "blink/preadv.h"
+#endif
 #include "blink/thread.h"
 #include "blink/tsan.h"
 #include "blink/types.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 #define VFS_SYSTEM_ROOT_MOUNT "/SystemRoot"
 #define VFS_PATH_MAX          MAX(PATH_MAX, 4096)
 #define VFS_NAME_MAX          256
@@ -291,6 +300,7 @@ int VfsSetFd(int, struct VfsInfo *);
 ssize_t VfsPathBuildFull(struct VfsInfo *, struct VfsInfo *, char **);
 ssize_t VfsPathBuild(struct VfsInfo *, struct VfsInfo *, bool,
                      char[VFS_PATH_MAX]);
+#endif
 #elif !defined(DISABLE_OVERLAYS)
 #define VfsChown       OverlaysChown
 #define VfsAccess      OverlaysAccess

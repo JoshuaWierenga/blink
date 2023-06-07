@@ -17,7 +17,6 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/bus.h"
 
 #include <limits.h>
@@ -34,6 +33,7 @@
 #include "blink/swap.h"
 #include "blink/thread.h"
 #include "blink/tsan.h"
+#include "blink/win.h"
 
 #ifdef HAVE_PTHREAD_PROCESS_SHARED
 #define BUS_MEMORY MAP_SHARED
@@ -70,6 +70,7 @@ void InitBus(void) {
   unassert(!pthread_condattr_destroy(&cattr));
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void LockBus(const u8 *locality) {
   /* A locked instruction is guaranteed to lock only the area of memory
      defined by the destination operand, but may be interpreted by the

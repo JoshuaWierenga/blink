@@ -83,4 +83,4 @@ int fcntl(int fd, int cmd, ...) {
 
   return rc;
 }
-#endif
+#endif // __MINGW64_VERSION_MAJOR
