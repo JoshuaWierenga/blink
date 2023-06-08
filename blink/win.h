@@ -3,6 +3,10 @@
 
 #ifdef __MINGW64_VERSION_MAJOR
 
+// Ensure GetFinalPathNameByHandleW is defined, requires vista or newer
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+
 // version detection
 
 #define IsAtLeastWindows8p1() \
@@ -67,6 +71,12 @@ void *mmap(void *addr, size_t size, int prot, int flags, int fd, int64_t off);
 int munmap(void *p, size_t n);
 
 void InitMemory();
+
+// fd support
+
+#define AT_FDCWD -100
+
+int faccessat(int dirfd, const char *path, int amode, int flags);
 
 #else
 

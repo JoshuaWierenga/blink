@@ -73,10 +73,16 @@ static void *PortableMmap(void *addr,     //
   _Static_assert(!(MAP_ANONYMOUS_ & MAP_SHARED), "");
   _Static_assert(!(MAP_ANONYMOUS_ & MAP_PRIVATE), "");
   int tfd;
+#ifdef __MINGW64_VERSION_MAJOR
+  char path[] = "blink.dat.XXXXXX";
+#else
   char path[] = "/tmp/blink.dat.XXXXXX";
+#endif
   if (~flags & MAP_ANONYMOUS_) {
     res = VfsMmap(addr, length, prot, flags, fd, offset);
+  // TODO Reimplement mkstemp to use __mkntpath2 which rewrites /tmp into a windows path
   } else if ((tfd = mkstemp(path)) != -1) {
+    // TODO Fix unlink not doing anything
     unlink(path);
     if (!ftruncate(tfd, length)) {
       res = mmap(addr, length, prot, flags & ~MAP_ANONYMOUS_, tfd, 0);

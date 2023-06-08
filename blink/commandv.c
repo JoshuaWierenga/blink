@@ -22,21 +22,23 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 #include <unistd.h>
 
 #include "blink/builtin.h"
+#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/overlays.h"
+#endif
 #include "blink/util.h"
 #include "blink/vfs.h"
+#include "blink/win.h"
 
 struct PathSearcher {
   char *path;
   size_t pathlen;
   size_t namelen;
   const char *name;
-  const char *syspath;
+  char *syspath;
 };
 
 static char EndsWithIgnoreCase(const char *p, unsigned long n, const char *s) {
@@ -105,16 +107,34 @@ static char FindCommand(struct PathSearcher *ps, const char *suffix) {
  */
 char *Commandv(const char *name, char *buf, size_t size) {
   struct PathSearcher ps;
+  char *sysroot, *syspath = NULL;
+  size_t syspathlen;
   ps.path = buf;
   ps.pathlen = size;
   ps.syspath = getenv("PATH");
-  if (!ps.syspath) ps.syspath = "/usr/local/bin:/bin:/usr/bin";
   if (!(ps.namelen = strlen((ps.name = name)))) return 0;
   if (ps.namelen + 1 > ps.pathlen) return 0;
-  if (FindCommand(&ps, "") || (!IsComPath(&ps) && FindCommand(&ps, ".com"))) {
+  if (!ps.syspath) {
+#ifdef __MINGW64_VERSION_MAJOR
+    sysroot = getenv("SystemRoot");
+    if (!sysroot) return 0;
+    syspathlen = snprintf(NULL, 0, "%s\\System32;%s;%s\\System32\\wbem",
+        sysroot, sysroot, sysroot);
+    if (!(ps.syspath = syspath = malloc((syspathlen + 1) * sizeof *ps.syspath))) return 0;
+    snprintf(ps.syspath, syspathlen + 1, "%s\\System32;%s;%s\\System32\\wbem",
+        sysroot, sysroot, sysroot);
+#else
+    ps.syspath = "/usr/local/bin:/bin:/usr/bin";
+#endif
+  }
+  bool res = FindCommand(&ps, "") || (!IsComPath(&ps) && FindCommand(&ps, ".com"));
+#ifdef __MINGW64_VERSION_MAJOR
+  printf("Reaching free: %s\n", syspath);
+  free(syspath);
+#endif
+  if (res) {
     return ps.path;
   } else {
     return 0;
   }
 }
-#endif

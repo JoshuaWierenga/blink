@@ -24,6 +24,7 @@
 #ifndef __MINGW64_VERSION_MAJOR
 #include <sys/resource.h>
 #else
+#include <fcntl.h>
 #include <windef.h>
 #include <winnls.h>
 #include <wincon.h>
@@ -151,9 +152,9 @@ _Alignas(1) static const char USAGE[] =
 extern char **environ;
 #endif
 static bool FLAG_nojit;
-#ifndef __MINGW64_VERSION_MAJOR
 static char g_pathbuf[PATH_MAX];
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void OnSigSys(int sig) {
   // do nothing
 }
@@ -422,10 +423,18 @@ int main(int argc, char *argv[]) {
 #ifndef DISABLE_STRACE
   setlocale(LC_ALL, "");
 #endif
+#ifdef __MINGW64_VERSION_MAJOR
+  // GetFileSecurityW and possibly other windows functions are broken under
+  // wsl and since regular blink runs fun under wsl, it is not worth fixing
+  int fd = _open("/proc/version", _O_RDONLY);
+  if (fd != -1) {
+    _close(fd);
+    puts("winblink cannot run under wsl, use regular blink instead.");
+    exit(1);
+  }
   // Ensure utf-8 is printed correctly on windows, this method
   // has issues(http://stackoverflow.com/a/10884364/4279) but
   // should work for at least windows 7 and newer.
-#ifdef __MINGW64_VERSION_MAJOR
   SetConsoleOutputCP(CP_UTF8);
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
@@ -450,7 +459,6 @@ int main(int argc, char *argv[]) {
 #endif
   HandleSigs();
   InitBus();
-#ifndef __MINGW64_VERSION_MAJOR
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
     WriteErrorString(": command not found: ");
@@ -459,6 +467,7 @@ int main(int argc, char *argv[]) {
     exit(127);
   }
   argv[optind_] = g_pathbuf;
+#ifndef __MINGW64_VERSION_MAJOR
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
 #else
   return 0;
