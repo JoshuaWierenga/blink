@@ -18,15 +18,16 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <math.h>
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include <string.h>
 
 #include "blink/flags.h"
 #include "blink/machine.h"
 #include "blink/stats.h"
 
+#ifndef __MINGW64_VERSION_MAJOR
 #define LDBL 3
 #define RINT 0
+#endif
 
 static void ResetFpu(struct Machine *m) {
 #ifndef DISABLE_X87
@@ -100,12 +101,14 @@ void ResetCpu(struct Machine *m) {
   ResetFpu(m);
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void ResetTlb(struct Machine *m) {
   STATISTIC(++tlb_resets);
   memset(m->tlb, 0, sizeof(m->tlb));
   m->opcache->codevirt = 0;
   m->opcache->codehost = 0;
 }
+#endif
 
 void ResetInstructionCache(struct Machine *m) {
   STATISTIC(++icache_resets);
@@ -113,4 +116,3 @@ void ResetInstructionCache(struct Machine *m) {
   m->opcache->codevirt = 0;
   m->opcache->codehost = 0;
 }
-#endif

@@ -237,10 +237,13 @@ static void ProgramLimit(struct System *s, int hresource, int gresource) {
     XlatRlimitToLinux(s->rlim + gresource, &rlim);
   }
 }
+#endif
 
 static int Exec(char *execfn, char *prog, char **argv, char **envp) {
   int i;
+#ifndef __MINGW64_VERSION_MAJOR
   sigset_t oldmask;
+#endif
   struct Machine *m, *old;
   if ((old = g_machine)) KillOtherThreads(old->system);
   unassert((g_machine = m = NewMachine(NewSystem(XED_MACHINE_MODE_LONG), 0)));
@@ -250,18 +253,21 @@ static int Exec(char *execfn, char *prog, char **argv, char **envp) {
   m->system->exec = Exec;
   if (!old) {
     // this is the first time a program is being loaded
+#ifndef __MINGW64_VERSION_MAJOR
     LoadProgram(m, execfn, prog, argv, envp, NULL);
     SetupCod(m);
     for (i = 0; i < 10; ++i) {
       AddStdFd(&m->system->fds, i);
     }
     ProgramLimit(m->system, RLIMIT_NOFILE, RLIMIT_NOFILE_LINUX);
+#endif
   } else {
 #ifdef HAVE_JIT
     DisableJit(&old->system->jit);  // unmapping exec pages is slow
 #endif
     unassert(!m->sysdepth);
     unassert(!m->pagelocks.i);
+#ifndef __MINGW64_VERSION_MAJOR
     unassert(!FreeVirtual(old->system, -0x800000000000, 0x1000000000000));
     for (i = 1; i <= 64; ++i) {
       if (Read64(old->system->hands[i - 1].handler) == SIG_IGN_LINUX) {
@@ -279,10 +285,14 @@ static int Exec(char *execfn, char *prog, char **argv, char **envp) {
     FreeMachine(old);
     // restore the signal mask we had before execve() was called
     unassert(!pthread_sigmask(SIG_SETMASK, &oldmask, 0));
+    #endif
   }
+#ifndef __MINGW64_VERSION_MAJOR
   Blink(m);
-}
+#else
+  return 0;
 #endif
+}
 
 static void Print(int fd, const char *s) {
   (void)write(fd, s, strlen(s));
@@ -467,9 +477,5 @@ int main(int argc, char *argv[]) {
     exit(127);
   }
   argv[optind_] = g_pathbuf;
-#ifndef __MINGW64_VERSION_MAJOR
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
-#else
-  return 0;
-#endif
 }

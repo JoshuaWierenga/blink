@@ -17,7 +17,6 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
-#ifndef __MINGW64_VERSION_MAJOR
 #include "blink/fds.h"
 
 #include <fcntl.h>
@@ -43,6 +42,7 @@ void InitFds(struct Fds *fds) {
   unassert(!pthread_mutex_init(&fds->lock, 0));
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 struct Fd *AddFd(struct Fds *fds, int fildes, int oflags) {
   struct Fd *fd;
   if (fildes >= 0) {

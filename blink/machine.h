@@ -28,10 +28,10 @@
 #define kOpBranching   1
 #define kOpPrecious    2
 #define kOpSerializing kOpPrecious
+#endif
 
 #define kMaxThreadIds 32768
 #define kMinThreadId  262144
-#endif
 
 #define kInstructionBytes 40
 
@@ -261,7 +261,6 @@ struct OpCache {
   u64 icache[512][kInstructionBytes / 8];
 };
 
-#ifndef __MINGW64_VERSION_MAJOR
 struct System {
   struct XedMachineMode mode;
   bool dlab;
@@ -300,7 +299,9 @@ struct System {
   struct Jit jit;
   struct Fds fds;
   struct Elf elf;
+#ifndef __MINGW64_VERSION_MAJOR
   sigset_t exec_sigmask;
+#endif
   struct sigaction_linux hands[64];
   u64 blinksigs;  // signals blink itself handles
   struct rlimit_linux rlim[RLIM_NLIMITS_LINUX];
@@ -322,6 +323,7 @@ struct System {
   void (*redraw)(bool);
 };
 
+#ifndef __MINGW64_VERSION_MAJOR
 // Default segment selector values in non-metal mode, per Linux 5.9
 #define USER_DS_LINUX 0x2b  // default selector for ss (N.B.)
 #define USER_CS_LINUX 0x33  // default selector for cs
@@ -414,9 +416,7 @@ struct Machine {                         //
   };                                     //
   struct MachineFpu fpu;                 // FLOATING-POINT REGISTER FILE
   u32 mxcsr;                             // SIMD status control register
-#ifndef __MINGW64_VERSION_MAJOR
   pthread_t thread;                      // POSIX thread of this machine
-#endif
   struct FreeList freelist;              // to make system calls simpler
   struct PageLocks pagelocks;            // track page table entry locks
   struct JitPath path;                   // under construction jit route
@@ -468,12 +468,16 @@ extern _Thread_local struct Machine *g_machine;
 #ifndef __MINGW64_VERSION_MAJOR
 extern const nexgen32e_f kConvert[3];
 extern const nexgen32e_f kSax[3];
+#endif
 
 struct System *NewSystem(struct XedMachineMode);
+#ifndef __MINGW64_VERSION_MAJOR
 void FreeSystem(struct System *);
 void SignalActor(struct Machine *);
 void SetMachineMode(struct Machine *, struct XedMachineMode);
+#endif
 struct Machine *NewMachine(struct System *, struct Machine *);
+#ifndef __MINGW64_VERSION_MAJOR
 i64 AreAllPagesUnlocked(struct System *) nosideeffect;
 bool IsOrphan(struct Machine *) nosideeffect;
 _Noreturn void Blink(struct Machine *);
@@ -482,11 +486,15 @@ void Jitter(P, const char *, ...);
 void FreeMachine(struct Machine *);
 void InvalidateSystem(struct System *, bool, bool);
 void RemoveOtherThreads(struct System *);
+#endif
 void KillOtherThreads(struct System *);
 void ResetCpu(struct Machine *);
+#ifndef __MINGW64_VERSION_MAJOR
 void ResetTlb(struct Machine *);
 void CollectGarbage(struct Machine *, size_t);
+#endif
 void ResetInstructionCache(struct Machine *);
+#ifndef __MINGW64_VERSION_MAJOR
 nexgen32e_f GetOp(long);
 void LoadInstruction(struct Machine *, u64);
 int LoadInstruction2(struct Machine *, u64);

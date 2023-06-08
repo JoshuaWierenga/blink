@@ -129,7 +129,6 @@ char *Commandv(const char *name, char *buf, size_t size) {
   }
   bool res = FindCommand(&ps, "") || (!IsComPath(&ps) && FindCommand(&ps, ".com"));
 #ifdef __MINGW64_VERSION_MAJOR
-  printf("Reaching free: %s\n", syspath);
   free(syspath);
 #endif
   if (res) {

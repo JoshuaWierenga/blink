@@ -195,6 +195,7 @@ long GetMaxVss(struct System *s) {
 long GetMaxRss(struct System *s) {
   return MIN(kMaxResident, Read64(s->rlim[RLIMIT_AS_LINUX].cur)) / 4096;
 }
+#endif
 
 struct System *NewSystem(struct XedMachineMode mode) {
   long i;
@@ -204,7 +205,11 @@ struct System *NewSystem(struct XedMachineMode mode) {
            mode.omode == XED_MODE_LONG);
   unassert(mode.genmode == XED_GEN_MODE_REAL ||  //
            mode.genmode == XED_GEN_MODE_PROTECTED);
+#ifdef __MINGW64_VERSION_MAJOR
+  if (!(s = _mm_malloc(sizeof(*s), _Alignof(struct System)))) {
+#else
   if (posix_memalign((void **)&s, _Alignof(struct System), sizeof(*s))) {
+#endif
     enomem();
     return 0;
   }
@@ -215,7 +220,11 @@ struct System *NewSystem(struct XedMachineMode mode) {
         Mmap(NULL, ROUNDUP(kRealSize, FLAG_pagesize), PROT_READ | PROT_WRITE,
              MAP_PRIVATE | MAP_ANONYMOUS_, -1, 0, "real");
     if (!real) {
+#ifdef __MINGW64_VERSION_MAJOR
+      _mm_free(s);
+#else
       free(s);
+#endif
       enomem();
       return 0;
     }
@@ -249,6 +258,7 @@ struct System *NewSystem(struct XedMachineMode mode) {
   return s;
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 static void FreeMachineUnlocked(struct Machine *m) {
   THR_LOGF("pid=%d tid=%d FreeMachine", m->system->pid, m->tid);
   UnlockRobustFutexes(m);
@@ -260,6 +270,7 @@ static void FreeMachineUnlocked(struct Machine *m) {
   CollectGarbage(m, 0);
   free(m->pagelocks.p);
   free(m->freelist.p);
+  // TODO replace with _mm_free on windows
   free(m);
   if (g_machine == m) {
     g_machine = 0;
@@ -279,6 +290,7 @@ bool IsOrphan(struct Machine *m) {
   UNLOCK(&m->system->machines_lock);
   return res;
 }
+#endif
 
 void KillOtherThreads(struct System *s) {
 #ifdef HAVE_THREADS
@@ -320,6 +332,7 @@ StartOver:
 #endif
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void RemoveOtherThreads(struct System *s) {
 #ifdef HAVE_THREADS
   struct Dll *e, *g;
@@ -357,15 +370,21 @@ void FreeSystem(struct System *s) {
 #ifdef HAVE_JIT
   DestroyJit(&s->jit);
 #endif
+  // TODO replace with _mm_free on windows
   free(s);
 }
+#endif
 
 struct Machine *NewMachine(struct System *system, struct Machine *parent) {
   _Static_assert(IS2POW(kMaxThreadIds), "");
   struct Machine *m;
   unassert(system);
   unassert(!parent || system == parent->system);
+#ifdef __MINGW64_VERSION_MAJOR
+  if (!(m = _mm_malloc(sizeof(*m), _Alignof(struct Machine)))) {
+#else
   if (posix_memalign((void **)&m, _Alignof(struct Machine), sizeof(*m))) {
+#endif
     enomem();
     return 0;
   }
@@ -406,6 +425,7 @@ struct Machine *NewMachine(struct System *system, struct Machine *parent) {
   return m;
 }
 
+#ifndef __MINGW64_VERSION_MAJOR
 void CollectGarbage(struct Machine *m, size_t mark) {
   long i;
   for (i = mark; i < m->freelist.n; ++i) {

@@ -1,10 +1,14 @@
 #ifndef BLINK_LOCK_H_
 #define BLINK_LOCK_H_
 #include "blink/builtin.h"
+// the machine struct has a pthread_t field even if DISABLE_THREADS
+// is set and however posix oses end up including it even without
+// pthread.h wasn't working with mingw-w64
+#if defined(__MINGW64_VERSION_MAJOR) || !defined(DISABLE_THREADS)
+#include <pthread.h>
+#endif
 #ifndef DISABLE_THREADS
 #define HAVE_THREADS
-#include <pthread.h>
-
 #include "blink/assert.h"
 #include "blink/log.h"
 
@@ -51,7 +55,8 @@
 #define pthread_condattr_t_  char
 #define pthread_mutexattr_t_ char
 
-// prevent warning on mingw64 about redefining pthread_sigmask
+// prevent warning on mingw-w64 about redefining these
+#undef pthread_atfork
 #undef pthread_sigmask
 
 #define pthread_self()                     0

@@ -58,8 +58,10 @@ struct Fds {
 
 #ifndef __MINGW64_VERSION_MAJOR
 extern const struct FdCb kFdCbHost;
+#endif
 
 void InitFds(struct Fds *);
+#ifndef __MINGW64_VERSION_MAJOR
 struct Fd *AddFd(struct Fds *, int, int);
 struct Fd *ForkFd(struct Fds *, struct Fd *, int, int);
 struct Fd *GetFd(struct Fds *, int);
