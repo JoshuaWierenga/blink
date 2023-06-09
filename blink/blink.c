@@ -148,9 +148,7 @@ _Alignas(1) static const char USAGE[] =
 #endif
     ;
 
-#ifndef __MINGW64_VERSION_MAJOR
 extern char **environ;
-#endif
 static bool FLAG_nojit;
 static char g_pathbuf[PATH_MAX];
 

@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/fspath.h"
+#include "blink/win.h"
 
 #include <stdlib.h>
 #include <string.h>

@@ -16,7 +16,16 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+// Ensure PIPE_BUF is defined when limits.h is included
+// log.h includes it as well so it must be before that
+#include <stddef.h>
+#ifdef __MINGW64_VERSION_MAJOR
+#define _POSIX_
+#endif
 #include "blink/log.h"
+#ifdef __MINGW64_VERSION_MAJOR
+#undef _POSIX_
+#endif
 
 #include <errno.h>
 #include <fcntl.h>

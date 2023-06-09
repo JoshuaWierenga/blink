@@ -21,6 +21,7 @@
 #include <unistd.h>
 
 #include "blink/util.h"
+#include "blink/win.h"
 
 static char *g_startdir;
 

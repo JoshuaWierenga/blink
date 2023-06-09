@@ -1,7 +1,11 @@
 #ifndef BLINK_WIN_H_
 #define BLINK_WIN_H_
 
+#include <stddef.h>
+
 #ifdef __MINGW64_VERSION_MAJOR
+
+#include <stdint.h>
 
 // Ensure GetFinalPathNameByHandleW is defined, requires vista or newer
 #undef _WIN32_WINNT
@@ -77,6 +81,42 @@ void InitMemory();
 #define AT_FDCWD -100
 
 int faccessat(int dirfd, const char *path, int amode, int flags);
+
+// miscellaneous
+
+#ifdef _PID_T_
+typedef _pid_t	pid_t;
+#endif
+
+#ifdef _OFF_T_
+#if defined(__x86_64__) && defined(_OFF64_T_DEFINED)
+typedef _off64_t off_t;
+#elif defined(__i386__)
+typedef _off32_t off_t;
+#else
+#error off_t is not available despite the relevent\
+header being included, different arch used?
+#endif
+#endif
+
+#define environ _environ
+
+// I disabled emitting of posix macros and functions
+// from windows in preparation for replacing open,
+// need to temporarily redefine the macros that are
+// being used via their internal names
+#define O_RDONLY _O_RDONLY
+#define O_WRONLY _O_WRONLY
+#define O_APPEND _O_APPEND
+#define O_CREAT _O_CREAT
+#define O_ACCMODE _O_ACCMODE
+
+#define close _close
+#define getcwd _getcwd
+#define open _open
+#define strdup _strdup
+#define unlink _unlink
+#define write _write
 
 #else
 

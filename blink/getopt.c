@@ -34,6 +34,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "blink/win.h"
+
 /**
  * @fileoverview Command Line Argument Parser
  *

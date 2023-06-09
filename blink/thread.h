@@ -5,8 +5,11 @@
 // is set and however posix oses end up including it even without
 // pthread.h wasn't working with mingw-w64
 #if defined(__MINGW64_VERSION_MAJOR) || !defined(DISABLE_THREADS)
+#include <sys/types.h>
+#include "blink/win.h"
 #include <pthread.h>
 #endif
+
 #ifndef DISABLE_THREADS
 #define HAVE_THREADS
 #include "blink/assert.h"
