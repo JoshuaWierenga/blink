@@ -10,13 +10,16 @@
 #include "blink/builtin.h"
 #include "blink/types.h"
 
+#ifndef _WIN32
 extern int optind_;
 extern char *optarg_;
 extern const short kCp437[256];
 extern bool g_exitdontabort;
 
 _Noreturn void Abort(void);
+#endif
 char *GetStartDir(void);
+#ifndef _WIN32
 int GetOpt(int, char *const[], const char *);
 u64 tpenc(uint32_t);
 const char *DescribeSignal(int);
@@ -78,6 +81,8 @@ u64 Vigna(u64[1]);
 #undef wcwidth
 #endif
 #define wcwidth wcwidth_
+#endif
+
 #endif
 
 #endif /* BLINK_UTIL_H_ */

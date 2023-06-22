@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#ifndef _WIN32
 #include "blink/builtin.h"
 #include "blink/fds.h"
 #include "blink/machine.h"
@@ -52,9 +53,11 @@
       rc = -1;                       \
     }                                \
   } while (0)
+#endif
 
 extern char *g_blink_path;
 
+#ifndef _WIN32
 void OpSyscall(P);
 
 void SysCloseExec(struct System *);
@@ -84,6 +87,8 @@ void Strace(struct Machine *, const char *, bool, const char *, ...);
 #undef mkfifoat
 #endif
 #define mkfifoat mkfifoat_
+#endif
+
 #endif
 
 #endif /* BLINK_SYSCALL_H_ */

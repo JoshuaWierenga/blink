@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -43,12 +44,18 @@
 #include "blink/signal.h"
 #include "blink/sigwinch.h"
 #include "blink/stats.h"
+#endif
 #include "blink/syscall.h"
+#ifndef _WIN32
 #include "blink/thread.h"
 #include "blink/tunables.h"
+#endif
 #include "blink/util.h"
+#ifndef _WIN32
 #include "blink/vfs.h"
+#endif
 #include "blink/web.h"
+#ifndef _WIN32
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
@@ -360,6 +367,7 @@ void exit(int status) {
   _exit(status);
 }
 #endif
+#endif
 
 int main(int argc, char *argv[]) {
   SetupWeb();
@@ -367,13 +375,8 @@ int main(int argc, char *argv[]) {
 #ifndef DISABLE_STRACE
   setlocale(LC_ALL, "");
 #endif
-  // Ensure utf-8 is printed correctly on windows, this method
-  // has issues(http://stackoverflow.com/a/10884364/4279) but
-  // should work for at least windows 7 and newer.
-#if defined(_WIN32) && !defined(__CYGWIN__)
-  SetConsoleOutputCP(CP_UTF8);
-#endif
   g_blink_path = argc > 0 ? argv[0] : 0;
+#ifndef _WIN32
   WriteErrorInit();
   InitMap();
   GetOpts(argc, argv);
@@ -403,4 +406,7 @@ int main(int argc, char *argv[]) {
   }
   argv[optind_] = g_pathbuf;
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
+#else
+  return 0;
+#endif
 }

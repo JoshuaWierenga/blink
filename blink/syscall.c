@@ -18,6 +18,7 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/syscall.h"
 
+#ifndef _WIN32
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -132,8 +133,10 @@
       Strace(m, name, false, &(signature)[1], ax SYSARGS##arity); \
     }                                                             \
     break
+#endif
 
 char *g_blink_path;
+#ifndef _WIN32
 bool FLAG_statistics;
 
 // delegate to work around function pointer errors, b/c
@@ -5730,3 +5733,4 @@ void OpSyscall(P) {
   CollectGarbage(m, mark);
   m->insyscall = false;
 }
+#endif
