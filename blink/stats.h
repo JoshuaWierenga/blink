@@ -5,6 +5,8 @@
 #include "blink/builtin.h"
 #include "blink/tsan.h"
 
+#ifndef _WIN32
+
 #ifndef NDEBUG
 // we don't care about the accuracy of statistics across threads. some
 // hardware architectures don't even seem to have atomic addition ops.
@@ -40,6 +42,7 @@
 #endif
 #else
 #define GET_COUNTER(S) 0L
+#endif
 #endif
 
 #define DEFINE_COUNTER(S) extern long S;

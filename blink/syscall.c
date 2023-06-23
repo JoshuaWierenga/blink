@@ -20,21 +20,27 @@
 
 #ifndef _WIN32
 #include <dirent.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
+#ifndef _WIN32
 #include <grp.h>
+#endif
 #include <inttypes.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <poll.h>
+#endif
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -45,9 +51,13 @@
 #include <sys/statvfs.h>
 #include <sys/time.h>
 #include <sys/times.h>
+#endif
 #include <sys/types.h>
+#ifndef _WIN32
 #include <sys/wait.h>
+#endif
 #include <time.h>
+#ifndef _WIN32
 #include <unistd.h>
 
 #include "blink/ancillary.h"
@@ -83,6 +93,7 @@
 #include "blink/util.h"
 #include "blink/vfs.h"
 #include "blink/xlat.h"
+#endif
 
 #ifdef __linux
 #include <sys/prctl.h>
@@ -97,6 +108,10 @@
 #include <sys/sockio.h>
 #endif
 
+#ifdef _WIN32
+#include <stdbool.h>
+#endif
+
 #ifdef HAVE_SCHED_H
 #include <sched.h>
 #endif
@@ -109,6 +124,7 @@
 #include <sys/mount.h>
 #endif
 
+#ifndef _WIN32
 #ifdef SO_LINGER_SEC
 #define SO_LINGER_ SO_LINGER_SEC
 #else
@@ -136,9 +152,9 @@
 #endif
 
 char *g_blink_path;
-#ifndef _WIN32
 bool FLAG_statistics;
 
+#ifndef _WIN32
 // delegate to work around function pointer errors, b/c
 // old musl toolchains using `int ioctl(int, int, ...)`
 static int SystemIoctl(int fd, unsigned long request, ...) {

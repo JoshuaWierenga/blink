@@ -16,10 +16,13 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
-#include <direct.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <direct.h>
+#define PATH_MAX _MAX_PATH
+#define strdup _strdup
+#else
 #include <unistd.h>
 #endif
 
@@ -34,15 +37,13 @@ static void FreeStartDir(void) {
 
 char *GetStartDir(void) {
   if (!g_startdir) {
-#ifdef _WIN32
-    char cwd[_MAX_PATH];
-    if (!_getcwd(cwd, sizeof(cwd))) strcpy_s(cwd, _MAX_PATH, ".");
-    g_startdir = _strdup(cwd);
-#else
     char cwd[PATH_MAX];
+#ifdef _WIN32
+    if (!_getcwd(cwd, sizeof(cwd))) strcpy_s(cwd, _MAX_PATH, ".");
+#else
     if (!getcwd(cwd, sizeof(cwd))) strcpy(cwd, ".");
-    g_startdir = strdup(cwd);
 #endif
+    g_startdir = strdup(cwd);
     atexit(FreeStartDir);
   }
   return g_startdir;

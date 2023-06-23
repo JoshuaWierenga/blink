@@ -23,24 +23,36 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #include <unistd.h>
 
 #include "blink/assert.h"
 #include "blink/bitscan.h"
 #include "blink/bus.h"
 #include "blink/debug.h"
+#endif
 #include "blink/log.h"
+#ifndef _WIN32
 #include "blink/macros.h"
+#endif
 #include "blink/tunables.h"
 #include "blink/types.h"
 #include "blink/util.h"
+#ifndef _WIN32
 #include "blink/vfs.h"
+#endif
 
 static long GetSystemPageSize(void) {
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
   // "pages" in Emscripten only refer to the granularity the memory
   // buffer can be grown at but does not affect functions like mmap
   return 4096;
+#elif defined(_WIN32)
+  SYSTEM_INFO info;
+  GetSystemInfo(&info);
+  return (long)info.dwPageSize;  // dwAllocationGranularity?
 #else
   long z;
   unassert((z = sysconf(_SC_PAGESIZE)) > 0);
@@ -49,6 +61,7 @@ static long GetSystemPageSize(void) {
 #endif
 }
 
+#ifndef _WIN32
 static void *PortableMmap(void *addr,     //
                           size_t length,  //
                           int prot,       //
@@ -93,8 +106,25 @@ static void *PortableMmap(void *addr,     //
 #endif
   return res;
 }
+#endif
 
 static int GetBitsInAddressSpace(void) {
+#ifdef _WIN32
+  DWORD msb;
+  BOOLEAN result;
+  MEMORYSTATUSEX state;
+  state.dwLength = sizeof state;
+  GlobalMemoryStatusEx(&state);
+#ifdef _WIN64
+  result = _BitScanReverse64(&msb, state.ullTotalVirtual);
+#else
+  result = _BitScanReverse(&msb, (DWORD)state.ullAvailVirtual);
+#endif
+  // TODO On Windows 10 x86_64 this gives 47 but state.ullTotalVirtual is
+  // 0x7FFFFFFE0000 while GetVirtualAddressSpace gives 0x7FFFFFFFF000 which is
+  // 0x1F000/124KiB more
+  if (result) return (int)msb + 1;
+#else
   int i;
   void *ptr;
   uint64_t want;
@@ -112,6 +142,7 @@ static int GetBitsInAddressSpace(void) {
       return 64 - i;
     }
   }
+#endif
   Abort();
 }
 
@@ -150,6 +181,7 @@ void InitMap(void) {
   FLAG_stacktop = ScaleAddress(kStackTop);
 }
 
+#ifndef _WIN32
 void *Mmap(void *addr,     //
            size_t length,  //
            int prot,       //
@@ -233,3 +265,4 @@ int Msync(void *addr,     //
 #endif
   return res;
 }
+#endif

@@ -20,6 +20,7 @@
 
 #include "blink/builtin.h"
 
+#ifndef _WIN32
 bool FLAG_zero;
 bool FLAG_wantjit;
 bool FLAG_nolinear;
@@ -28,11 +29,14 @@ bool FLAG_nologstderr;
 bool FLAG_alsologtostderr;
 
 int FLAG_strace;
+#endif
 int FLAG_vabits;
 
 long FLAG_pagesize;
 
+#ifndef _WIN32
 u64 FLAG_skew;
+#endif
 u64 FLAG_vaspace;
 u64 FLAG_aslrmask;
 u64 FLAG_stacktop;
@@ -41,6 +45,7 @@ i64 FLAG_automapend;
 i64 FLAG_automapstart;
 u64 FLAG_dyninterpaddr;
 
+#ifndef _WIN32
 const char *FLAG_logpath;
 
 #ifndef DISABLE_OVERLAYS
@@ -50,3 +55,4 @@ const char *FLAG_overlays;
 const char *FLAG_prefix;
 #endif
 const char *FLAG_bios;
+#endif

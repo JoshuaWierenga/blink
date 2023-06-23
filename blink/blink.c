@@ -35,10 +35,14 @@
 #include "blink/flag.h"
 #include "blink/jit.h"
 #include "blink/loader.h"
+#endif
 #include "blink/log.h"
+#ifndef _WIN32
 #include "blink/machine.h"
 #include "blink/macros.h"
+#endif
 #include "blink/map.h"
+#ifndef _WIN32
 #include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/signal.h"
@@ -376,9 +380,9 @@ int main(int argc, char *argv[]) {
   setlocale(LC_ALL, "");
 #endif
   g_blink_path = argc > 0 ? argv[0] : 0;
-#ifndef _WIN32
   WriteErrorInit();
   InitMap();
+#ifndef _WIN32
   GetOpts(argc, argv);
   if (optind_ == argc) {
     PrintUsage(argc, argv, 48, 2);

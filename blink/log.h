@@ -6,6 +6,9 @@
 #include "blink/builtin.h"
 #include "blink/flag.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+#else
 #ifndef NDEBUG
 #define LOG_ENABLED 1
 #else
@@ -122,7 +125,12 @@ void LogInit(const char *);
 void LogSys(const char *, int, const char *, ...) printf_attr(3);
 void LogErr(const char *, int, const char *, ...) printf_attr(3);
 void LogInfo(const char *, int, const char *, ...) printf_attr(3);
+#endif
+#ifdef _WIN32
+int WriteError(HANDLE, const char *, DWORD);
+#else
 int WriteError(int, const char *, int);
+#endif
 void WriteErrorInit(void);
 int WriteErrorString(const char *);
 

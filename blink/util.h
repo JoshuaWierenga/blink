@@ -15,9 +15,9 @@ extern int optind_;
 extern char *optarg_;
 extern const short kCp437[256];
 extern bool g_exitdontabort;
+#endif
 
 _Noreturn void Abort(void);
-#endif
 char *GetStartDir(void);
 #ifndef _WIN32
 int GetOpt(int, char *const[], const char *);
