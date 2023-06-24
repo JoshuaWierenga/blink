@@ -68,9 +68,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='dbg'">
-	<ClCompile>
-	  <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-	</ClCompile>
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='rel'">
     <ClCompile>
@@ -87,28 +87,43 @@
     <ClCompile Include="abort.c" />
     <ClCompile Include="blink.c" />
     <ClCompile Include="errfd.c" />
+    <ClCompile Include="errno.c" />
     <ClCompile Include="flag.c" />
     <ClCompile Include="fspath.c" />
     <ClCompile Include="getopt.c" />
     <ClCompile Include="log.c" />
+    <ClCompile Include="machine.c" />
     <ClCompile Include="map.c" />
+    <ClCompile Include="signal.c" />
     <ClCompile Include="startdir.c" />
     <ClCompile Include="stats.c" />
     <ClCompile Include="syscall.c" />
+    <ClCompile Include="xlat.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="assert.h" />
+    <ClInclude Include="atomic.h" />
     <ClInclude Include="builtin.h" />
+    <ClInclude Include="dll.h" />
+    <ClInclude Include="errno.h" />
     <ClInclude Include="flag.h" />
     <ClInclude Include="fspath.h" />
+    <ClInclude Include="linux.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="machine.h" />
+    <ClInclude Include="macros.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="signal.h" />
     <ClInclude Include="stats.h" />
+    <ClInclude Include="syscall.h" />
+    <ClInclude Include="thread.h" />
     <ClInclude Include="tunables.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="web.h" />
     <ClInclude Include="windows.h" />
+    <ClInclude Include="x86.h" />
+    <ClInclude Include="xlat.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="stats.inc" />

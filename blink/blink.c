@@ -26,8 +26,10 @@
 #ifndef WINBLINK
 #include <sys/resource.h>
 #include <unistd.h>
+#endif
 
 #include "blink/assert.h"
+#ifndef WINBLINK
 #include "blink/builtin.h"
 #include "blink/bus.h"
 #include "blink/case.h"
@@ -45,7 +47,9 @@
 #ifndef WINBLINK
 #include "blink/overlays.h"
 #include "blink/pml4t.h"
+#endif
 #include "blink/signal.h"
+#ifndef WINBLINK
 #include "blink/sigwinch.h"
 #include "blink/stats.h"
 #endif
@@ -239,7 +243,22 @@ void TerminateSignal(struct Machine *m, int sig, int code) {
   unassert(!kill(getpid(), syssig));
   Abort();
 }
+#endif
 
+#ifdef WINBLINK
+static void OnFatalSystemSignal(int sig) {
+  struct Machine *m = g_machine;
+  SIG_LOGF("OnFatalSystemSignal(%s)", DescribeSignal(UnXlatSignal(sig)));
+#ifndef DISABLE_JIT
+  if (IsSelfModifyingCodeSegfault(m, si)) return;
+#endif
+  // TODO Figure out g_siginfo as siginfo_t is not accessable
+  //g_siginfo = *si;
+  unassert(m);
+  unassert(m->canhalt);
+  longjmp(m->onhalt, kMachineFatalSystemSignal);
+}
+#else
 static void OnFatalSystemSignal(int sig, siginfo_t *si, void *ptr) {
   struct Machine *m = g_machine;
 #ifdef __APPLE__
@@ -257,7 +276,9 @@ static void OnFatalSystemSignal(int sig, siginfo_t *si, void *ptr) {
   unassert(m->canhalt);
   siglongjmp(m->onhalt, kMachineFatalSystemSignal);
 }
+#endif
 
+#ifndef WINBLINK
 static void ProgramLimit(struct System *s, int hresource, int gresource) {
   struct rlimit rlim;
   if (!getrlimit(hresource, &rlim)) {
@@ -432,8 +453,15 @@ static void GetOpts(int argc, char *argv[]) {
 #endif
 }
 
-#ifndef WINBLINK
 static void HandleSigs(void) {
+#ifdef WINBLINK
+  unassert(signal(SIGINT, OnSignal) != SIG_ERR);
+  unassert(signal(SIGTERM, OnSignal) != SIG_ERR);
+#if !defined(__SANITIZE_THREAD__) && !defined(__SANITIZE_ADDRESS__)
+  unassert(signal(SIGILL, OnFatalSystemSignal) != SIG_ERR);
+  unassert(signal(SIGSEGV, OnFatalSystemSignal) != SIG_ERR);
+#endif
+#else
   struct sigaction sa;
   signal(SIGPIPE, SIG_IGN);
   sigfillset(&sa.sa_mask);
@@ -457,6 +485,7 @@ static void HandleSigs(void) {
   unassert(!sigaction(SIGTRAP, &sa, 0));
   unassert(!sigaction(SIGSEGV, &sa, 0));
 #endif
+#endif
 }
 
 #if defined(__EMSCRIPTEN__)
@@ -464,7 +493,6 @@ void exit(int status) {
   // main is called multiple times - don't perform cleanup
   _exit(status);
 }
-#endif
 #endif
 
 int main(int argc, char *argv[]) {
@@ -484,7 +512,6 @@ int main(int argc, char *argv[]) {
     PrintUsage(argc, argv, 48, 2);
 #endif
   }
-#ifndef WINBLINK
 #ifndef DISABLE_OVERLAYS
   if (SetOverlays(FLAG_overlays, true)) {
     WriteErrorString("bad blink overlays spec; see log for details\n");
@@ -498,6 +525,7 @@ int main(int argc, char *argv[]) {
   }
 #endif
   HandleSigs();
+#ifndef WINBLINK
   InitBus();
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);

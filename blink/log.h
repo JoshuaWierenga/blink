@@ -49,6 +49,7 @@
 #else
 #define SYS_LOGF(...) (void)0
 #endif
+#endif
 
 #if LOG_SIG
 #define SIG_LOGF(...) LogInfo(__FILE__, __LINE__, "(sig) " __VA_ARGS__)
@@ -56,6 +57,7 @@
 #define SIG_LOGF(...) (void)0
 #endif
 
+#ifndef WINBLINK
 #if LOG_ASM
 #define ASM_LOGF(...) LogInfo(__FILE__, __LINE__, "(asm) " __VA_ARGS__)
 #else

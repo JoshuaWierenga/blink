@@ -4,7 +4,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifndef _WIN32
+#include "blink/windows.h"
+
+#ifndef WINBLINK
 #include "blink/builtin.h"
 #include "blink/fds.h"
 #include "blink/machine.h"
@@ -57,7 +59,7 @@
 
 extern char *g_blink_path;
 
-#ifndef _WIN32
+#ifndef WINBLINK
 void OpSyscall(P);
 
 void SysCloseExec(struct System *);

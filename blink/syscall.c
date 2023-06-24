@@ -76,8 +76,10 @@
 #include "blink/limits.h"
 #include "blink/linux.h"
 #include "blink/loader.h"
+#endif
 #include "blink/log.h"
 #include "blink/machine.h"
+#ifndef WINBLINK
 #include "blink/macros.h"
 #include "blink/map.h"
 #include "blink/ndelay.h"
@@ -85,7 +87,9 @@
 #include "blink/pml4t.h"
 #include "blink/preadv.h"
 #include "blink/random.h"
+#endif
 #include "blink/signal.h"
+#ifndef WINBLINK
 #include "blink/stats.h"
 #include "blink/strace.h"
 #include "blink/swap.h"
@@ -93,8 +97,8 @@
 #include "blink/timespec.h"
 #include "blink/util.h"
 #include "blink/vfs.h"
-#include "blink/xlat.h"
 #endif
+#include "blink/xlat.h"
 
 #ifdef __linux
 #include <sys/prctl.h>
@@ -3789,12 +3793,18 @@ static ssize_t SysGetrandom(struct Machine *m, i64 a, size_t n, int f) {
   }
   return rc;
 }
+#endif
 
+#ifdef WINBLINK
+void OnSignal(int sig) {
+#else
 void OnSignal(int sig, siginfo_t *si, void *uc) {
+#endif
   SIG_LOGF("OnSignal(%s)", DescribeSignal(UnXlatSignal(sig)));
   EnqueueSignal(g_machine, UnXlatSignal(sig));
 }
 
+#ifndef WINBLINK
 static int SysSigaction(struct Machine *m, int sig, i64 act, i64 old,
                         u64 sigsetsize) {
   int syssig;

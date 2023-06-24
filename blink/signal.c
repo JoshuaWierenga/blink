@@ -17,10 +17,12 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/signal.h"
+#include "blink/windows.h"
 
 #include <signal.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef WINBLINK
 #include <unistd.h>
 
 #include "blink/assert.h"
@@ -262,6 +264,7 @@ int ConsumeSignal(struct Machine *m, int *delivered, bool *restart) {
   UNLOCK(&m->system->sig_lock);
   return rc;
 }
+#endif
 
 void EnqueueSignal(struct Machine *m, int sig) {
   if (m && (1 <= sig && sig <= 64)) {
@@ -272,6 +275,7 @@ void EnqueueSignal(struct Machine *m, int sig) {
   }
 }
 
+#ifndef WINBLINK
 void CheckForSignals(struct Machine *m) {
   int sig;
   if (atomic_load_explicit(&m->killed, memory_order_acquire)) {
@@ -289,3 +293,4 @@ void CheckForSignals(struct Machine *m) {
     atomic_store_explicit(&m->attention, false, memory_order_relaxed);
   }
 }
+#endif

@@ -5,22 +5,29 @@
 #include <signal.h>
 #include <stdbool.h>
 
-#include "blink/windows.h"
-
-#ifndef WINBLINK
 #include "blink/atomic.h"
+#include "blink/windows.h"
+#ifndef WINBLINK
 #include "blink/builtin.h"
+#endif
 #include "blink/dll.h"
+#ifndef WINBLINK
 #include "blink/elf.h"
 #include "blink/fds.h"
 #include "blink/jit.h"
+#endif
 #include "blink/linux.h"
+#ifndef WINBLINK
 #include "blink/log.h"
+#endif
 #include "blink/thread.h"
+#ifndef WINBLINK
 #include "blink/tsan.h"
 #include "blink/tunables.h"
+#endif
 #include "blink/x86.h"
 
+#ifndef WINBLINK
 #define kArgRde   1
 #define kArgDisp  2
 #define kArgUimm0 3
@@ -33,9 +40,11 @@
 
 #define kMaxThreadIds 32768
 #define kMinThreadId  262144
+#endif
 
 #define kInstructionBytes 40
 
+#ifndef WINBLINK
 #define kMachineExit                 256
 #define kMachineHalt                 -1
 #define kMachineDecodeError          -2
@@ -47,8 +56,10 @@
 #define kMachineProtectionFault      -8
 #define kMachineSimdException        -9
 #define kMachineExitTrap             -10
+#endif
 #define kMachineFatalSystemSignal    -11
 
+#ifndef WINBLINK
 #define CR0_PE 0x01        // protected mode enabled
 #define CR0_MP 0x02        // monitor coprocessor
 #define CR0_EM 0x04        // no x87 fpu present if set
@@ -116,7 +127,7 @@
 #define HOSTPAGE_CONTAINER(e) DLL_CONTAINER(struct HostPage, elem, e)
 #endif
 
-#if defined(NOLINEAR) || defined(__SANITIZE_THREAD__) || \
+#if defined(NOLINEAR) || defined(__SANITIZE_THREAD__) ||                       \
     defined(__CYGWIN__) || defined(__NetBSD__) || defined(__COSMOPOLITAN__) || \
     defined(WINBLINK)
 #define CanHaveLinearMemory() false
@@ -132,6 +143,7 @@
 #endif
 
 #define HasLinearMapping() (CanHaveLinearMemory() && !FLAG_nolinear)
+#endif
 
 #if CAN_64BIT
 #define _Atomicish(t) _Atomic(t)
@@ -139,6 +151,7 @@
 #define _Atomicish(t) t
 #endif
 
+#ifndef WINBLINK
 MICRO_OP_SAFE u8 *ToHost(i64 v) {
   return (u8 *)(uintptr_t)(v + kSkew);
 }
@@ -151,16 +164,19 @@ static inline i64 ToGuest(void *r) {
 struct Dis;
 struct Machine;
 typedef void (*nexgen32e_f)(P);
+#endif
 
 struct FreeList {
   int n;
   void **p;
 };
 
+#ifndef WINBLINK
 struct HostPage {
   u8 *page;
   struct HostPage *next;
 };
+#endif
 
 struct PageLock {
   i64 page;
@@ -177,6 +193,7 @@ struct PageLocks {
   struct PageLock *p;
 };
 
+#ifndef WINBLINK
 struct FileMap {
   i64 virt;         // start address of map
   i64 size;         // bytes originally mapped
@@ -186,6 +203,7 @@ struct FileMap {
   u64 *present;     // bitset of present pages in [virt,virt+size)
   struct Dll elem;  // see System::filemaps
 };
+#endif
 
 struct MachineFpu {
 #ifndef DISABLE_X87
@@ -199,11 +217,13 @@ struct MachineFpu {
   i64 dp;
 };
 
+#ifndef WINBLINK
 struct MachineMemstat {
   long tables;
   long reserved;
   long committed;
 };
+#endif
 
 // Segment descriptor cache
 // @see Intel Manual V3A §3.4.3
@@ -214,6 +234,7 @@ struct DescriptorCache {
   u64 base;  // base linear address
 };
 
+#ifndef WINBLINK
 struct MachineState {
   u64 ip;
   struct DescriptorCache cs;
@@ -242,6 +263,7 @@ struct Elf {
   i64 at_entry;
   i64 at_phnum;
 };
+#endif
 
 struct OpCache {
   u8 stash[16];   // for memory ops that overlap page
@@ -253,6 +275,7 @@ struct OpCache {
   u64 icache[512][kInstructionBytes / 8];
 };
 
+#ifndef WINBLINK
 struct System {
   struct XedMachineMode mode;
   bool dlab;
@@ -316,6 +339,7 @@ struct System {
 // Default segment selector values in non-metal mode, per Linux 5.9
 #define USER_DS_LINUX 0x2b  // default selector for ss (N.B.)
 #define USER_CS_LINUX 0x33  // default selector for cs
+#endif
 
 struct JitPath {
   int skip;
@@ -404,7 +428,9 @@ struct Machine {                         //
   };                                     //
   struct MachineFpu fpu;                 // FLOATING-POINT REGISTER FILE
   u32 mxcsr;                             // SIMD status control register
+#ifndef WINBLINK                         //
   pthread_t thread;                      // POSIX thread of this machine
+#endif                                   //
   struct FreeList freelist;              // to make system calls simpler
   struct PageLocks pagelocks;            // track page table entry locks
   struct JitPath path;                   // under construction jit route
@@ -432,19 +458,28 @@ struct Machine {                         //
   i8 trapno;                             //
   i8 segvcode;                           //
   struct MachineTlb tlb[32];             //
+#ifdef WINBLINK                          //
+  jmp_buf onhalt;                        //
+#else                                    //
   sigjmp_buf onhalt;                     //
+#endif                                   //
   struct sigaltstack_linux sigaltstack;  //
   i64 robust_list;                       //
   i64 ctid;                              //
   int tid;                               //
+#ifndef WINBLINK                         //
   sigset_t spawn_sigmask;                //
+#endif                                   //
   struct Dll elem;                       //
   struct SmcQueue smcqueue;              //
   struct OpCache opcache[1];             //
 };                                       //
 
+#ifndef WINBLINK
 extern _Thread_local siginfo_t g_siginfo;
+#endif
 extern _Thread_local struct Machine *g_machine;
+#ifndef WINBLINK
 extern const nexgen32e_f kConvert[3];
 extern const nexgen32e_f kSax[3];
 

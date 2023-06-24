@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "blink/windows.h"
+
+#ifndef WINBLINK
 #include "blink/alu.h"
 #include "blink/assert.h"
 #include "blink/atomic.h"
@@ -50,15 +53,19 @@
 #include "blink/string.h"
 #include "blink/swap.h"
 #include "blink/syscall.h"
+#endif
 #include "blink/thread.h"
+#ifndef WINBLINK
 #include "blink/time.h"
 #include "blink/util.h"
 #include "blink/x86.h"
 #include "blink/xlat.h"
 
 _Thread_local siginfo_t g_siginfo;
+#endif
 _Thread_local struct Machine *g_machine;
 
+#ifndef WINBLINK
 static void OpHintNopEv(P) {
 }
 
@@ -2279,3 +2286,4 @@ void HandleFatalSystemSignal(struct Machine *m, const siginfo_t *si) {
   sig = UnXlatSignal(si->si_signo);
   DeliverSignalToUser(m, sig, UnXlatSiCode(sig, si->si_code));
 }
+#endif

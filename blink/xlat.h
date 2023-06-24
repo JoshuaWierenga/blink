@@ -1,11 +1,18 @@
 #ifndef BLINK_XLAT_H_
 #define BLINK_XLAT_H_
+#include "blink/windows.h"
+
+#ifndef WINBLINK
 #include <netinet/in.h>
+#endif
 #include <signal.h>
+#ifndef WINBLINK
 #include <sys/ioctl.h>
 #include <sys/resource.h>
 #include <sys/socket.h>
+#endif
 #include <sys/stat.h>
+#ifndef WINBLINK
 #include <sys/statvfs.h>
 #include <sys/time.h>
 #include <termios.h>
@@ -15,7 +22,9 @@
 int UnXlatSiCode(int, int);
 int UnXlatOpenFlags(int);
 int UnXlatAccMode(int);
+#endif
 int UnXlatSignal(int);
+#ifndef WINBLINK
 int UnXlatItimer(int);
 int XlatAccess(int);
 int XlatClock(int, clock_t *);
@@ -50,5 +59,7 @@ void XlatSigsetToLinux(u8[8], const sigset_t *);
 void XlatLinuxToSigset(sigset_t *, u64);
 void XlatRlimitToLinux(struct rlimit_linux *, const struct rlimit *);
 void XlatLinuxToRlimit(int, struct rlimit *, const struct rlimit_linux *);
+
+#endif
 
 #endif /* BLINK_XLAT_H_ */

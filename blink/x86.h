@@ -16,6 +16,9 @@
 ■■■■■■■■■■■■■▓▓▓▓▓▓▓▓▓▓▓▓▓■■■■■▀▓▓▓■■■■■■■■■■■■■■▀▀■■■■■■■■■■■■▀▓▓▀■■■■■■■■■■■■■
         ║▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓║ */
 
+#include "blink/windows.h"
+
+#ifndef WINBLINK
 #define XED_MODE_REAL   0
 #define XED_MODE_LEGACY 1
 #define XED_MODE_LONG   2
@@ -32,6 +35,7 @@
 #define XED_GEN_MODE_REAL      0
 #define XED_GEN_MODE_PROTECTED 1
 #define XED_GEN_MODE_V86       2  // unimplemented
+#endif
 
 struct XedMachineMode {
   uint8_t omode : 2,  // bitness of operands, for instruction decoding
@@ -44,6 +48,7 @@ struct XedMachineMode {
                       //   XED_GEN_MODE_PROTECTED
 };
 
+#ifndef WINBLINK
 #define XED_MACHINE_MODE_REAL \
   ((struct XedMachineMode){XED_MODE_REAL, XED_GEN_MODE_REAL})
 #define XED_MACHINE_MODE_LEGACY_16 \
@@ -117,5 +122,6 @@ extern const char kXedCopyright[];
 extern const char kXedErrorNames[];
 
 int DecodeInstruction(struct XedDecodedInst *, const void *, size_t, uint64_t);
+#endif
 
 #endif /* BLINK_X86_H_ */

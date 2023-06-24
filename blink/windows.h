@@ -10,7 +10,7 @@
 
 #define BLINK_COMMITS_VALUE 589
 // TODO Fetch from environment as total git commits - BLINK_COMMITS_VALUE
-#define WINBLINK_COMMITS_VALUE 3
+#define WINBLINK_COMMITS_VALUE 4
 
 // TODO Add windows version of ./configure?
 #if defined(DEBUG)

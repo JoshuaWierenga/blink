@@ -1,6 +1,7 @@
 #ifndef BLINK_LOCK_H_
 #define BLINK_LOCK_H_
 #include "blink/builtin.h"
+#include "blink/windows.h"
 #ifndef DISABLE_THREADS
 #define HAVE_THREADS
 #include <pthread.h>
@@ -52,7 +53,9 @@
 #define pthread_mutexattr_t_ char
 
 #define pthread_self()                     0
+#ifndef WINBLINK
 #define pthread_sigmask(x, y, z)           sigprocmask(x, y, z)
+#endif
 #define pthread_setcancelstate(x, y)       ((void)(y), 0)
 #define pthread_mutex_init(x, y)           ((void)(y), 0)
 #define pthread_mutex_destroy(x)           0

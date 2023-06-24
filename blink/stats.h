@@ -2,11 +2,11 @@
 #define BLINK_STATS_H_
 #include <stdbool.h>
 
-#include "blink/builtin.h"
-#include "blink/tsan.h"
 #include "blink/windows.h"
 
+#include "blink/builtin.h"
 #ifndef WINBLINK
+#include "blink/tsan.h"
 
 #ifndef NDEBUG
 // we don't care about the accuracy of statistics across threads. some
