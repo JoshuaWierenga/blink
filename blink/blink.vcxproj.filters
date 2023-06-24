@@ -39,6 +39,15 @@
     <ClCompile Include="stats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="log.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="getopt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fspath.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="web.h">
@@ -63,6 +72,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="machine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fspath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tunables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="windows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

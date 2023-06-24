@@ -17,18 +17,19 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/syscall.h"
+#include "blink/windows.h"
 
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <dirent.h>
 #endif
 #include <errno.h>
 #include <fcntl.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <grp.h>
 #endif
 #include <inttypes.h>
 #include <limits.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <net/if.h>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -40,7 +41,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
@@ -53,11 +54,11 @@
 #include <sys/times.h>
 #endif
 #include <sys/types.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <sys/wait.h>
 #endif
 #include <time.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <unistd.h>
 
 #include "blink/ancillary.h"
@@ -108,7 +109,7 @@
 #include <sys/sockio.h>
 #endif
 
-#ifdef _WIN32
+#ifdef WINBLINK
 #include <stdbool.h>
 #endif
 
@@ -124,7 +125,7 @@
 #include <sys/mount.h>
 #endif
 
-#ifndef _WIN32
+#ifndef WINBLINK
 #ifdef SO_LINGER_SEC
 #define SO_LINGER_ SO_LINGER_SEC
 #else
@@ -154,7 +155,7 @@
 char *g_blink_path;
 bool FLAG_statistics;
 
-#ifndef _WIN32
+#ifndef WINBLINK
 // delegate to work around function pointer errors, b/c
 // old musl toolchains using `int ioctl(int, int, ...)`
 static int SystemIoctl(int fd, unsigned long request, ...) {

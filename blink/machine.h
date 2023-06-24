@@ -5,6 +5,9 @@
 #include <signal.h>
 #include <stdbool.h>
 
+#include "blink/windows.h"
+
+#ifndef WINBLINK
 #include "blink/atomic.h"
 #include "blink/builtin.h"
 #include "blink/dll.h"
@@ -111,14 +114,17 @@
 #define MACHINE_CONTAINER(e)  DLL_CONTAINER(struct Machine, elem, e)
 #define FILEMAP_CONTAINER(e)  DLL_CONTAINER(struct FileMap, elem, e)
 #define HOSTPAGE_CONTAINER(e) DLL_CONTAINER(struct HostPage, elem, e)
+#endif
 
 #if defined(NOLINEAR) || defined(__SANITIZE_THREAD__) || \
-    defined(__CYGWIN__) || defined(__NetBSD__) || defined(__COSMOPOLITAN__)
+    defined(__CYGWIN__) || defined(__NetBSD__) || defined(__COSMOPOLITAN__) || \
+    defined(WINBLINK)
 #define CanHaveLinearMemory() false
 #else
 #define CanHaveLinearMemory() CAN_64BIT
 #endif
 
+#ifndef WINBLINK
 #ifdef HAVE_JIT
 #define IsMakingPath(m) m->path.jb
 #else
@@ -818,5 +824,7 @@ MICRO_OP_SAFE u8 Cpl(struct Machine *m) {
 #define END_NO_PAGE_FAULTS \
   m->nofault = nofault_;   \
   }
+
+#endif
 
 #endif /* BLINK_MACHINE_H_ */

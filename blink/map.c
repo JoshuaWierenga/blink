@@ -17,13 +17,14 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/map.h"
+#include "blink/windows.h"
 
 #include <errno.h>
 #include <inttypes.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
+#ifdef WINBLINK
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -34,13 +35,13 @@
 #include "blink/debug.h"
 #endif
 #include "blink/log.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/macros.h"
 #endif
 #include "blink/tunables.h"
 #include "blink/types.h"
 #include "blink/util.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/vfs.h"
 #endif
 
@@ -49,7 +50,7 @@ static long GetSystemPageSize(void) {
   // "pages" in Emscripten only refer to the granularity the memory
   // buffer can be grown at but does not affect functions like mmap
   return 4096;
-#elif defined(_WIN32)
+#elif defined(WINBLINK)
   SYSTEM_INFO info;
   GetSystemInfo(&info);
   return (long)info.dwPageSize;  // dwAllocationGranularity?
@@ -61,7 +62,7 @@ static long GetSystemPageSize(void) {
 #endif
 }
 
-#ifndef _WIN32
+#ifndef WINBLINK
 static void *PortableMmap(void *addr,     //
                           size_t length,  //
                           int prot,       //
@@ -109,7 +110,7 @@ static void *PortableMmap(void *addr,     //
 #endif
 
 static int GetBitsInAddressSpace(void) {
-#ifdef _WIN32
+#ifdef WINBLINK
   DWORD msb;
   BOOLEAN result;
   MEMORYSTATUSEX state;
@@ -181,7 +182,7 @@ void InitMap(void) {
   FLAG_stacktop = ScaleAddress(kStackTop);
 }
 
-#ifndef _WIN32
+#ifndef WINBLINK
 void *Mmap(void *addr,     //
            size_t length,  //
            int prot,       //

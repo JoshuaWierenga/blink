@@ -232,7 +232,7 @@
 #define printf_attr(n)
 #endif
 
-#ifdef __x86_64__
+#if defined(__x86_64__) || defined(_M_AMD64)
 #define CAN_64BIT 1
 #elif LONG_BIT >= 64
 #define CAN_64BIT 1
@@ -253,8 +253,10 @@
 #define __SANITIZE_UNDEFINED__
 #endif
 
-#if !defined(DISABLE_JIT) && (defined(__x86_64__) || defined(__aarch64__)) && \
-    !defined(__SANITIZE_MEMORY__) && !defined(__SANITIZE_UNDEFINED__) &&      \
+#if !defined(DISABLE_JIT) &&                                             \
+    (defined(__x86_64__) || defined(_M_AMD64) || defined(__aarch64__) || \
+     defined(_M_ARM64)) &&                                               \
+    !defined(__SANITIZE_MEMORY__) && !defined(__SANITIZE_UNDEFINED__) && \
     !defined(__SANITIZE_THREAD__) && !defined(__NetBSD__) && !defined(NOJIT)
 #define HAVE_JIT
 #endif

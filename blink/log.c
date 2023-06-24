@@ -17,6 +17,7 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/log.h"
+#include "blink/windows.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -26,34 +27,45 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifndef WINBLINK
 #include <unistd.h>
 
 #include "blink/assert.h"
+#endif
 #include "blink/fspath.h"
+#ifndef WINBLINK
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/thread.h"
 #include "blink/tsan.h"
 #include "blink/types.h"
+#endif
 #include "blink/util.h"
 
 #define LOG_ERR  0
+#ifndef WINBLINK
 #define LOG_INFO 1
+#endif
 
 #define DEFAULT_LOG_PATH "blink.log"
 
+#ifndef WINBLINK
 #define APPEND(F, ...) n += F(b + n, PIPE_BUF - n, __VA_ARGS__)
+#endif
 
 static struct Log {
   pthread_once_t_ once;
   int level;
+#ifndef WINBLINK
   int fd;
+#endif
   char *path;
 } g_log = {
     PTHREAD_ONCE_INIT_,
     LOG_ERR,
 };
 
+#ifndef WINBLINK
 static char *GetTimestamp(void) {
   int x;
   struct timespec ts;
@@ -170,12 +182,17 @@ void LogSys(const char *file, int line, const char *fmt, ...) {
   Log(file, line, fmt, va, LOG_INFO);
   va_end(va);
 }
+#endif
 
 static void FreeLogPath(void) {
   free(g_log.path);
   g_log.path = 0;
+#ifdef WINBLINK
+  // Using _dupenv_s instead of getenv on windows which requires freeing
+  free(FLAG_logpath);
+  FLAG_logpath = 0;
+#endif
 }
-
 static void SetLogPath(const char *path) {
   if (path) {
     g_log.path = ExpandUser(path);

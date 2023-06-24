@@ -5,16 +5,19 @@
 #include "blink/atomic.h"
 #include "blink/builtin.h"
 #include "blink/flag.h"
+#include "blink/windows.h"
 
-#ifdef _WIN32
+#ifdef WINBLINK
 #include <Windows.h>
-#else
+#endif
+
 #ifndef NDEBUG
 #define LOG_ENABLED 1
 #else
 #define LOG_ENABLED 0
 #endif
 
+#ifndef WINBLINK
 #define LOG_SIG 0  // log signal handling behaviors
 #define LOG_ASM 0  // log executed assembly opcodes
 #define LOG_JIT 0  // just-in-time compilation logs
@@ -120,13 +123,15 @@
 #endif
 
 extern char *g_progname;
+#endif
 
 void LogInit(const char *);
+#ifdef WINBLINK
 void LogSys(const char *, int, const char *, ...) printf_attr(3);
 void LogErr(const char *, int, const char *, ...) printf_attr(3);
 void LogInfo(const char *, int, const char *, ...) printf_attr(3);
 #endif
-#ifdef _WIN32
+#ifdef WINBLINK
 int WriteError(HANDLE, const char *, DWORD);
 #else
 int WriteError(int, const char *, int);

@@ -21,6 +21,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "blink/windows.h"
+
 char *JoinPath(const char *x, const char *y) {
   char *z, *p;
   size_t n, m;
@@ -43,9 +45,18 @@ char *JoinPath(const char *x, const char *y) {
 }
 
 char *ExpandUser(const char *path) {
-  const char *home;
+  char *home;
+  char *finalPath;
+#ifdef WINBLINK
+  // TODO Check if the second parameter is allowed to be NULL
+  if (*path == '~' && _dupenv_s(&home, NULL, "USERPROFILE") == 0) {
+    finalPath = JoinPath(home, path);
+    free(home);
+    return finalPath;
+#else
   if (*path == '~' && (home = getenv("HOME"))) {
     return JoinPath(home, path);
+#endif
   } else {
     return strdup(path);
   }

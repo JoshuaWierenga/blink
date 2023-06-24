@@ -31,8 +31,14 @@
  * $FreeBSD: src/lib/libc/stdlib/getopt.c,v 1.8 2007/01/09 00:28:10 imp Exp $
  * $DragonFly: src/lib/libc/stdlib/getopt.c,v 1.7 2005/11/20 12:37:48 swildner
  */
+#include "blink/windows.h"
+
 #include <string.h>
+#ifdef WINBLINK
+#include <Windows.h>
+#else
 #include <unistd.h>
+#endif
 
 /**
  * @fileoverview Command Line Argument Parser
@@ -74,7 +80,11 @@ static void getopt_print_badch(int argc, char *const argv[], int optopt,
   b[i + 3] = ' ';
   b[i + 4] = optopt;
   b[i + 5] = '\n';
+#ifdef WINBLINK
+  WriteConsoleA(GetStdHandle(STD_ERROR_HANDLE), b, i + 6, NULL, NULL);
+#else
   (void)!write(2, b, i + 6);
+#endif
 }
 
 /**

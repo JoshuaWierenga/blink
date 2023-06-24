@@ -4,8 +4,9 @@
 
 #include "blink/builtin.h"
 #include "blink/tsan.h"
+#include "blink/windows.h"
 
-#ifndef _WIN32
+#ifndef WINBLINK
 
 #ifndef NDEBUG
 // we don't care about the accuracy of statistics across threads. some

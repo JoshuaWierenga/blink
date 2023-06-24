@@ -16,14 +16,15 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include "blink/windows.h"
+
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
+#ifdef WINBLINK
 #include <direct.h>
-#define PATH_MAX _MAX_PATH
-#define strdup _strdup
 #else
 #include <unistd.h>
+#define strcpy_s(d, l, s) strcpy(d, S)
 #endif
 
 #include "blink/util.h"
@@ -38,11 +39,7 @@ static void FreeStartDir(void) {
 char *GetStartDir(void) {
   if (!g_startdir) {
     char cwd[PATH_MAX];
-#ifdef _WIN32
-    if (!_getcwd(cwd, sizeof(cwd))) strcpy_s(cwd, _MAX_PATH, ".");
-#else
-    if (!getcwd(cwd, sizeof(cwd))) strcpy(cwd, ".");
-#endif
+    if (!getcwd(cwd, sizeof(cwd))) strcpy_s(cwd, PATH_MAX, ".");
     g_startdir = strdup(cwd);
     atexit(FreeStartDir);
   }

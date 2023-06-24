@@ -16,11 +16,13 @@
 │ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR             │
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
+#include "blink/windows.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
+#ifdef WINBLINK
 #include <Windows.h>
 #else
 #include <unistd.h>
@@ -32,21 +34,21 @@
 #include "blink/tunables.h"
 
 // TODO: Decide on if to use windows's limited fd support
-#ifdef _WIN32
+#ifdef WINBLINK
 static HANDLE g_errh = INVALID_HANDLE_VALUE;
 #else
 static int g_errfd;
 #endif
 
 int WriteErrorString(const char *buf) {
-#ifdef _WIN32
+#ifdef WINBLINK
   return WriteError(INVALID_HANDLE_VALUE, buf, (DWORD)strlen(buf));
 #else
   return WriteError(0, buf, strlen(buf));
 #endif
 }
 
-#ifdef _WIN32
+#ifdef WINBLINK
 int WriteError(HANDLE h, const char *buf, DWORD len) {
 #else
 int WriteError(int fd, const char *buf, int len) {
@@ -55,22 +57,24 @@ int WriteError(int fd, const char *buf, int len) {
 #ifdef HAVE_PTHREAD_SETCANCELSTATE
   unassert(!pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs));
 #endif
-#ifdef _WIN32
-  // TODO: Are there any reasons this could fail for which its worth trying again?
+#ifdef WINBLINK
+  // TODO: Are there any reasons this could fail for which its worth trying
+  // again?
   // TODO: Handle unicode
-  rc = WriteConsole(h != INVALID_HANDLE_VALUE ? h : g_errh, buf, len, NULL, NULL);
+  rc = WriteConsoleA(h != INVALID_HANDLE_VALUE ? h : g_errh, buf, len, NULL,
+                    NULL);
 #else
   do rc = write(fd > 0 ? fd : g_errfd, buf, len);
   while (rc == -1 && errno == EINTR);
 #endif
 #ifdef HAVE_PTHREAD_SETCANCELSTATE
-      unassert(!pthread_setcancelstate(cs, 0));
+  unassert(!pthread_setcancelstate(cs, 0));
 #endif
   return rc;
 }
 
 void WriteErrorInit(void) {
-#ifdef _WIN32
+#ifdef WINBLINK
   if (g_errh != INVALID_HANDLE_VALUE) return;
   if (DuplicateHandle(GetCurrentProcess(), GetStdHandle(STD_ERROR_HANDLE),
                       GetCurrentProcess(), &g_errh, 0, FALSE,

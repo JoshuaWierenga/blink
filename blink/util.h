@@ -9,9 +9,10 @@
 
 #include "blink/builtin.h"
 #include "blink/types.h"
+#include "blink/windows.h"
 
-#ifndef _WIN32
 extern int optind_;
+#ifndef WINBLINK
 extern char *optarg_;
 extern const short kCp437[256];
 extern bool g_exitdontabort;
@@ -19,8 +20,8 @@ extern bool g_exitdontabort;
 
 _Noreturn void Abort(void);
 char *GetStartDir(void);
-#ifndef _WIN32
 int GetOpt(int, char *const[], const char *);
+#ifndef WINBLINK
 u64 tpenc(uint32_t);
 const char *DescribeSignal(int);
 const char *DescribeHostErrno(int);

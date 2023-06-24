@@ -19,11 +19,14 @@
 #include "blink/flag.h"
 
 #include "blink/builtin.h"
+#include "blink/windows.h"
 
-#ifndef _WIN32
+#ifndef WINBLINK
 bool FLAG_zero;
 bool FLAG_wantjit;
+#endif
 bool FLAG_nolinear;
+#ifndef WINBLINK
 bool FLAG_noconnect;
 bool FLAG_nologstderr;
 bool FLAG_alsologtostderr;
@@ -34,7 +37,7 @@ int FLAG_vabits;
 
 long FLAG_pagesize;
 
-#ifndef _WIN32
+#ifndef WINBLINK
 u64 FLAG_skew;
 #endif
 u64 FLAG_vaspace;
@@ -45,9 +48,9 @@ i64 FLAG_automapend;
 i64 FLAG_automapstart;
 u64 FLAG_dyninterpaddr;
 
-#ifndef _WIN32
-const char *FLAG_logpath;
+char *FLAG_logpath;
 
+#ifndef WINBLINK
 #ifndef DISABLE_OVERLAYS
 const char *FLAG_overlays;
 #endif

@@ -21,7 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef _WIN32
+
+#include "blink/windows.h"
+#ifndef WINBLINK
 #include <sys/resource.h>
 #include <unistd.h>
 
@@ -37,12 +39,10 @@
 #include "blink/loader.h"
 #endif
 #include "blink/log.h"
-#ifndef _WIN32
 #include "blink/machine.h"
 #include "blink/macros.h"
-#endif
 #include "blink/map.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/overlays.h"
 #include "blink/pml4t.h"
 #include "blink/signal.h"
@@ -50,58 +50,103 @@
 #include "blink/stats.h"
 #endif
 #include "blink/syscall.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/thread.h"
-#include "blink/tunables.h"
 #endif
+#include "blink/tunables.h"
 #include "blink/util.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/vfs.h"
 #endif
 #include "blink/web.h"
-#ifndef _WIN32
+#ifndef WINBLINK
 #include "blink/x86.h"
 #include "blink/xlat.h"
+#endif
+
+#ifdef _MSC_VER
+// TODO clang-diagnostic says #warning is supported on C2x, check with msvc
+// Based on
+// https://goodliffe.blogspot.com/2009/07/c-how-to-say-warning-to-visual-studio-c.html
+#define FLAG "/D"
+#define WARNING(desc) \
+  _Pragma(STRINGISE(  \
+      message(__FILE__ "(" STRINGISE(__LINE__) ") : warning: " desc)))
+#else
+#define FLAG          "-D"
+#define WARNING(desc) _Pragma(STRINGISE(GCC warning desc))
+#endif
 
 #ifndef BUILD_TIMESTAMP
 #define BUILD_TIMESTAMP __TIMESTAMP__
 #endif
 #ifndef BUILD_MODE
 #define BUILD_MODE "BUILD_MODE_UNKNOWN"
-#warning "-DBUILD_MODE=... should be passed to blink/blink.c"
+WARNING(FLAG "BUILD_MODE=... should be passed to blink/blink.c")
 #endif
 #ifndef BUILD_TOOLCHAIN
 #define BUILD_TOOLCHAIN "BUILD_TOOLCHAIN_UNKNOWN"
-#warning "-DBUILD_TOOLCHAIN=... should be passed to blink/blink.c"
+WARNING(FLAG "BUILD_TOOLCHAIN=... should be passed to blink/blink.c")
 #endif
 #ifndef BLINK_VERSION
 #define BLINK_VERSION "BLINK_VERSION_UNKNOWN"
-#warning "-DBLINK_VERSION=... should be passed to blink/blink.c"
+WARNING(FLAG "BLINK_VERSION=... should be passed to blink/blink.c")
 #endif
 #ifndef BLINK_COMMITS
 #define BLINK_COMMITS "BLINK_COMMITS_UNKNOWN"
-#warning "-DBLINK_COMMITS=... should be passed to blink/blink.c"
+WARNING(FLAG "BLINK_COMMITS=... should be passed to blink/blink.c")
 #endif
 #ifndef BLINK_GITSHA
 #define BLINK_GITSHA "BLINK_GITSHA_UNKNOWN"
-#warning "-DBLINK_GITSHA=... should be passed to blink/blink.c"
+WARNING(FLAG "BLINK_GITSHA=... should be passed to blink/blink.c")
 #endif
 #ifndef CONFIG_ARGUMENTS
 #define CONFIG_ARGUMENTS "CONFIG_ARGUMENTS_UNKNOWN"
-#warning "-DCONFIG_ARGUMENTS=... should be passed to blink/blink.c"
+WARNING(FLAG "CONFIG_ARGUMENTS=... should be passed to blink/blink.c")
+#endif
+#ifndef WINBLINK_VERSION
+#define WINBLINK_VERSION "WINBLINK_VERSION_UNKNOWN"
+WARNING(FLAG "WINBLINK_VERSION = ... should be passed to blink/blink.c")
+#endif
+#ifndef WINBLINK_COMMITS
+#define WINBLINK_COMMITS "WINBLINK_COMMITS_UNKNOWN"
+WARNING(FLAG "WINBLINK_COMMITS = ... should be passed to blink/blink.c")
+#endif
+#ifndef WINBLINK_GITSHA
+#define WINBLINK_GITSHA "WINBLINK_GITSHA_UNKNOWN"
+WARNING(FLAG "WINBLINK_GITSHA = ... should be passed to blink/blink.c")
+#endif
+
+#ifdef WINBLINK
+#define WINBLINK_VER_INFO "Winblink " WINBLINK_VERSION "\n"
+#define BLINK_REV_PREFIX  "Blink "
+#define WINBLINK_REV_INFO \
+  "Winblink Revision: #" WINBLINK_COMMITS " " WINBLINK_GITSHA "\n"
+#define CONFIG_PROGRAM
+#else
+#define WINBLINK_VER_INFO
+#define BLINK_REV_PREFIX
+#define WINBLINK_REV_INFO
+#define CONFIG_PROGRAM "./configure "
 #endif
 
 #define VERSION \
   "Blink Virtual Machine " BLINK_VERSION " (" BUILD_TIMESTAMP ")\n\
+" WINBLINK_VER_INFO "\
 Copyright (c) 2023 Justine Alexandra Roberts Tunney\n\
 Blink comes with absolutely NO WARRANTY of any kind.\n\
 You may redistribute copies of Blink under the ISC License.\n\
 For more information, see the file named LICENSE.\n\
 Toolchain: " BUILD_TOOLCHAIN "\n\
-Revision: #" BLINK_COMMITS " " BLINK_GITSHA "\n\
-Config: ./configure MODE=" BUILD_MODE " " CONFIG_ARGUMENTS "\n"
+" BLINK_REV_PREFIX "Revision: #" BLINK_COMMITS " " BLINK_GITSHA "\n\
+" WINBLINK_REV_INFO "\
+Config: " CONFIG_PROGRAM "MODE=" BUILD_MODE " " CONFIG_ARGUMENTS "\n"
 
+#ifdef WINBLINK
+#define OPTS "hvjm"
+#else
 #define OPTS "hvjemZs0L:C:"
+#endif
 
 _Alignas(1) static const char USAGE[] =
     " [-" OPTS "] PROG [ARGS...]\n"
@@ -111,11 +156,14 @@ _Alignas(1) static const char USAGE[] =
     "  -j                   disable jit\n"
 #endif
     "  -v                   show version\n"
+#ifndef WINBLINK
 #ifndef NDEBUG
     "  -e                   also log to stderr\n"
 #endif
     "  -0                   to specify argv[0]\n"
+#endif
     "  -m                   enable memory safety\n"
+#ifndef WINBLINK
 #if !defined(DISABLE_STRACE) && !defined(TINY)
     "  -s                   enable system call logging\n"
 #endif
@@ -139,10 +187,14 @@ _Alignas(1) static const char USAGE[] =
 
     "  $BLINK_LOG_FILENAME  log filename (same as -L flag)\n"
 #endif
+#endif
     ;
 
+#ifndef WINBLINK
 extern char **environ;
+#endif
 static bool FLAG_nojit;
+#ifndef WINBLINK
 static char g_pathbuf[PATH_MAX];
 
 static void OnSigSys(int sig) {
@@ -257,7 +309,20 @@ static int Exec(char *execfn, char *prog, char **argv, char **envp) {
   }
   Blink(m);
 }
+#endif
 
+#ifdef WINBLINK
+static void Print(HANDLE h, const char *s) {
+  WriteConsoleA(h, s, (DWORD)strlen(s), NULL, NULL);
+}
+
+_Noreturn static void PrintUsage(int argc, char *argv[], int rc, HANDLE h) {
+  Print(h, "Usage: ");
+  Print(h, argc > 0 && argv[0] ? argv[0] : "blink");
+  Print(h, USAGE);
+  exit(rc);
+}
+#else
 static void Print(int fd, const char *s) {
   (void)!write(fd, s, strlen(s));
 }
@@ -268,9 +333,14 @@ _Noreturn static void PrintUsage(int argc, char *argv[], int rc, int fd) {
   Print(fd, USAGE);
   exit(rc);
 }
+#endif
 
 _Noreturn static void PrintVersion(void) {
+#ifdef WINBLINK
+  Print(GetStdHandle(STD_OUTPUT_HANDLE), VERSION);
+#else
   Print(1, VERSION);
+#endif
   exit(0);
 }
 
@@ -285,28 +355,42 @@ static void GetOpts(int argc, char *argv[]) {
   FLAG_prefix = getenv("BLINK_PREFIX");
 #endif
 #if LOG_ENABLED
+#ifdef WINBLINK
+  // TODO Check if the second parameter is allowed to be NULL
+  _dupenv_s(&FLAG_logpath, NULL, "BLINK_LOG_FILENAME");
+#else
   FLAG_logpath = getenv("BLINK_LOG_FILENAME");
 #endif
+#endif
+#if defined(__COSMOPOLITAN__) || defined(WINBLINK)
 #ifdef __COSMOPOLITAN__
   if (IsWindows()) {
+#endif
     FLAG_nojit = true;
     FLAG_nolinear = true;
+#ifdef __COSMOPOLITAN__
   }
+#endif
 #endif
   while ((opt = GetOpt(argc, argv, OPTS)) != -1) {
     switch (opt) {
+#ifndef WINBLINK
       case '0':
         FLAG_zero = true;
         break;
+#endif
       case 'j':
         FLAG_nojit = true;
         break;
+#ifndef WINBLINK
       case 's':
         ++FLAG_strace;
         break;
+#endif
       case 'm':
         FLAG_nolinear = true;
         break;
+#ifndef WINBLINK
       case 'Z':
         FLAG_statistics = true;
         break;
@@ -326,12 +410,21 @@ static void GetOpts(int argc, char *argv[]) {
             "error: overlays and vfs support were both disabled\n");
 #endif
         break;
+#endif
       case 'v':
         PrintVersion();
       case 'h':
+#ifdef WINBLINK
+        PrintUsage(argc, argv, 0, GetStdHandle(STD_OUTPUT_HANDLE));
+#else
         PrintUsage(argc, argv, 0, 1);
+#endif
       default:
+#ifdef WINBLINK
+        PrintUsage(argc, argv, 48, GetStdHandle(STD_ERROR_HANDLE));
+#else
         PrintUsage(argc, argv, 48, 2);
+#endif
     }
   }
 #if LOG_ENABLED
@@ -339,6 +432,7 @@ static void GetOpts(int argc, char *argv[]) {
 #endif
 }
 
+#ifndef WINBLINK
 static void HandleSigs(void) {
   struct sigaction sa;
   signal(SIGPIPE, SIG_IGN);
@@ -382,11 +476,15 @@ int main(int argc, char *argv[]) {
   g_blink_path = argc > 0 ? argv[0] : 0;
   WriteErrorInit();
   InitMap();
-#ifndef _WIN32
   GetOpts(argc, argv);
   if (optind_ == argc) {
+#ifdef WINBLINK
+    PrintUsage(argc, argv, 48, GetStdHandle(STD_ERROR_HANDLE));
+#else
     PrintUsage(argc, argv, 48, 2);
+#endif
   }
+#ifndef WINBLINK
 #ifndef DISABLE_OVERLAYS
   if (SetOverlays(FLAG_overlays, true)) {
     WriteErrorString("bad blink overlays spec; see log for details\n");

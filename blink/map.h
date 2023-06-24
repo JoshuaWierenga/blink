@@ -1,7 +1,9 @@
 #ifndef BLINK_MAP_H_
 #define BLINK_MAP_H_
+#include "blink/windows.h"
+
 #include <errno.h>
-#ifndef _WIN32
+#ifndef WINBLINK
 #include <sys/mman.h>
 
 #include "blink/builtin.h"
@@ -54,13 +56,12 @@
 #endif
 
 void InitMap(void);
-#ifndef _WIN32
+#ifndef WINBLINK
 int Munmap(void *, size_t);
 int Msync(void *, size_t, int, const char *);
 void *Mmap(void *, size_t, int, int, int, off_t, const char *);
 int Mprotect(void *, size_t, int, const char *);
 void OverridePageSize(long);
-
 #endif
 
 #endif /* BLINK_MAP_H_ */

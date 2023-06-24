@@ -18,4 +18,7 @@
 #define ARRAYLEN(A) \
   ((long)((sizeof(A) / sizeof(*(A))) / ((unsigned)!(sizeof(A) % sizeof(*(A))))))
 
+#define STRINGISE_HELPER(x) #x
+#define STRINGISE(x)        STRINGISE_HELPER(x)
+
 #endif /* BLINK_MACROS_H_ */
