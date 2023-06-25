@@ -29,9 +29,9 @@
 #endif
 
 #include "blink/assert.h"
-#ifndef WINBLINK
 #include "blink/builtin.h"
 #include "blink/bus.h"
+#ifndef WINBLINK
 #include "blink/case.h"
 #include "blink/debug.h"
 #include "blink/dll.h"
@@ -525,8 +525,8 @@ int main(int argc, char *argv[]) {
   }
 #endif
   HandleSigs();
-#ifndef WINBLINK
   InitBus();
+#ifndef WINBLINK
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
     WriteErrorString(": command not found: ");

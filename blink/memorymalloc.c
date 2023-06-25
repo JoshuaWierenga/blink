@@ -18,10 +18,18 @@
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include <stdlib.h>
 #include <string.h>
+
+#include "blink/windows.h"
+#ifdef WINBLINK
+#include <windows.h>
+#else
 #include <sys/mman.h>
 #include <unistd.h>
+#endif
+#include <sys/types.h>
 
 #include "blink/assert.h"
+#ifndef WINBLINK
 #include "blink/atomic.h"
 #include "blink/bitscan.h"
 #include "blink/builtin.h"
@@ -34,7 +42,9 @@
 #include "blink/log.h"
 #include "blink/machine.h"
 #include "blink/macros.h"
+#endif
 #include "blink/map.h"
+#ifndef WINBLINK
 #include "blink/pml4t.h"
 #include "blink/random.h"
 #include "blink/thread.h"
@@ -91,7 +101,65 @@ static void FreeFileMap(struct FileMap *fm) {
     free(fm);
   }
 }
+#endif
 
+#ifdef WINBLINK
+void FreeBig(void *p, size_t n) {
+  MEMORY_BASIC_INFORMATION memInfo;
+  if (!p) return;
+#ifdef DEBUG
+  unassert(VirtualQuery(p, &memInfo, sizeof memInfo) != 0);
+  unassert(memInfo.AllocationBase == p);
+  unassert((memInfo.AllocationProtect & ~(PAGE_READONLY | PAGE_READWRITE)) ==
+           0);
+  // RegionSize is not the size given to VirtualAlloc but the total number of
+  // bytes starting at p with the same attributes and could be larger if another
+  // VirtualAlloc call allocated memory right after the memory being freed now.
+  // Therefore this only catches n being larger than all contiguous allocations
+  // with the same attributes starting at p.
+  unassert(memInfo.RegionSize >= n);
+  unassert(memInfo.State == MEM_COMMIT);
+  unassert(memInfo.Type == MEM_PRIVATE);
+#endif
+  unassert(VirtualFree(p, 0, MEM_RELEASE));
+}
+
+// I expect this implementation is quite bad but it should work for now
+// Only R/RW page file backed allocations ala mmap(..., PROT_READ | PROT_WRITE,
+// MAP_PRIVATE | MAP_ANONYMOUS, ...) are supported currently.
+void *AllocateBig(size_t n, int prot, int flags, int fd, off_t off) {
+  DWORD ntProt;
+  void *p;
+  MEMORY_BASIC_INFORMATION memInfo;
+
+  unassert((prot & ~(PROT_READ | PROT_WRITE)) == 0);
+  unassert(flags == (MAP_PRIVATE | MAP_ANONYMOUS_));
+  unassert(fd == -1);
+  unassert(off == 0);
+
+  if (prot == PROT_READ) {
+    ntProt = PAGE_READONLY;
+  } else {
+    ntProt = PAGE_READWRITE;
+  }
+
+  if ((p = VirtualAlloc(NULL, n, MEM_COMMIT | MEM_RESERVE, ntProt))) {
+#ifdef DEBUG
+    unassert(VirtualQuery(p, &memInfo, sizeof memInfo) != 0);
+    unassert(memInfo.AllocationBase == p);
+    unassert(memInfo.AllocationProtect == ntProt);
+    // RegionSize is not the size given to VirtualAlloc but the total number of
+    // bytes starting at p with the same attributes and could be larger if
+    // another VirtualAlloc call allocated memory right after the newly
+    // allocated memory.
+    unassert(memInfo.RegionSize >= n);
+    unassert(memInfo.State == MEM_COMMIT);
+    unassert(memInfo.Type == MEM_PRIVATE);
+#endif
+  }
+  return p;
+}
+#else
 void FreeBig(void *p, size_t n) {
   if (!p) return;
   unassert(!Munmap(p, n));
@@ -1405,3 +1473,4 @@ i64 ConvertHostToGuestAddress(struct System *s, void *ha, u64 *out_pte) {
     return (uintptr_t)ha;
   }
 }
+#endif

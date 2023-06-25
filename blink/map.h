@@ -22,6 +22,7 @@
 #define sys_icache_invalidate(addr, size) \
   __builtin___clear_cache((char *)(addr), (char *)(addr) + (size));
 #endif
+#endif
 
 #ifdef HAVE_MAP_ANONYMOUS
 #define MAP_ANONYMOUS_ MAP_ANONYMOUS
@@ -29,6 +30,7 @@
 #define MAP_ANONYMOUS_ 0x10000000
 #endif
 
+#ifndef WINBLINK
 // MAP_DEMAND means use MAP_FIXED only if it won't clobber other maps
 #if defined(MAP_FIXED_NOREPLACE) && !defined(__SANITIZE_THREAD__)
 // The mmap() address parameter without MAP_FIXED is documented by

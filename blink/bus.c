@@ -17,21 +17,28 @@
 │ PERFORMANCE OF THIS SOFTWARE.                                                │
 ╚─────────────────────────────────────────────────────────────────────────────*/
 #include "blink/bus.h"
+#include "blink/windows.h"
 
 #include <limits.h>
 
 #include "blink/assert.h"
+#ifndef WINBLINK
 #include "blink/atomic.h"
 #include "blink/builtin.h"
 #include "blink/dll.h"
 #include "blink/endian.h"
+#endif
 #include "blink/machine.h"
 #include "blink/macros.h"
 #include "blink/map.h"
+#ifndef WINBLINK
 #include "blink/rde.h"
 #include "blink/swap.h"
+#endif
 #include "blink/thread.h"
+#ifndef WINBLINK
 #include "blink/tsan.h"
+#endif
 
 #ifdef HAVE_PTHREAD_PROCESS_SHARED
 #define BUS_MEMORY MAP_SHARED
@@ -68,6 +75,7 @@ void InitBus(void) {
   unassert(!pthread_condattr_destroy(&cattr));
 }
 
+#ifndef WINBLINK
 void LockBus(const u8 *locality) {
   /* A locked instruction is guaranteed to lock only the area of memory
      defined by the destination operand, but may be interpreted by the
@@ -368,3 +376,4 @@ i64 ReadRegisterOrMemoryBW(u64 rde, u8 p[8]) {
     return ReadMemoryBW(rde, p);
   }
 }
+#endif

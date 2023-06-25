@@ -4,6 +4,7 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <sys/types.h>
 
 #include "blink/atomic.h"
 #include "blink/windows.h"
@@ -680,10 +681,12 @@ void Op2f5(P);
 void Op2f6(P);
 void OpShx(P);
 void OpRorx(P);
+#endif
 
 void FreeBig(void *, size_t);
 void *AllocateBig(size_t, int, int, int, off_t);
 
+#ifndef WINBLINK
 u64 MaskAddress(u32, u64);
 i64 GetIp(struct Machine *);
 i64 GetPc(struct Machine *);

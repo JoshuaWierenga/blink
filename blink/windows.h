@@ -1,6 +1,7 @@
 #ifndef WINBLINK_WINDOWS_H_
 #define WINBLINK_WINDOWS_H_
 
+#include "blink/linux.h"
 #include "blink/tunables.h"
 
 // Can extend this to old icc, mingw and mingw-w64 as required, some have more
@@ -10,7 +11,7 @@
 
 #define BLINK_COMMITS_VALUE 589
 // TODO Fetch from environment as total git commits - BLINK_COMMITS_VALUE
-#define WINBLINK_COMMITS_VALUE 4
+#define WINBLINK_COMMITS_VALUE 5
 
 // TODO Add windows version of ./configure?
 #if defined(DEBUG)
@@ -39,5 +40,9 @@
 #define PATH_MAX _MAX_PATH
 #define getcwd   _getcwd
 #define strdup   _strdup
+
+#define PROT_READ     PROT_READ_LINUX
+#define PROT_WRITE    PROT_WRITE_LINUX
+#define MAP_PRIVATE   MAP_PRIVATE_LINUX
 
 #endif /* WINBLINK_WINDOWS_H_ */

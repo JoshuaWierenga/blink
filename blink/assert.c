@@ -21,7 +21,8 @@
 #include <errno.h>
 #include <stdio.h>
 
-#include "blink/debug.h"
+#include "blink/windows.h"
+
 #include "blink/flag.h"
 #include "blink/log.h"
 #include "blink/machine.h"
@@ -34,6 +35,12 @@ void AssertFailed(const char *file, int line, const char *msg) {
   WriteErrorString("assertion failed\n");
   if (!noreentry) {
     noreentry = true;
+#ifdef WINBLINK
+    snprintf(bp, sizeof(bp),
+             "%s:%d:%d assertion failed: %s (%i)\n",
+             file, line, g_machine ? g_machine->tid : 666, msg,
+             errno);
+#else
     FLAG_nologstderr = false;
     RestoreIp(g_machine);
     snprintf(bp, sizeof(bp),
@@ -43,6 +50,7 @@ void AssertFailed(const char *file, int line, const char *msg) {
              file, line, g_machine ? g_machine->tid : 666, msg,
              DescribeHostErrno(errno), GetBacktrace(g_machine),
              GetBlinkBacktrace());
+#endif
     WriteErrorString(bp);
   }
   Abort();

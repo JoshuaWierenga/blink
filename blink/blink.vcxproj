@@ -85,7 +85,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="abort.c" />
+    <ClCompile Include="assert.c" />
     <ClCompile Include="blink.c" />
+    <ClCompile Include="bus.c" />
+    <ClCompile Include="dll.c" />
     <ClCompile Include="errfd.c" />
     <ClCompile Include="errno.c" />
     <ClCompile Include="flag.c" />
@@ -94,6 +97,7 @@
     <ClCompile Include="log.c" />
     <ClCompile Include="machine.c" />
     <ClCompile Include="map.c" />
+    <ClCompile Include="memorymalloc.c" />
     <ClCompile Include="signal.c" />
     <ClCompile Include="startdir.c" />
     <ClCompile Include="stats.c" />
@@ -104,6 +108,7 @@
     <ClInclude Include="assert.h" />
     <ClInclude Include="atomic.h" />
     <ClInclude Include="builtin.h" />
+    <ClInclude Include="bus.h" />
     <ClInclude Include="dll.h" />
     <ClInclude Include="errno.h" />
     <ClInclude Include="flag.h" />

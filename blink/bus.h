@@ -7,6 +7,8 @@
 #include "blink/atomic.h"
 #include "blink/builtin.h"
 #include "blink/dll.h"
+#include "blink/windows.h"
+#ifndef WINBLINK
 #include "blink/endian.h"
 #include "blink/spin.h"
 #include "blink/thread.h"
@@ -15,6 +17,7 @@
 #include "blink/types.h"
 
 #define FUTEX_CONTAINER(e) DLL_CONTAINER(struct Futex, elem, e)
+#endif
 
 struct Futex {
   i64 addr;
@@ -45,9 +48,12 @@ struct Bus {
   struct Futexes futexes;
 };
 
+#ifndef WINBLINK
 extern struct Bus *g_bus;
+#endif
 
 void InitBus(void);
+#ifndef WINBLINK
 void LockBus(const u8 *);
 void UnlockBus(const u8 *);
 
@@ -110,5 +116,7 @@ static inline bool CasPte(u8 *pte, u64 oldval, u64 newval) {
   return CasPte32_(pte, oldval, newval);
 #endif
 }
+
+#endif
 
 #endif /* BLINK_MOP_H_ */

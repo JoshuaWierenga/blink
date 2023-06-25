@@ -42,7 +42,9 @@ static inline struct Dll *dll_prev(struct Dll *list, struct Dll *e) {
 
 #ifndef WINBLINK
 void dll_make_first(struct Dll **, struct Dll *);
+#endif
 void dll_make_last(struct Dll **, struct Dll *);
+#ifndef WINBLINK
 void dll_remove(struct Dll **, struct Dll *);
 void dll_splice_after(struct Dll *, struct Dll *);
 #endif
