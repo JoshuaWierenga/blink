@@ -23,6 +23,9 @@
 
 #include "blink/windows.h"
 
+#ifndef WINBLINK
+#include "blink/debug.h"
+#endif
 #include "blink/flag.h"
 #include "blink/log.h"
 #include "blink/machine.h"

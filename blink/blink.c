@@ -198,9 +198,9 @@ _Alignas(1) static const char USAGE[] =
 extern char **environ;
 #endif
 static bool FLAG_nojit;
-#ifndef WINBLINK
 static char g_pathbuf[PATH_MAX];
 
+#ifndef WINBLINK
 static void OnSigSys(int sig) {
   // do nothing
 }
@@ -252,8 +252,8 @@ static void OnFatalSystemSignal(int sig) {
 #ifndef DISABLE_JIT
   if (IsSelfModifyingCodeSegfault(m, si)) return;
 #endif
-  // TODO Figure out g_siginfo as siginfo_t is not accessable
-  //g_siginfo = *si;
+  // TODO Figure out g_siginfo as siginfo_t is not accessible
+  // g_siginfo = *si;
   unassert(m);
   unassert(m->canhalt);
   longjmp(m->onhalt, kMachineFatalSystemSignal);
@@ -526,7 +526,6 @@ int main(int argc, char *argv[]) {
 #endif
   HandleSigs();
   InitBus();
-#ifndef WINBLINK
   if (!Commandv(argv[optind_], g_pathbuf, sizeof(g_pathbuf))) {
     WriteErrorString(argv[0]);
     WriteErrorString(": command not found: ");
@@ -535,6 +534,7 @@ int main(int argc, char *argv[]) {
     exit(127);
   }
   argv[optind_] = g_pathbuf;
+#ifndef WINBLINK
   return Exec(g_pathbuf, g_pathbuf, argv + optind_ + FLAG_zero, environ);
 #else
   return 0;

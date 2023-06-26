@@ -268,7 +268,7 @@ int ConsumeSignal(struct Machine *m, int *delivered, bool *restart) {
 
 void EnqueueSignal(struct Machine *m, int sig) {
   if (m && (1 <= sig && sig <= 64)) {
-    m->signals |= 1ul << (sig - 1);
+    m->signals |= 1ull << (sig - 1);
     if ((m->signals & ~m->sigmask)) {
       atomic_store_explicit(&m->attention, true, memory_order_release);
     }

@@ -23,23 +23,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "blink/windows.h"
+#ifdef WINBLINK
+#include <Windows.h>
+#else
 #include <unistd.h>
 
 #include "blink/builtin.h"
 #include "blink/overlays.h"
+#endif
 #include "blink/util.h"
+#ifndef WINBLINK
 #include "blink/vfs.h"
+#endif
 
 struct PathSearcher {
   char *path;
   size_t pathlen;
   size_t namelen;
   const char *name;
-  const char *syspath;
+  char *syspath;
 };
 
-static char EndsWithIgnoreCase(const char *p, unsigned long n, const char *s) {
-  unsigned long i, m;
+static char EndsWithIgnoreCase(const char *p, size_t n, const char *s) {
+  size_t i, m;
   if (n >= (m = strlen(s))) {
     for (i = n - m; i < n; ++i) {
       if (tolower(p[i]) != *s++) {
@@ -59,28 +67,90 @@ static char IsComPath(struct PathSearcher *ps) {
 }
 
 static char AccessCommand(struct PathSearcher *ps, const char *suffix,
-                          unsigned long pathlen) {
-  unsigned long suffixlen;
+                          size_t pathlen) {
+  size_t suffixlen;
+#ifdef WINBLINK
+  char fullpath[PATH_MAX] = {0};
+  DWORD filesecuritysize, privilegeslength, useraccessrequest, useraccessactual;
+  PSECURITY_DESCRIPTOR filesecurity;
+  HANDLE usertoken, impersonatedusertoken;
+  GENERIC_MAPPING accessmapping;
+  PRIVILEGE_SET privileges;
+  BOOL accessstatus;
+  bool fileexecutable;
+#endif
   suffixlen = strlen(suffix);
   if (pathlen + 1 + ps->namelen + suffixlen + 1 > ps->pathlen) return 0;
   if (pathlen && ps->path[pathlen - 1] != '/') ps->path[pathlen++] = '/';
   memcpy(ps->path + pathlen, ps->name, ps->namelen);
   memcpy(ps->path + pathlen + ps->namelen, suffix, suffixlen + 1);
+#ifdef WINBLINK
+  fileexecutable = 0;
+  fullpath[0] = 0;
+  if (GetFullPathNameA(ps->path, sizeof fullpath, fullpath, NULL) == 0 ||
+      fullpath[0] == 0) {
+    return 0;
+  }
+  // Based on https://blog.aaronballman.com/2011/08/how-to-check-access-rights/
+  GetFileSecurityA(fullpath,
+                   OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                       DACL_SECURITY_INFORMATION,
+                   NULL, 0, &filesecuritysize);
+  if (ERROR_INSUFFICIENT_BUFFER != GetLastError()) return 0;
+  if (!(filesecurity = malloc(filesecuritysize))) return 0;
+  if (GetFileSecurityA(fullpath,
+                       OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION |
+                           DACL_SECURITY_INFORMATION,
+                       filesecurity, filesecuritysize, &filesecuritysize)) {
+    if (OpenProcessToken(GetCurrentProcess(), TOKEN_DUPLICATE, &usertoken)) {
+      if (DuplicateToken(usertoken, SecurityImpersonation,
+                         &impersonatedusertoken)) {
+        // TODO Check if execute is useful here, the binary is a elf binary so
+        // can't run directly on windows. Should this be FILE_GENERIC_READ?
+        useraccessrequest = FILE_GENERIC_EXECUTE;
+        accessmapping =
+            (GENERIC_MAPPING){FILE_GENERIC_READ, FILE_GENERIC_WRITE,
+                              FILE_GENERIC_EXECUTE, FILE_ALL_ACCESS};
+        privilegeslength = sizeof privileges;
+        if (AccessCheck(filesecurity, impersonatedusertoken, useraccessrequest,
+                        &accessmapping, &privileges, &privilegeslength,
+                        &useraccessactual, &accessstatus)) {
+          fileexecutable = accessstatus == TRUE;
+        }
+        CloseHandle(impersonatedusertoken);
+      }
+      CloseHandle(usertoken);
+    }
+    free(filesecurity);
+  }
+
+  return (char)fileexecutable;
+
+#else
   return !VfsAccess(AT_FDCWD, ps->path, X_OK, 0);
+#endif
 }
 
-static char SearchPath(struct PathSearcher *ps, const char *suffix) {
+static char BlinkSearchPath(struct PathSearcher *ps, const char *suffix) {
   const char *p;
-  unsigned long i;
+  size_t i;
   for (p = ps->syspath;;) {
+#ifdef WINBLINK
+    for (i = 0; p[i] && p[i] != ';'; ++i) {
+#else
     for (i = 0; p[i] && p[i] != ':'; ++i) {
+#endif
       if (i < ps->pathlen) {
         ps->path[i] = p[i];
       }
     }
     if (AccessCommand(ps, suffix, i)) {
       return 1;
+#ifdef WINBLINK
+    } else if (p[i] == ';') {
+#else
     } else if (p[i] == ':') {
+#endif
       p += i + 1;
     } else {
       return 0;
@@ -96,7 +166,7 @@ static char FindCommand(struct PathSearcher *ps, const char *suffix) {
   } else {
     if (AccessCommand(ps, suffix, 0)) return 1;
   }
-  return SearchPath(ps, suffix);
+  return BlinkSearchPath(ps, suffix);
 }
 
 /**
@@ -104,13 +174,34 @@ static char FindCommand(struct PathSearcher *ps, const char *suffix) {
  */
 char *Commandv(const char *name, char *buf, size_t size) {
   struct PathSearcher ps;
+#ifdef WINBLINK
+  char sysroot[_MAX_PATH];
+  size_t sysrootlen, syspathlen;
+#endif
+  bool res;
   ps.path = buf;
   ps.pathlen = size;
-  ps.syspath = getenv("PATH");
-  if (!ps.syspath) ps.syspath = "/usr/local/bin:/bin:/usr/bin";
   if (!(ps.namelen = strlen((ps.name = name)))) return 0;
   if (ps.namelen + 1 > ps.pathlen) return 0;
-  if (FindCommand(&ps, "") || (!IsComPath(&ps) && FindCommand(&ps, ".com"))) {
+#ifdef WINBLINK
+  if (_dupenv_s(&ps.syspath, NULL, "PATH")) {
+    if (getenv_s(&sysrootlen, sysroot, sizeof sysroot, "SystemRoot")) return 0;
+    if (sysrootlen == 0) return 0;
+    syspathlen = snprintf(NULL, 0, "%s\\System32;%s;%s\\System32\\wbem",
+                          sysroot, sysroot, sysroot);
+    if (!(ps.syspath = malloc((syspathlen + 1) * sizeof *ps.syspath))) return 0;
+    snprintf(ps.syspath, syspathlen + 1, "%s\\System32;%s;%s\\System32\\wbem",
+             sysroot, sysroot, sysroot);
+  }
+#else
+  ps.syspath = getenv("PATH");
+  if (!ps.syspath) ps.syspath = "/usr/local/bin:/bin:/usr/bin";
+#endif
+  res = FindCommand(&ps, "") || (!IsComPath(&ps) && FindCommand(&ps, ".com"));
+#ifdef WINBLINK
+  free(ps.syspath);
+#endif
+  if (res) {
     return ps.path;
   } else {
     return 0;

@@ -24,7 +24,7 @@
 #include <direct.h>
 #else
 #include <unistd.h>
-#define strcpy_s(d, l, s) strcpy(d, S)
+#define strcpy_s(d, l, s) strcpy(d, s)
 #endif
 
 #include "blink/util.h"
